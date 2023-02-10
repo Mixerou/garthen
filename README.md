@@ -56,6 +56,7 @@ Use it to communicate your intent to the project developers.
 - `*` - it selects all available scopes
 - `repo` - changes that not effect project modules (example: ci, readme, etc.)
 - `web-cl` - changes that effects `Web Client` module
+- `gl-api` - changes that effects `Global API` module
 
 #### Exclamation mark
 

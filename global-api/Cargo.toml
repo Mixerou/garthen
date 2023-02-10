@@ -1,0 +1,17 @@
+[package]
+name = "garthen-global-api"
+version = "0.0.1"
+authors = ["Ivan <contact@mixero.dev>"]
+edition = "2021"
+description = "Global API module of the Garthen Project"
+readme = "README.md"
+homepage = "https://garthen.mixero.dev/api/v0"
+repository = "https://github.com/Mixerou/garthen"
+
+[dependencies]
+actix-web = "4.3.0"
+dotenv = "0.15.0"
+env_logger = "0.10.0"
+log = "0.4.17"
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.91"
