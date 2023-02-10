@@ -1,0 +1,35 @@
+{
+  "name": "garthen-web-client",
+  "version": "0.0.1",
+  "description": "Web client module of the Garthen Project",
+  "author": {
+    "name": "Ivan",
+    "email": "contact@mixero.dev",
+    "url": "https://github.com/Mixerou/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mixerou/garthen.git"
+  },
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "lint:eslint": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
+    "lint:prettier": "prettier --ignore-path .gitignore --check .",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "lint:fix": "prettier --ignore-path .gitignore --write --list-different . && npm run lint:eslint -- --fix"
+  },
+  "devDependencies": {
+    "@nuxtjs/i18n": "^8.0.0-beta.9",
+    "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-nuxt": "^4.0.0",
+    "eslint-plugin-vue": "^9.9.0",
+    "nuxt": "^3.2.0",
+    "prettier": "^2.8.4",
+    "sass": "^1.58.0"
+  }
+}
