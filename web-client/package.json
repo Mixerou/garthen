@@ -9,7 +9,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Mixerou/garthen.git"
+    "url": "https://github.com/Mixerou/garthen.git",
+    "directory": "web-client"
   },
   "private": true,
   "scripts": {
