@@ -59,6 +59,7 @@ Use it to communicate your intent to the project developers.
 - `gl-api` - changes that effects `Global API` module
 - `db` - changes that effects `Database` library
 - `eetf` - changes that effects `Serde EETF` library
+- `snowflake` - changes that effects `Snowlake Generator` library
 
 #### Exclamation mark
 
