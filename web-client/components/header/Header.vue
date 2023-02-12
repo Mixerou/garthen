@@ -3,7 +3,7 @@
 <template>
   <header>
     <GarthenLogo />
-    <Profile />
+    <Profile hide-card-when-card-modal-opened avatar-only-in-card-on-mobile />
   </header>
 </template>
 

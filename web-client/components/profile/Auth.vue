@@ -1,0 +1,231 @@
+<script setup>
+const { t, locale } = useI18n()
+const system = useSystemStore()
+const user = useUserStore()
+
+const isRegistrationTemplate = ref(false)
+const isLoading = ref(false)
+
+const email = ref('')
+const username = ref('')
+const password = ref('')
+const confirmedPassword = ref('')
+
+const isEmailIncorrect = ref(false)
+const isUsernameIncorrect = ref(false)
+const isPasswordIncorrect = ref(false)
+const isConfirmedPasswordIncorrect = ref(false)
+
+const switchTemplate = () => {
+  isRegistrationTemplate.value = !isRegistrationTemplate.value
+}
+
+const auth = () => {
+  isEmailIncorrect.value = false
+  isUsernameIncorrect.value = false
+  isPasswordIncorrect.value = false
+  isConfirmedPasswordIncorrect.value = false
+
+  // TODO: Make better validation
+  setTimeout(() => {
+    if (email.value < 3 || !email.value.includes('@')) {
+      isEmailIncorrect.value = true
+    }
+
+    if (password.value.length < 8) {
+      isPasswordIncorrect.value = true
+    }
+
+    if (isRegistrationTemplate.value) {
+      if (username.value.length < 3) {
+        isUsernameIncorrect.value = true
+      }
+
+      if (
+        confirmedPassword.value !== password.value ||
+        confirmedPassword.value === ''
+      ) {
+        isConfirmedPasswordIncorrect.value = true
+      }
+    }
+
+    if (isEmailIncorrect.value || isPasswordIncorrect.value) return
+    if (
+      isRegistrationTemplate.value &&
+      (isUsernameIncorrect.value || isConfirmedPasswordIncorrect.value)
+    )
+      return
+
+    isLoading.value = true
+
+    // Fake delay
+    setTimeout(() => {
+      isLoading.value = false
+
+      user.login(
+        email.value,
+        username.value === '' ? 'John Smith' : username.value
+      )
+
+      // TODO: Make it safe
+      system.unregisterActiveModal()
+    }, 1500)
+  }, 1)
+}
+</script>
+
+<template>
+  <div class="container">
+    <transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
+      <h5 v-if="isRegistrationTemplate">{{ t('signUp', 2) }}</h5>
+      <h5 v-else>{{ $t('signIn', 2) }}</h5>
+    </transition>
+
+    <div class="credentials">
+      <TransitionGroup enter-from-class="hide" leave-to-class="hide">
+        <GarthenInput
+          key="email-field"
+          v-model:text="email"
+          type="email"
+          :disabled="isLoading"
+          :error="isEmailIncorrect"
+          :placeholder="t('inputs.email')"
+        />
+        <GarthenInput
+          v-if="isRegistrationTemplate"
+          key="username-field"
+          v-model:text="username"
+          :disabled="isLoading"
+          :error="isUsernameIncorrect"
+          :placeholder="t('inputs.username')"
+        />
+        <GarthenInput
+          key="password-field"
+          v-model:text="password"
+          type="password"
+          :disabled="isLoading"
+          :error="isPasswordIncorrect"
+          :placeholder="t('inputs.password')"
+        />
+        <GarthenInput
+          v-if="isRegistrationTemplate"
+          key="password-confirmation-field"
+          v-model:text="confirmedPassword"
+          type="password"
+          :disabled="isLoading"
+          :error="isConfirmedPasswordIncorrect"
+          :placeholder="t('inputs.passwordConfirmation')"
+        />
+      </TransitionGroup>
+    </div>
+
+    <div class="buttons">
+      <GarthenButton :disabled="isLoading" @click="switchTemplate">
+        <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
+          <span v-if="isRegistrationTemplate">{{ $t('signIn') }}</span>
+          <!--      TODO: Change the template so that t('signUp', 1) is displayed well in Russian -->
+          <span v-else>{{ t('signUp', 2) }}</span>
+        </Transition>
+      </GarthenButton>
+
+      <GarthenButton :loading="isLoading" @click="auth">
+        <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
+          <span v-if="locale !== 'ru-RU'">{{ $t('go') }}</span>
+          <span v-else-if="isRegistrationTemplate">{{ $t('go') }}</span>
+          <span v-else>{{ $t('signIn') }}</span>
+        </Transition>
+      </GarthenButton>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 18rem;
+  max-width: calc(100vw - 5rem);
+  padding: 1rem 1.5rem;
+  border-radius: var(--large-radius);
+  box-shadow: var(--large-shadow);
+  background: var(--primary);
+  color: var(--primary-layer-0-color);
+
+  h5 {
+    font-weight: 900;
+    transition-duration: var(--fast-transition-duration);
+  }
+
+  .credentials {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+
+    input {
+      border-color: #ffffff66;
+      color: var(--primary-layer-0-color);
+
+      &:focus {
+        border-color: #ffffff;
+      }
+
+      &::placeholder {
+        color: var(--primary-layer-0-color);
+      }
+
+      &.v-enter-active,
+      &.v-leave-active {
+        transition: var(--default-transition);
+      }
+    }
+
+    .hide {
+      margin-bottom: -3.25rem;
+      opacity: 0;
+
+      @include medium-screen {
+        margin-bottom: -3.5rem;
+      }
+    }
+  }
+
+  .buttons {
+    display: flex;
+    gap: 0.5rem;
+
+    button span {
+      transition-duration: var(--fast-transition-duration);
+    }
+  }
+
+  .hide {
+    opacity: 0;
+  }
+}
+</style>
+
+<i18n lang="json">
+{
+  "en-GB": {
+    "signUp": "Register",
+    "inputs": {
+      "email": "Email",
+      "username": "Username",
+      "password": "Password",
+      "passwordConfirmation": "Confirm password"
+    }
+  },
+  "ru-RU": {
+    "signUp": "Зарегистрироваться | Регистрация",
+    "inputs": {
+      "email": "Адрес эл. почты",
+      "username": "Имя пользователя",
+      "password": "Пароль",
+      "passwordConfirmation": "Подтвердить пароль"
+    }
+  }
+}
+</i18n>

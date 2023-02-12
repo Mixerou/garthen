@@ -1,6 +1,12 @@
 <script setup>
+const system = useSystemStore()
+const user = useUserStore()
 const { locale, locales, t } = useI18n()
 const localeCookie = useCookie('locale', {
+  expires: new Date(Date.now() * 2),
+})
+// TODO: Remove
+const devUserCredentialsCookie = useCookie('dev_user_credentials', {
   expires: new Date(Date.now() * 2),
 })
 
@@ -42,12 +48,26 @@ useHead({
     },
   ],
 })
+
+onMounted(() => {
+  if (user.isLoggedIn) {
+    setTimeout(() => {
+      // TODO: Retrieve it from the server
+      const credentials = devUserCredentialsCookie.value
+
+      user.login(credentials.email, credentials.username)
+    }, 1500)
+  }
+})
 </script>
 
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div id="app">
+    <div id="modals" />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </div>
 </template>
 
 <style lang="scss">

@@ -5,11 +5,17 @@ defineProps({
     required: false,
     default: false,
   },
+  loading: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 </script>
 
 <template>
-  <button :disabled="disabled">
+  <button :class="{ loading }" :disabled="disabled || loading">
+    <GarthenLoader class="loader" :stop="!loading" />
     <div class="content">
       <slot />
     </div>
@@ -38,7 +44,7 @@ button {
     padding: 0 1.75rem;
   }
 
-  &:not(:disabled) {
+  &:not(.loading):not(:disabled) {
     &:hover,
     &:focus-visible {
       background: var(--primary-500);
@@ -53,7 +59,24 @@ button {
 
   &:disabled {
     background: var(--primary-500);
-    cursor: not-allowed;
+
+    &:not(.loading) {
+      cursor: not-allowed;
+    }
+  }
+
+  &.loading {
+    cursor: wait;
+
+    .content {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    .loader {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
   }
 
   .content {
@@ -61,6 +84,22 @@ button {
     align-items: center;
     gap: 0.5rem;
     transition: var(--fast-transition-duration);
+  }
+
+  .loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.25rem;
+    height: 1.25rem;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.25);
+    transition: var(--fast-transition-duration);
+
+    @include medium-screen {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
   }
 }
 </style>
