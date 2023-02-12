@@ -1,0 +1,13 @@
+[package]
+name = "passwd"
+version = "0.1.0"
+authors = ["Ivan <contact@mixero.dev>"]
+edition = "2021"
+description = "Pure Rust implementation of the Argon2 password hashing function"
+readme = "README.md"
+homepage = "https://github.com/Mixerou/garthen"
+repository = "https://github.com/Mixerou/garthen"
+
+[dependencies]
+argon2 = "0.4.1"
+rand_core = { version = "0.6.4", features = ["std"] }
