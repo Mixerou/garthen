@@ -1,0 +1,16 @@
+@mixin default-widths {
+  width: calc($xxl-breakpoint * 1.5);
+  max-width: calc(100vw - 2rem);
+
+  @include medium-screen {
+    max-width: calc(100vw - 6rem);
+  }
+
+  @include large-screen {
+    max-width: calc(100vw - 8rem);
+  }
+
+  @include xl-screen {
+    max-width: calc(100vw - 12rem);
+  }
+}

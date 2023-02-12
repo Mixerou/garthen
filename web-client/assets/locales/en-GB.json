@@ -3,5 +3,6 @@
     "description": {
       "short": "Greenhouse tools"
     }
-  }
+  },
+  "signIn": "Sign in"
 }

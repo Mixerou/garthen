@@ -1,9 +1,24 @@
 <script setup></script>
 
 <template>
-  <main>
-    <slot />
-  </main>
+  <div id="default-layout">
+    <Header />
+    <main>
+      <slot />
+    </main>
+  </div>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped>
+#default-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+
+  main,
+  .header {
+    @include default-widths;
+  }
+}
+</style>

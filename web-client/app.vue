@@ -64,6 +64,10 @@ useHead({
 }
 
 body {
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
   overflow-x: hidden;
   background: var(--layer-0-background);
   color: var(--layer-0-color);

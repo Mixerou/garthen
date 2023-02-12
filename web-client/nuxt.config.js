@@ -60,7 +60,8 @@ export default defineNuxtConfig({
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: '@import "@/assets/styles/mixins/_screens.scss";',
+          additionalData:
+            '@import "@/assets/styles/mixins/_screens.scss"; @import "@/assets/styles/mixins/_widths.scss";',
         },
       },
     },
