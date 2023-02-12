@@ -1,0 +1,16 @@
+[package]
+name = "db"
+version = "0.1.0"
+authors = ["Ivan <contact@mixero.dev>"]
+edition = "2021"
+description = "DB is the most productive way to interact with database"
+readme = "README.md"
+homepage = "https://github.com/Mixerou/garthen"
+repository = "https://github.com/Mixerou/garthen"
+
+[dependencies]
+diesel = { version = "2.0.3", features = ["r2d2", "postgres"] }
+diesel_migrations = { version = "2.0.0", features = ["postgres"] }
+lazy_static = "1.4.0"
+log = "0.4.17"
+r2d2 = "0.8.10"

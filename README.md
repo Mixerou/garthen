@@ -57,6 +57,7 @@ Use it to communicate your intent to the project developers.
 - `repo` - changes that not effect project modules (example: ci, readme, etc.)
 - `web-cl` - changes that effects `Web Client` module
 - `gl-api` - changes that effects `Global API` module
+- `db` - changes that effects `Database` library
 - `eetf` - changes that effects `Serde EETF` library
 
 #### Exclamation mark
