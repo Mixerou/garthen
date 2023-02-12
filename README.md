@@ -57,6 +57,7 @@ Use it to communicate your intent to the project developers.
 - `repo` - changes that not effect project modules (example: ci, readme, etc.)
 - `web-cl` - changes that effects `Web Client` module
 - `gl-api` - changes that effects `Global API` module
+- `eetf` - changes that effects `Serde EETF` library
 
 #### Exclamation mark
 
@@ -99,6 +100,8 @@ $ git commit -m "refactor(repo): fix typo in README file"
 ## Versioning
 
 All modules in this repository use [semantic versioning](https://semver.org/) and the same version.
+
+> Libraries also use semantic versioning, but have their own version.
 
 ### Explanation
 
