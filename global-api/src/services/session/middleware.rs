@@ -54,7 +54,7 @@ impl<S, B> Service<ServiceRequest> for CheckSessionMiddleware<S>
         ) {
             Ok(session) => session,
             Err(error) => {
-                match error.status_code {
+                match error.http_code {
                     404 => {
                         match Session::create() {
                             Ok(session) => {
