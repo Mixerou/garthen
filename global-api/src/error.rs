@@ -1,6 +1,8 @@
 use std::fmt;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
+use diesel::result::Error as DieselError;
+use r2d2::Error as R2d2Error;
 use serde::Deserialize;
 use serde_json::json;
 
@@ -22,6 +24,25 @@ impl ApiError {
 impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(self.message.as_str())
+    }
+}
+
+impl From<R2d2Error> for ApiError {
+    fn from(error: R2d2Error) -> ApiError {
+        ApiError::new(500, format!("r2d2 error: {error}"))
+    }
+}
+
+impl From<DieselError> for ApiError {
+    fn from(error: DieselError) -> ApiError {
+        match error {
+            DieselError::NotFound => {
+                ApiError::new(404, "Record not found".to_string())
+            },
+            error => {
+                ApiError::new(500, format!("Diesel error: {error}"))
+            },
+        }
     }
 }
 

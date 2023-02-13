@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate log;
+extern crate snowflake_generator as snowflake;
 
 use std::env;
 
@@ -15,6 +16,9 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init();
 
+    db::init();
+    snowflake::init();
+
     let ip = env::var("GLOBAL_API_IP").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("GLOBAL_API_PORT").unwrap_or_else(|_| "5000".to_string());
     let path = env::var("GLOBAL_API_PATH").unwrap_or_else(|_| "".to_string());
@@ -27,6 +31,10 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope(path.as_str())
                     .configure(services::system::init_routes)
+                    .service(
+                        web::scope("")
+                            .wrap(services::session::middleware::CheckSession)
+                    )
             )
     })
         .bind(format!("{ip}:{port}"))?
