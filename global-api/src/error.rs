@@ -51,6 +51,17 @@ impl fmt::Display for ApiError {
     }
 }
 
+impl From<Error> for ApiError {
+    fn from(error: Error) -> ApiError {
+        ApiError::new(
+            500,
+            None,
+            format!("std error: {error}"),
+            Some(ApiErrorKind::StdError(error)),
+        )
+    }
+}
+
 impl From<R2d2Error> for ApiError {
     fn from(error: R2d2Error) -> ApiError {
         ApiError::new(
