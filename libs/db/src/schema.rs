@@ -12,8 +12,7 @@ diesel::table! {
         id -> Int8,
         email -> Varchar,
         password_hash -> Text,
-        username -> Nullable<Varchar>,
-        permissions -> Int8,
+        username -> Varchar,
         created_at -> Timestamp,
     }
 }
