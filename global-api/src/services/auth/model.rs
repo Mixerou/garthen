@@ -81,6 +81,12 @@ impl Auth {
 
         Ok(())
     }
+
+    pub fn logout(session_id: i64) -> Result<(), ApiError> {
+        Session::update_user_id(session_id, None)?;
+
+        Ok(())
+    }
 }
 
 #[derive(Deserialize, Serialize)]

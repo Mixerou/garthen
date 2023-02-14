@@ -25,7 +25,17 @@ pub async fn login(
     Ok(HttpResponse::NoContent().finish())
 }
 
+#[post("/auth/logout")]
+pub async fn logout(session: web::ReqData<Session>) -> Result<HttpResponse, ApiError> {
+    if session.user_id.is_some() {
+        Auth::logout(session.id)?;
+    }
+
+    Ok(HttpResponse::NoContent().finish())
+}
+
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(register);
     cfg.service(login);
+    cfg.service(logout);
 }
