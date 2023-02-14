@@ -134,5 +134,5 @@ macro_rules! api_error_template {
 }
 
 api_error_template! {
-    (400, None, NotFound, "Not found");
+    (404, None, NotFound, "Not found");
 }
