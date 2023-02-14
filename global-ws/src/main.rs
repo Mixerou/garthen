@@ -17,6 +17,7 @@ use crate::server::{Encoding, Socket, WebSocketConnection};
 mod error;
 mod messages;
 mod server;
+mod services;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct QueryParams {
@@ -41,6 +42,7 @@ async fn main() -> std::io::Result<()> {
     dotenv().unwrap();
     env_logger::init();
 
+    db::init();
     snowflake::init();
 
     let ip = env::var("GLOBAL_WS_IP").unwrap_or_else(|_| "127.0.0.1".to_string());

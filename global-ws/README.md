@@ -15,6 +15,7 @@ $ cargo build --release --target=<arch><sub>-<vendor>-<sys>-<abi>
 
 ## Environment Variables
 
+[`DATABASE_URL`]: ../libs/db/README.md#environment-variables
 [`SNOWFLAKE_MACHINE_ID`]: ../libs/snowflake-generator/README.md#environment-variables
 [`SNOWFLAKE_NODE_ID`]: ../libs/snowflake-generator/README.md#environment-variables
 
@@ -24,5 +25,6 @@ $ cargo build --release --target=<arch><sub>-<vendor>-<sys>-<abi>
 | `GLOBAL_WS_IP`           |  `127.0.0.1`  | IP on which the Global WS will run.                                                                                           |
 | `GLOBAL_WS_PORT`         |    `9000`     | The port that the Global WS will listen to.                                                                                   |
 | `GLOBAL_WS_PATH`         | Empty string  | Domain path to Global WS. Do not add `/` at the end.                                                                          |
+| [`DATABASE_URL`]         |       -       | URL to your postgres database in the format `postgres://{username}:{password}@{domain/ip}/garthen`.                           |
 | [`SNOWFLAKE_MACHINE_ID`] |       -       | The ID of the machine on which the application is running.                                                                    |
 | [`SNOWFLAKE_NODE_ID`]    |       -       | The ID of the node on which the application is running.                                                                       |

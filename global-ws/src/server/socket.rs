@@ -9,6 +9,7 @@ use actix_web_actors::ws::WebsocketContext;
 use crate::error::{WebSocketCloseError, WebSocketError, WebSocketErrorTemplate};
 use crate::messages::{AuthorizationMessage, DisconnectionMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::WebSocketConnection;
+use crate::services::session::Session;
 
 #[derive(Debug, Default)]
 pub struct Socket {
@@ -42,12 +43,33 @@ impl Socket {
                 None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
             };
 
+            let session = match Session::find_by_token(token.to_owned()) {
+                Ok(session) => session,
+                Err(error) => return match error.http_code {
+                    404 => {
+                        Socket::close_connection(
+                            WebSocketCloseError::AuthenticationFailed,
+                            context,
+                        );
+
+                        Ok(())
+                    },
+                    _ => Err(error),
+                }
+            };
+
+            if session.user_id.is_none() {
+                return Err(WebSocketErrorTemplate::Unauthorized(None).into());
+            }
+
             let authorization_message = AuthorizationMessage {
                 id: message.id,
                 connection_id: connection.id,
                 token,
                 address: context.address().recipient(),
             };
+
+            connection.session_id = Some(session.id);
 
             Socket::send_message(
                 message_id,
@@ -56,9 +78,6 @@ impl Socket {
                 connection,
                 context,
             )?;
-
-            // TODO Set session_id from DB
-            connection.session_id = Some(789);
 
             return Ok(());
         }
@@ -184,8 +203,6 @@ impl Handler<AuthorizationMessage> for Socket {
     type Result = Result<(), WebSocketError>;
 
     fn handle(&mut self, message: AuthorizationMessage, _: &mut Context<Self>) -> Self::Result {
-        // TODO Check token in DB
-
         self.connections.insert(
             message.connection_id,
             message.address,
