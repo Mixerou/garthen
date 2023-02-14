@@ -66,6 +66,21 @@ impl Auth {
 
         Ok(())
     }
+
+    pub fn login(credentials: LoginRequest, session_id: i64) -> Result<(), ApiError> {
+        User::check_email_length(&credentials.email)?;
+        User::check_password_length(&credentials.password)?;
+
+        let user = User::find_by_email(credentials.email)?;
+
+        if passwd::verify(credentials.password, user.password_hash).is_err() {
+            return Err(ApiErrorTemplate::NotFound(None).into());
+        }
+
+        Session::update_user_id(session_id, Some(user.id))?;
+
+        Ok(())
+    }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -73,4 +88,10 @@ pub struct RegistrationRequest {
     pub email: String,
     pub password: String,
     pub username: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct LoginRequest {
+    pub email: String,
+    pub password: String,
 }
