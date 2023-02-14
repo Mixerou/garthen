@@ -10,6 +10,7 @@ use dotenv::dotenv;
 
 mod error;
 mod services;
+mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -34,6 +35,7 @@ async fn main() -> std::io::Result<()> {
                     .service(
                         web::scope("")
                             .wrap(services::session::middleware::CheckSession)
+                            .configure(services::auth::init_routes)
                     )
             )
     })

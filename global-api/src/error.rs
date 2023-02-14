@@ -4,6 +4,8 @@ use std::string::ToString;
 
 use actix_web::{HttpResponse, ResponseError};
 use actix_web::http::StatusCode as HttpStatusCode;
+use argon2::Error as Argon2Error;
+use argon2::password_hash::Error as Argon2PasswordHashError;
 use diesel::result::Error as DieselError;
 use r2d2::Error as R2d2Error;
 use serde::Deserialize;
@@ -14,6 +16,8 @@ const UNKNOWN_JSON_ERROR_CODE: u32 = 0;
 #[derive(Debug)]
 pub enum ApiErrorKind {
     StdError(Error),
+    Argon2Error(Argon2Error),
+    Argon2PasswordHashError(Argon2PasswordHashError),
     DieselError(DieselError),
     R2d2Error(R2d2Error),
     Other(Option<String>),
@@ -58,6 +62,28 @@ impl From<Error> for ApiError {
             None,
             format!("std error: {error}"),
             Some(ApiErrorKind::StdError(error)),
+        )
+    }
+}
+
+impl From<Argon2Error> for ApiError {
+    fn from(error: Argon2Error) -> ApiError {
+        ApiError::new(
+            500,
+            None,
+            format!("argon2 error: {error}"),
+            Some(ApiErrorKind::Argon2Error(error)),
+        )
+    }
+}
+
+impl From<Argon2PasswordHashError> for ApiError {
+    fn from(error: Argon2PasswordHashError) -> ApiError {
+        ApiError::new(
+            500,
+            None,
+            format!("argon2 password hash error: {error}"),
+            Some(ApiErrorKind::Argon2PasswordHashError(error)),
         )
     }
 }
@@ -134,5 +160,17 @@ macro_rules! api_error_template {
 }
 
 api_error_template! {
+    // Default HTTP errors
     (404, None, NotFound, "Not found");
+
+    // Minimum / Maximum number of ... reached
+    (400, Some(30001), EmailTooLong, "The email address is too long");
+    (400, Some(30002), PasswordTooShort, "The password is too short");
+    (400, Some(30003), PasswordTooLong, "The password is too long");
+    (400, Some(30004), UsernameTooShort, "The username is too short");
+    (400, Some(30005), UsernameTooLong, "The username is too long");
+
+    // Invalid payload or something else
+    (400, Some(40001), EmailInvalid, "Invalid email");
+    (400, Some(40002), UsernameInvalidOrTaken, "The username is either invalid or taken");
 }

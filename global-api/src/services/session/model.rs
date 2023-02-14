@@ -44,4 +44,15 @@ impl Session {
 
         Ok(session)
     }
+
+    pub fn update_user_id(id: i64, user_id: Option<i64>) -> Result<Self, ApiError> {
+        let connection = &mut db::get_connection()?;
+
+        let session = diesel::update(sessions::table)
+            .filter(sessions::id.eq(id))
+            .set(sessions::user_id.eq(user_id))
+            .get_result(connection)?;
+
+        Ok(session)
+    }
 }
