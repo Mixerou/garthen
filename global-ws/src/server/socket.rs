@@ -6,7 +6,7 @@ use actix::{ActorFutureExt, AsyncContext, ContextFutureSpawner, Message, WeakRec
 use actix::prelude::{Actor, Context, Handler, Recipient};
 use actix_web_actors::ws::WebsocketContext;
 
-use crate::error::WebSocketError;
+use crate::error::{WebSocketCloseError, WebSocketError, WebSocketErrorTemplate};
 use crate::messages::{AuthorizationMessage, DisconnectionMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::WebSocketConnection;
 
@@ -24,35 +24,22 @@ impl Socket {
         let address = connection.address.downgrade();
         let message_id = message.id;
 
-        if connection.session_id.is_none() || message.opcode == Opcode::Authorize {
+
+        if connection.session_id.is_none() {
             if message.opcode != Opcode::Authorize {
-                return Err(WebSocketError::new(
-                    401,
-                    "Unauthorized".to_string(),
-                    None)
-                );
+                Socket::close_connection(WebSocketCloseError::NotAuthenticated, context);
+
+                return Ok(())
             }
 
             let data = match message.data {
                 Some(message) => message,
-                None => {
-                    return Err(WebSocketError::new(
-                        400,
-                        "Bad request".to_string(),
-                        None)
-                    );
-                }
+                None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
             };
 
             let token = match data.token {
                 Some(token) => token,
-                None => {
-                    return Err(WebSocketError::new(
-                        400,
-                        "Bad request".to_string(),
-                        None)
-                    );
-                }
+                None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
             };
 
             let authorization_message = AuthorizationMessage {
@@ -100,13 +87,11 @@ impl Socket {
             }
             Opcode::Request => {}
             Opcode::Response => {}
-            Opcode::Authorize => {}
+            Opcode::Authorize => {
+                Socket::close_connection(WebSocketCloseError::AlreadyAuthenticated, context);
+            },
             Opcode::Dispatch | Opcode::Error => {
-                return Err(WebSocketError::new(
-                    400,
-                    "Opcode not allowed".to_string(),
-                    None)
-                );
+                Socket::close_connection(WebSocketCloseError::Opcode, context);
             }
         }
 
@@ -129,6 +114,7 @@ impl Socket {
             None => {
                 return Err(WebSocketError::new(
                     500,
+                    None,
                     "Failed to upgrade recipient in Socket::send".to_string(),
                     None));
             }
@@ -148,7 +134,7 @@ impl Socket {
                         method: None,
                         request: None,
                         data: Some(WebSocketMessageData {
-                            code: Some(error.status_code),
+                            code: Some(error.json_code),
                             message: Some(error.get_safe_message()),
                             ..Default::default()
                         }),
@@ -166,6 +152,7 @@ impl Socket {
             None => {
                 Err(WebSocketError::new(
                     500,
+                    None,
                     "Couldn't find a connection".to_string(),
                     None)
                 )

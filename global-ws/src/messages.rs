@@ -27,7 +27,7 @@ pub enum Method {
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct WebSocketMessageData {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub code: Option<u16>,
+    pub code: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

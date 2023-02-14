@@ -6,7 +6,7 @@ use actix_web_actors::ws;
 use actix_web_actors::ws::{CloseCode, CloseReason, ProtocolError, WebsocketContext};
 use serde::{Deserialize, Serialize};
 
-use crate::error::WebSocketError;
+use crate::error::{WebSocketCloseError, WebSocketError};
 use crate::messages::{DisconnectionMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::Socket;
 
@@ -101,7 +101,7 @@ impl WebSocketConnection {
                         method: None,
                         request: None,
                         data: Some(WebSocketMessageData {
-                            code: Some(error.status_code),
+                            code: Some(error.json_code),
                             message: Some(error.get_safe_message()),
                             ..Default::default()
                         }),
@@ -146,25 +146,16 @@ impl StreamHandler<Result<ws::Message, ProtocolError>> for WebSocketConnection {
         match message {
             ws::Message::Text(message) => {
                 if self.encoding != Encoding::Json {
-                    let close_reason = CloseReason {
-                        code: CloseCode::Normal,
-                        description: None,
-                    };
-
-                    context.close(Some(close_reason));
-                    context.stop();
+                    Socket::close_connection(WebSocketCloseError::InvalidPayload, context);
                 }
 
                 let message: WebSocketMessage = match serde_json::from_str(&message) {
                     Ok(message) => message,
                     Err(_) => {
-                        let close_reason = CloseReason {
-                            code: CloseCode::Invalid,
-                            description: None,
-                        };
-
-                        context.close(Some(close_reason));
-                        context.stop();
+                        Socket::close_connection(
+                            WebSocketCloseError::InvalidPayload,
+                            context,
+                        );
 
                         return;
                     }
@@ -174,25 +165,16 @@ impl StreamHandler<Result<ws::Message, ProtocolError>> for WebSocketConnection {
             }
             ws::Message::Binary(message) => {
                 if self.encoding != Encoding::Etf {
-                    let close_reason = CloseReason {
-                        code: CloseCode::Normal,
-                        description: None,
-                    };
-
-                    context.close(Some(close_reason));
-                    context.stop();
+                    Socket::close_connection(WebSocketCloseError::InvalidPayload, context);
                 }
 
                 let message: WebSocketMessage = match serde_eetf::from_bytes(&message) {
                     Ok(message) => message,
                     Err(_) => {
-                        let close_reason = CloseReason {
-                            code: CloseCode::Invalid,
-                            description: None,
-                        };
-
-                        context.close(Some(close_reason));
-                        context.stop();
+                        Socket::close_connection(
+                            WebSocketCloseError::InvalidPayload,
+                            context,
+                        );
 
                         return;
                     }
