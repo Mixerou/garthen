@@ -9,4 +9,5 @@ CREATE TABLE "users"
 
 ALTER TABLE sessions
     ADD CONSTRAINT sessions_users_id_fk
-        FOREIGN KEY (user_id) REFERENCES users;
+        FOREIGN KEY (user_id) REFERENCES users
+            ON DELETE SET NULL;
