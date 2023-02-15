@@ -45,6 +45,8 @@ async fn main() -> std::io::Result<()> {
     db::init();
     snowflake::init();
 
+    let data = Data::new(Socket::default().start());
+
     let ip = env::var("GLOBAL_WS_IP").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("GLOBAL_WS_PORT").unwrap_or_else(|_| "9000".to_string());
     let path = env::var("GLOBAL_WS_PATH").unwrap_or_else(|_| "".to_string());
@@ -53,7 +55,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(Data::new(Socket::default().start()))
+            .app_data(data.clone())
             .service(
                 scope(
                     path.as_str())

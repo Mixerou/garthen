@@ -158,9 +158,13 @@ macro_rules! websocket_error_template {
 }
 
 websocket_error_template! {
+    // Default HTTP errors
     (400, None, BadRequest, "Bad request");
     (401, None, Unauthorized, "Unauthorized");
     (404, None, NotFound, "Not found");
+
+    // Invalid body or something else
+    (400, Some(40001), InvalidRequestField, "Invalid request");
 }
 
 macro_rules! close_error {

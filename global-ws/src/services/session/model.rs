@@ -17,6 +17,16 @@ pub struct Session {
 }
 
 impl Session {
+    pub fn find(id: i64) -> Result<Self, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let session = sessions::table
+            .filter(sessions::id.eq(id))
+            .first(connection)?;
+
+        Ok(session)
+    }
+
     pub fn find_by_token(token: String) -> Result<Self, WebSocketError> {
         let connection = &mut db::get_connection()?;
 
