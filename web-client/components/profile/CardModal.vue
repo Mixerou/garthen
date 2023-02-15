@@ -2,18 +2,32 @@
 import IconLogout from '@/assets/icons/logout.svg?skipsvgo'
 
 const { t } = useI18n()
+const { $authorizedFetch } = useNuxtApp()
 const system = useSystemStore()
 const user = useUserStore()
 
-const logout = () => {
-  const timeoutTime =
-    getComputedStyle(document.body)
-      .getPropertyValue('--default-transition-duration')
-      .split('s')[0] * 1000
+const isLogoutLoading = ref(false)
+
+const logout = async () => {
+  isLogoutLoading.value = true
+
+  const response = await $authorizedFetch('/auth/logout', {
+    method: 'POST',
+  })
+
+  isLogoutLoading.value = false
 
   // TODO: Make it safe
   system.unregisterActiveModal()
-  setTimeout(() => user.logout(), timeoutTime)
+
+  if (response.ok) {
+    const timeoutTime =
+      getComputedStyle(document.body)
+        .getPropertyValue('--default-transition-duration')
+        .split('s')[0] * 1000
+
+    setTimeout(() => user.logout(), timeoutTime)
+  }
 }
 </script>
 
@@ -38,7 +52,7 @@ const logout = () => {
       </div>
     </div>
 
-    <GarthenButton @click="logout">
+    <GarthenButton :loading='isLogoutLoading' @click="logout">
       <IconLogout class="icon" />
       <span>{{ t('signOutButton') }}</span>
     </GarthenButton>
