@@ -4,6 +4,15 @@
       "short": "Greenhouse tools"
     }
   },
+  "globalApiErrors": {
+    "emailTooLong": "Email address is too long",
+    "passwordTooShort": "The password is too short",
+    "passwordTooLong": "The password is too long",
+    "usernameTooShort": "The username is too short",
+    "usernameTooLong": "The username is too long",
+    "emailInvalid": "Email is not valid",
+    "usernameInvalidOrTaken": "The username is invalid or taken"
+  },
   "go": "Go",
   "signIn": "Sign in"
 }

@@ -7,9 +7,15 @@ export const useUserStore = definePiniaStore('user', () => {
     expires: new Date(Date.now() * 2),
   })
 
+  const token = ref(null)
   const isLoggedIn = ref(!!JSON.parse(isLoggedInCookie.value || 'false'))
   const email = ref('')
   const username = ref('')
+
+  function setToken(value) {
+    localStorage.setItem('token', value)
+    token.value = value
+  }
 
   function login(authedEmail, authedUsername) {
     isLoggedInCookie.value = JSON.stringify(true)
@@ -31,9 +37,11 @@ export const useUserStore = definePiniaStore('user', () => {
   }
 
   return {
+    token,
     isLoggedIn,
     email,
     username,
+    setToken,
     login,
     logout,
   }
