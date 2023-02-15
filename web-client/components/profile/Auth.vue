@@ -50,7 +50,37 @@ const register = async () => {
   isError.value = false
 }
 
-const login = async () => {}
+const login = async () => {
+  let body = {
+    email: email.value,
+    password: password.value,
+  }
+
+  const response = await $authorizedFetch('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    const json = await response.json()
+
+    isError.value = true
+
+    if (response.status === 404) {
+      isEmailIncorrect.value = true
+      isPasswordIncorrect.value = true
+      error.value = ''
+
+      return
+    }
+
+    error.value = constants.parseGlobalApiErrorCode(json.code)
+
+    return
+  }
+
+  isError.value = false
+}
 
 const auth = async () => {
   isEmailIncorrect.value = false
@@ -118,7 +148,7 @@ const auth = async () => {
 
 <template>
   <div class="container">
-    <div class="error-container" :class="{ hide: !isError }">
+    <div class="error-container" :class="{ hide: !isError || error === '' }">
       <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
         <span :key="`error-${error}`">{{
           $t(`globalApiErrors.${error}`)
