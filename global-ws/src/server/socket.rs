@@ -11,7 +11,7 @@ use crate::messages::{AuthorizationMessage, DisconnectionMessage, DispatchEvent,
 use crate::server::WebSocketConnection;
 use crate::services::session::Session;
 use crate::services::user;
-use crate::services::user::User;
+use crate::services::user::{User, UserMe};
 
 #[derive(Debug, Default)]
 pub struct Socket {
@@ -118,6 +118,7 @@ impl Socket {
 
                 match request.as_str() {
                     "user" => user::subscribe(request, message, connection, context)?,
+                    "user/me" => user::subscribe(request, message, connection, context)?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -223,6 +224,9 @@ impl Handler<DispatchMessage> for Socket {
         let data: WebSocketMessageData = match message.event {
             DispatchEvent::UserUpdate { id } => {
                 User::find(id)?.into()
+            },
+            DispatchEvent::UserMeUpdate { id } => {
+                UserMe::from(User::find(id)?).into()
             },
         };
 

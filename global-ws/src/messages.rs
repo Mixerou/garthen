@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::error::WebSocketError;
-use crate::services::user::User;
+use crate::services::user::{User, UserMe};
 
 #[derive(Debug, Deserialize_repr, Serialize_repr, Eq, PartialEq)]
 #[repr(u8)]
@@ -85,9 +85,22 @@ impl From<User> for WebSocketMessageData {
     }
 }
 
+impl From<UserMe> for WebSocketMessageData {
+    fn from(user: UserMe) -> Self {
+        WebSocketMessageData {
+            id: Some(user.id),
+            email: Some(user.email),
+            username: Some(user.username),
+            created_at: Some(user.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs()),
+            ..Default::default()
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq, Hash)]
 pub enum DispatchEvent {
     UserUpdate { id: i64 },
+    UserMeUpdate { id: i64 },
 }
 
 #[derive(Debug, Message)]
