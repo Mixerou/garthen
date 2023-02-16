@@ -52,7 +52,7 @@ const logout = async () => {
       </div>
     </div>
 
-    <GarthenButton :loading='isLogoutLoading' @click="logout">
+    <GarthenButton :loading="isLogoutLoading" @click="logout">
       <IconLogout class="icon" />
       <span>{{ t('signOutButton') }}</span>
     </GarthenButton>
