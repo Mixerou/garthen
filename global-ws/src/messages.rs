@@ -63,7 +63,7 @@ pub struct WebSocketMessage {
     pub connection_id: i64,
     #[serde(rename = "o")]
     pub opcode: Opcode,
-    #[serde(rename = "e")]
+    #[serde(rename = "e", skip_serializing_if = "Option::is_none")]
     pub event: Option<DispatchEvent>,
     #[serde(rename = "m", skip_serializing_if = "Option::is_none")]
     pub method: Option<Method>,
