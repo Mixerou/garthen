@@ -163,9 +163,14 @@ websocket_error_template! {
     (401, None, Unauthorized, "Unauthorized");
     (403, None, Forbidden, "Forbidden");
     (404, None, NotFound, "Not found");
+    (405, None, MethodNotAllowed, "Method not allowed");
+
+    // Minimum / Maximum number of ... reached
+    (400, Some(30001), GreenhousesTooMany, "There are too many greenhouses");
 
     // Invalid body or something else
     (400, Some(40001), InvalidRequestField, "Invalid request");
+    (400, Some(40002), GreenhouseTokenTaken, "Greenhouse token taken");
 }
 
 macro_rules! close_error {

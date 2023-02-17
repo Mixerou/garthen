@@ -101,7 +101,29 @@ impl Socket {
                     context,
                 )?;
             }
-            Opcode::Request => {}
+            Opcode::Request => {
+                let request = match message.request.to_owned() {
+                    Some(request) => request,
+                    None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+                };
+                let method = match message.method.to_owned() {
+                    Some(request) => request,
+                    None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+                };
+
+                match request.as_str() {
+                    "greenhouse" => greenhouse::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    _ => {
+                        return Err(WebSocketErrorTemplate::BadRequest(None).into());
+                    },
+                }
+            },
             Opcode::Response => {}
             Opcode::Authorize => {
                 Socket::close_connection(WebSocketCloseError::AlreadyAuthenticated, context);
@@ -115,8 +137,23 @@ impl Socket {
                 match request.as_str() {
                     "user" => user::subscribe(request, message, connection, context)?,
                     "user/me" => user::subscribe(request, message, connection, context)?,
-                    "greenhouse" => greenhouse::subscribe(request, message, connection, context)?,
-                    "greenhouses/mine" => greenhouse::subscribe(request, message, connection, context)?,
+                    "greenhouse" => greenhouse::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
+                    "greenhouses/mine" => greenhouse::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    "greenhouse-create" => greenhouse::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context,
+                    )?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -214,11 +251,10 @@ impl Handler<DispatchMessage> for Socket {
     type Result = Result<(), WebSocketError>;
 
     fn handle(&mut self, message: DispatchMessage, _: &mut Context<Self>) -> Self::Result {
-        let subscribers = self.subscriptions.entry(message.event.to_owned())
-            .or_insert(HashSet::new());
         let new_subscribers = message.new_subscribers.unwrap_or(vec![]);
+        let mut event = message.event;
 
-        let data: WebSocketMessageData = match message.event {
+        let data: WebSocketMessageData = match event {
             DispatchEvent::UserUpdate { id } => {
                 WebSocketMessageData::from(UserPublic::find(id)?)
             },
@@ -228,18 +264,33 @@ impl Handler<DispatchMessage> for Socket {
             DispatchEvent::GreenhouseUpdate { id } => {
                 WebSocketMessageData::from(Greenhouse::find(id)?)
             },
+            DispatchEvent::GreenhouseCreate { id, owner_id } => {
+                match id {
+                    Some(id) => {
+                        event = DispatchEvent::GreenhouseCreate { id: None, owner_id };
+
+                        WebSocketMessageData::from(Greenhouse::find(id)?)
+                    },
+                    None => WebSocketMessageData::None,
+                }
+            },
         };
+
+        let subscribers = self.subscriptions.entry(event.to_owned())
+            .or_insert(HashSet::new());
 
         match new_subscribers {
             new_subscribers if new_subscribers.is_empty() => {
                 let subscribers_vec = subscribers.iter();
+
+                if data.is_none() { return Ok(()) }
 
                 for subscriber_id in subscribers_vec {
                     let message = WebSocketMessage {
                         id: snowflake::generate(),
                         connection_id: subscriber_id.to_owned(),
                         opcode: Opcode::Dispatch,
-                        event: Some(message.event.to_owned()),
+                        event: Some(event.to_owned()),
                         data: data.to_owned(),
                         ..Default::default()
                     };
@@ -254,19 +305,23 @@ impl Handler<DispatchMessage> for Socket {
                 for subscriber_id in new_subscribers {
                     subscribers.insert(subscriber_id);
 
+
                     let response = WebSocketMessage {
                         id: snowflake::generate(),
                         connection_id: subscriber_id,
                         opcode: Opcode::Dispatch,
-                        event: Some(message.event.to_owned()),
+                        event: Some(event.to_owned()),
                         data: data.to_owned(),
                         ..Default::default()
                     };
 
                     if let Some((connection, subscriptions))
                         = self.connections.get_mut(&subscriber_id) {
-                        subscriptions.insert(message.event.to_owned());
-                        connection.do_send(response);
+                        subscriptions.insert(event.to_owned());
+
+                        if !data.is_none() {
+                            connection.do_send(response);
+                        }
                     }
                 }
             },

@@ -76,6 +76,34 @@ fn greenhouses_mine_update(
     Ok(())
 }
 
+fn greenhouse_create(
+    message: WebSocketMessage,
+    connection: &mut WebSocketConnection,
+    context: &mut WebsocketContext<WebSocketConnection>,
+) -> Result<(), WebSocketError> {
+    let session = Session::find(connection.session_id.unwrap())?;
+
+    let session_user_id = match session.user_id {
+        Some(user_id) => user_id,
+        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
+    };
+
+    let response = DispatchMessage {
+        event: DispatchEvent::GreenhouseCreate { id: None, owner_id: session_user_id },
+        new_subscribers: Some(vec![connection.id]),
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.address.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
+    Ok(())
+}
+
 pub fn subscribe(
     to: String,
     message: WebSocketMessage,
@@ -85,6 +113,7 @@ pub fn subscribe(
     match to.as_str() {
         "greenhouse" => greenhouses_update(message, connection, context)?,
         "greenhouses/mine" => greenhouses_mine_update(message, connection, context)?,
+        "greenhouse-create" => greenhouse_create(message, connection, context)?,
         _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),
     }
 

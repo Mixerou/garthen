@@ -7,6 +7,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::error::WebSocketError;
+use crate::services::greenhouse::Greenhouse;
 
 #[derive(Clone, Deserialize, Serialize, Insertable, Queryable)]
 #[diesel(table_name = users)]
@@ -40,13 +41,8 @@ pub struct UserPublic {
 
 impl UserPublic {
     pub fn find(id: i64) -> Result<Self, WebSocketError> {
-        let connection = &mut db::get_connection()?;
-
         let user = User::find(id)?;
-        let greenhouses = greenhouses::table
-            .filter(greenhouses::owner_id.eq(id))
-            .count()
-            .get_result(connection)?;
+        let greenhouses = Greenhouse::count_by_owner_id(id)?;
 
         Ok(UserPublic {
             id: user.id,

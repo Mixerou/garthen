@@ -62,6 +62,7 @@ pub enum DispatchEvent {
     UserUpdate { id: i64 },
     UserMeUpdate { id: i64 },
     GreenhouseUpdate { id: i64 },
+    GreenhouseCreate { id: Option<i64>, owner_id: i64 },
 }
 
 #[derive(Debug, Message)]

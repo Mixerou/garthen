@@ -13,6 +13,12 @@ pub enum WebSocketMessageData {
         id: i64,
     },
 
+    // Requests (Opcode: Request)
+    RequestPostGreenhouse {
+        name: String,
+        token: String,
+    },
+
     // Requests (Opcode: Authorize)
     Authorize {
         token: String,
@@ -35,7 +41,7 @@ pub enum WebSocketMessageData {
         created_at: u64,
         greenhouses: i64,
     },
-    DispatchGreenhouseMineUpdate {
+    DispatchGreenhouseMine {
         id: i64,
         name: String,
         token: String,
@@ -88,7 +94,7 @@ impl From<UserMe> for WebSocketMessageData {
 
 impl From<Greenhouse> for WebSocketMessageData {
     fn from(greenhouse: Greenhouse) -> Self {
-        WebSocketMessageData::DispatchGreenhouseMineUpdate {
+        WebSocketMessageData::DispatchGreenhouseMine {
             id: greenhouse.id,
             name: greenhouse.name,
             token: greenhouse.token,
