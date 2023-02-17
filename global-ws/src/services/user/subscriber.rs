@@ -1,7 +1,7 @@
 use actix_web_actors::ws::WebsocketContext;
 
 use crate::error::{WebSocketError, WebSocketErrorTemplate};
-use crate::messages::{DispatchEvent, DispatchMessage, WebSocketMessage};
+use crate::messages::{DispatchEvent, DispatchMessage, WebSocketMessage, WebSocketMessageData};
 use crate::server::{Socket, WebSocketConnection};
 use crate::services::session::Session;
 
@@ -10,12 +10,12 @@ fn user_update(
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
-    let data = match message.data {
-        Some(data) => data,
-        None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+    let (id, is_me) = match message.data {
+        WebSocketMessageData::SubscribeToUserUpdates { id, is_me} => (id, is_me),
+        _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
     };
 
-    if data.id.is_none() && !data.is_me.unwrap_or(false) {
+    if id.is_none() && !is_me.unwrap_or(false) {
         return Err(WebSocketErrorTemplate::BadRequest(None).into());
     }
 
@@ -26,11 +26,11 @@ fn user_update(
         None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
     };
 
-    if let Some(id) = data.id {
+    if let Some(id) = id {
         user_id = id;
     }
 
-    if data.is_me.unwrap_or(false) {
+    if is_me.unwrap_or(false) {
         user_id = session_user_id;
     }
 

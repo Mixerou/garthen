@@ -36,14 +36,9 @@ impl Socket {
                 return Ok(())
             }
 
-            let data = match message.data {
-                Some(message) => message,
-                None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
-            };
-
-            let token = match data.token {
-                Some(token) => token,
-                None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+            let token = match message.data {
+                WebSocketMessageData::Authorize { token } => token,
+                _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
             };
 
             let session = match Session::find_by_token(token.to_owned()) {
@@ -165,11 +160,10 @@ impl Socket {
                         id: message_id,
                         connection_id: connection.id,
                         opcode: Opcode::Error,
-                        data: Some(WebSocketMessageData {
-                            code: Some(error.json_code),
-                            message: Some(error.get_safe_message()),
-                            ..Default::default()
-                        }),
+                        data: WebSocketMessageData::Response {
+                            code: error.json_code,
+                            message: error.get_safe_message(),
+                        },
                         ..Default::default()
                     });
                 }
@@ -223,10 +217,10 @@ impl Handler<DispatchMessage> for Socket {
 
         let data: WebSocketMessageData = match message.event {
             DispatchEvent::UserUpdate { id } => {
-                User::find(id)?.into()
+                WebSocketMessageData::from(User::find(id)?)
             },
             DispatchEvent::UserMeUpdate { id } => {
-                UserMe::from(User::find(id)?).into()
+                WebSocketMessageData::from(UserMe::from(User::find(id)?))
             },
         };
 
@@ -240,7 +234,7 @@ impl Handler<DispatchMessage> for Socket {
                         connection_id: subscriber_id.to_owned(),
                         opcode: Opcode::Dispatch,
                         event: Some(message.event.to_owned()),
-                        data: Some(data.to_owned()),
+                        data: data.to_owned(),
                         ..Default::default()
                     };
 
@@ -259,7 +253,7 @@ impl Handler<DispatchMessage> for Socket {
                         connection_id: subscriber_id,
                         opcode: Opcode::Dispatch,
                         event: Some(message.event.to_owned()),
-                        data: Some(data.to_owned()),
+                        data: data.to_owned(),
                         ..Default::default()
                     };
 
@@ -294,11 +288,10 @@ impl Handler<AuthorizationMessage> for Socket {
             id: message.id,
             connection_id: message.connection_id,
             opcode: Opcode::Response,
-            data: Some(WebSocketMessageData {
-                code: Some(200),
-                message: Some("Successfully authorized".to_string()),
-                ..Default::default()
-            }),
+            data: WebSocketMessageData::Response {
+                code: 200,
+                message: "Successfully authorized".to_string(),
+            },
             ..Default::default()
         });
 

@@ -12,7 +12,7 @@ repository = "https://github.com/Mixerou/garthen"
 actix = "0.13.0"
 actix-web = "4.3.0"
 actix-web-actors = "4.2.0"
-db = { version = "0.3.0", path = "../libs/db" }
+db = { path = "../libs/db" }
 diesel = { version = "2.0.3", default-features = false }
 dotenv = "0.15.0"
 env_logger = "0.10.0"

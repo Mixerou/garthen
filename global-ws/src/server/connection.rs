@@ -98,11 +98,10 @@ impl WebSocketConnection {
                         id,
                         connection_id,
                         opcode: Opcode::Error,
-                        data: Some(WebSocketMessageData {
-                            code: Some(error.json_code),
-                            message: Some(error.get_safe_message()),
-                            ..Default::default()
-                        }),
+                        data: WebSocketMessageData::Response {
+                            code: error.json_code,
+                            message: error.get_safe_message(),
+                        },
                         ..Default::default()
                     },
                     context,

@@ -1,11 +1,11 @@
-use std::time::UNIX_EPOCH;
-
 use actix::{Message, Recipient};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::error::WebSocketError;
-use crate::services::user::{User, UserMe};
+pub(crate) use crate::messages::data::*;
+
+mod data;
 
 #[derive(Debug, Deserialize_repr, Serialize_repr, Eq, PartialEq)]
 #[repr(u8)]
@@ -34,26 +34,6 @@ pub enum Method {
     Delete,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct WebSocketMessageData {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub code: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<u64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub email: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub is_me: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub message: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub token: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub username: Option<String>,
-}
-
 #[derive(Debug, Default, Deserialize, Serialize, Message)]
 #[rtype(result = "Result<(), WebSocketError>")]
 pub struct WebSocketMessage {
@@ -69,32 +49,12 @@ pub struct WebSocketMessage {
     pub method: Option<Method>,
     #[serde(rename = "r", skip_serializing_if = "Option::is_none")]
     pub request: Option<String>,
-    #[serde(rename = "d", skip_serializing_if = "Option::is_none")]
-    pub data: Option<WebSocketMessageData>,
-}
-
-impl From<User> for WebSocketMessageData {
-    fn from(user: User) -> Self {
-        WebSocketMessageData {
-            id: Some(user.id),
-            email: Some(user.email),
-            username: Some(user.username),
-            created_at: Some(user.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs()),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<UserMe> for WebSocketMessageData {
-    fn from(user: UserMe) -> Self {
-        WebSocketMessageData {
-            id: Some(user.id),
-            email: Some(user.email),
-            username: Some(user.username),
-            created_at: Some(user.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs()),
-            ..Default::default()
-        }
-    }
+    #[serde(
+    default = "WebSocketMessageData::default",
+    rename = "d",
+    skip_serializing_if = "WebSocketMessageData::is_none"
+    )]
+    pub data: WebSocketMessageData,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq, Hash)]
