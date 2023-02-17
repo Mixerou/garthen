@@ -1,4 +1,14 @@
 diesel::table! {
+    greenhouses (id) {
+        id -> Int8,
+        name -> Varchar,
+        token -> Varchar,
+        owner_id -> Int8,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     sessions (id) {
         id -> Int8,
         token -> Varchar,
@@ -17,9 +27,11 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(greenhouses -> users (owner_id));
 diesel::joinable!(sessions -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    greenhouses,
     sessions,
     users,
 );
