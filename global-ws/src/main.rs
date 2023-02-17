@@ -17,6 +17,7 @@ use crate::server::{Encoding, Socket, WebSocketConnection};
 mod error;
 mod messages;
 mod server;
+mod services;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct QueryParams {
@@ -41,7 +42,10 @@ async fn main() -> std::io::Result<()> {
     dotenv().unwrap();
     env_logger::init();
 
+    db::init();
     snowflake::init();
+
+    let data = Data::new(Socket::default().start());
 
     let ip = env::var("GLOBAL_WS_IP").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("GLOBAL_WS_PORT").unwrap_or_else(|_| "9000".to_string());
@@ -51,7 +55,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(Data::new(Socket::default().start()))
+            .app_data(data.clone())
             .service(
                 scope(
                     path.as_str())

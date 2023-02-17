@@ -3,6 +3,8 @@ use std::io::Error;
 
 use actix::{ActorContext, MailboxError as ActixMailboxError};
 use actix_web_actors::ws::{CloseCode, CloseReason, WebsocketContext};
+use diesel::result::Error as DieselError;
+use r2d2::Error as R2d2Error;
 use serde::Deserialize;
 use serde_eetf::Error as SerdeEetfError;
 use serde_json::Error as SerdeJsonError;
@@ -13,6 +15,8 @@ use crate::server::{Socket, WebSocketConnection};
 pub enum WebSocketErrorKind {
     StdError(Error),
     ActixMailboxError(ActixMailboxError),
+    DieselError(DieselError),
+    R2d2Error(R2d2Error),
     SerdeEetfError(SerdeEetfError),
     SerdeJsonError(SerdeJsonError),
     Other(Option<String>),
@@ -76,6 +80,35 @@ impl From<Error> for WebSocketError {
     }
 }
 
+impl From<DieselError> for WebSocketError {
+    fn from(error: DieselError) -> WebSocketError {
+        match error {
+            DieselError::NotFound => {
+                WebSocketErrorTemplate::NotFound(Some(WebSocketErrorKind::DieselError(error))).into()
+            },
+            error => {
+                WebSocketError::new(
+                    500,
+                    None,
+                    format!("Diesel error: {error}"),
+                    Some(WebSocketErrorKind::DieselError(error)),
+                )
+            },
+        }
+    }
+}
+
+impl From<R2d2Error> for WebSocketError {
+    fn from(error: R2d2Error) -> WebSocketError {
+        WebSocketError::new(
+            500,
+            None,
+            format!("r2d2 error: {error}"),
+            Some(WebSocketErrorKind::R2d2Error(error)),
+        )
+    }
+}
+
 impl From<SerdeEetfError> for WebSocketError {
     fn from(error: SerdeEetfError) -> Self {
         WebSocketError::new(
@@ -125,7 +158,13 @@ macro_rules! websocket_error_template {
 }
 
 websocket_error_template! {
+    // Default HTTP errors
     (400, None, BadRequest, "Bad request");
+    (401, None, Unauthorized, "Unauthorized");
+    (404, None, NotFound, "Not found");
+
+    // Invalid body or something else
+    (400, Some(40001), InvalidRequestField, "Invalid request");
 }
 
 macro_rules! close_error {
@@ -164,5 +203,6 @@ close_error! {
     (4001, Opcode, "Opcode not allowed");
     (4002, InvalidPayload, "Invalid payload");
     (4003, NotAuthenticated, "Not authenticated");
-    (4004, AlreadyAuthenticated, "Already authenticated");
+    (4004, AuthenticationFailed, "Authentication failed");
+    (4005, AlreadyAuthenticated, "Already authenticated");
 }
