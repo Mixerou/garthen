@@ -1,12 +1,10 @@
 <script setup>
+const { $wsOpenConnection, $wsSend } = useNuxtApp()
+const constants = useConstantsStore()
 const system = useSystemStore()
 const user = useUserStore()
 const { locale, locales, t } = useI18n()
 const localeCookie = useCookie('locale', {
-  expires: new Date(Date.now() * 2),
-})
-// TODO: Remove
-const devUserCredentialsCookie = useCookie('dev_user_credentials', {
   expires: new Date(Date.now() * 2),
 })
 
@@ -49,14 +47,15 @@ useHead({
   ],
 })
 
-onMounted(() => {
-  if (user.isLoggedIn) {
-    setTimeout(() => {
-      // TODO: Retrieve it from the server
-      const credentials = devUserCredentialsCookie.value
+onMounted(async () => {
+  user.setToken(localStorage.getItem('token'))
 
-      user.login(credentials.email, credentials.username)
-    }, 1500)
+  if (user.isLoggedIn && user.token.constructor === String) {
+    $wsOpenConnection()
+    $wsSend({
+      o: constants.GLOBAL_WS_OPCODES.subscribe,
+      r: 'user/me',
+    })
   }
 })
 </script>

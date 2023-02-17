@@ -78,5 +78,11 @@ export default defineNuxtConfig({
     },
     plugins: [svgLoader()],
   },
+  runtimeConfig: {
+    public: {
+      globalApiPath: '',
+      globalWsUri: '',
+    },
+  },
   telemetry: false,
 })

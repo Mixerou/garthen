@@ -4,6 +4,29 @@
       "short": "Greenhouse tools"
     }
   },
+  "globalApiErrors": {
+    "emailTooLong": "Email address is too long",
+    "passwordTooShort": "The password is too short",
+    "passwordTooLong": "The password is too long",
+    "usernameTooShort": "The username is too short",
+    "usernameTooLong": "The username is too long",
+    "emailInvalid": "Email is not valid",
+    "usernameInvalidOrTaken": "The username is invalid or taken"
+  },
+  "monthShortNames": {
+    "january": "Jan",
+    "february": "Feb",
+    "march": "Mar",
+    "april": "Apr",
+    "may": "May",
+    "june": "Jun",
+    "july": "Jul",
+    "august": "Aug",
+    "september": "Sep",
+    "october": "Oct",
+    "november": "Nov",
+    "december": "Dec"
+  },
   "go": "Go",
   "signIn": "Sign in"
 }
