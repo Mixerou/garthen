@@ -47,7 +47,13 @@ export default defineNuxtPlugin(plugin => {
           if (event === constants.GLOBAL_WS_EVENTS.userUpdate) {
             // TODO: Add logic as needed
           } else if (event === constants.GLOBAL_WS_EVENTS.userMeUpdate) {
-            user.login(data.id, data.email, data.username, data['created_at'])
+            user.login(
+              data.id,
+              data.email,
+              data.username,
+              data['created_at'],
+              data.greenhouses
+            )
           }
         }
 

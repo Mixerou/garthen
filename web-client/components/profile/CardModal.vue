@@ -68,7 +68,16 @@ const createdAt = computed({
     <div class="information">
       <div class="group">
         <div class="key">{{ t('groups.greenhousesKey') }}</div>
-        <div class="value">3</div>
+        <div class="value greenhouses-count">
+          <Transition
+            enter-from-class="move-to-bottom"
+            leave-to-class="move-to-top"
+          >
+            <span :key="`greenhouses-count-${user.greenhousesCount}`">
+              {{ user.greenhousesCount }}
+            </span>
+          </Transition>
+        </div>
       </div>
       <div class="group">
         <div class="key">{{ t('groups.inProjectSinceKey') }}</div>
@@ -154,6 +163,29 @@ const createdAt = computed({
 
       .key {
         font-weight: 600;
+      }
+
+      .greenhouses-count {
+        position: relative;
+        width: 1rem;
+        height: 1rem;
+
+        span {
+          position: absolute;
+          top: 0;
+          right: 0;
+          transition-duration: var(--fast-transition-duration);
+
+          &.move-to-top {
+            opacity: 0;
+            transform: translateY(-0.5rem);
+          }
+
+          &.move-to-bottom {
+            opacity: 0;
+            transform: translateY(0.5rem);
+          }
+        }
       }
     }
   }
