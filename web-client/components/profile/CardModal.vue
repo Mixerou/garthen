@@ -1,4 +1,5 @@
 <script setup>
+import dateFormat, { i18n } from 'dateformat'
 import IconLogout from '@/assets/icons/logout.svg?skipsvgo'
 
 const { t } = useI18n()
@@ -29,6 +30,29 @@ const logout = async () => {
     setTimeout(() => user.logout(), timeoutTime)
   }
 }
+
+const createdAt = computed({
+  get() {
+    const date = new Date(user.createdAt * 1000)
+
+    i18n.monthNames = [
+      t('monthShortNames.january'),
+      t('monthShortNames.february'),
+      t('monthShortNames.march'),
+      t('monthShortNames.april'),
+      t('monthShortNames.may'),
+      t('monthShortNames.june'),
+      t('monthShortNames.july'),
+      t('monthShortNames.august'),
+      t('monthShortNames.september'),
+      t('monthShortNames.october'),
+      t('monthShortNames.november'),
+      t('monthShortNames.december'),
+    ]
+
+    return dateFormat(date, 'mmm dd, yyyy')
+  },
+})
 </script>
 
 <template>
@@ -48,7 +72,7 @@ const logout = async () => {
       </div>
       <div class="group">
         <div class="key">{{ t('groups.inProjectSinceKey') }}</div>
-        <div class="value">01/01/23</div>
+        <div class="value">{{ createdAt }}</div>
       </div>
     </div>
 

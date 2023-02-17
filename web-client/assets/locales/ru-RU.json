@@ -13,6 +13,20 @@
     "emailInvalid": "Адрес эл. почты недействителен",
     "usernameInvalidOrTaken": "Имя пользователя недействительно или занято"
   },
+  "monthShortNames": {
+    "january": "Янв",
+    "february": "Фев",
+    "march": "Мар",
+    "april": "Апр",
+    "may": "Май",
+    "june": "Июн",
+    "july": "Июл",
+    "august": "Авг",
+    "september": "Сен",
+    "october": "Окт",
+    "november": "Ноя",
+    "december": "Дек"
+  },
   "go": "Продолжить",
   "signIn": "Войти | Вход"
 }

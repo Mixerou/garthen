@@ -81,6 +81,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       globalApiPath: '',
+      globalWsUri: '',
     },
   },
   telemetry: false,
