@@ -161,6 +161,7 @@ websocket_error_template! {
     // Default HTTP errors
     (400, None, BadRequest, "Bad request");
     (401, None, Unauthorized, "Unauthorized");
+    (403, None, Forbidden, "Forbidden");
     (404, None, NotFound, "Not found");
 
     // Invalid body or something else

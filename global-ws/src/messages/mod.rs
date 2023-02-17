@@ -61,6 +61,7 @@ pub struct WebSocketMessage {
 pub enum DispatchEvent {
     UserUpdate { id: i64 },
     UserMeUpdate { id: i64 },
+    GreenhouseUpdate { id: i64 },
 }
 
 #[derive(Debug, Message)]

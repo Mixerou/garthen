@@ -9,9 +9,10 @@ use actix_web_actors::ws::WebsocketContext;
 use crate::error::{WebSocketCloseError, WebSocketError, WebSocketErrorTemplate};
 use crate::messages::{AuthorizationMessage, DisconnectionMessage, DispatchEvent, DispatchMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::WebSocketConnection;
+use crate::services::{greenhouse, user};
+use crate::services::greenhouse::Greenhouse;
 use crate::services::session::Session;
-use crate::services::user;
-use crate::services::user::{User, UserMe};
+use crate::services::user::{UserMe, UserPublic};
 
 #[derive(Debug, Default)]
 pub struct Socket {
@@ -114,6 +115,8 @@ impl Socket {
                 match request.as_str() {
                     "user" => user::subscribe(request, message, connection, context)?,
                     "user/me" => user::subscribe(request, message, connection, context)?,
+                    "greenhouse" => greenhouse::subscribe(request, message, connection, context)?,
+                    "greenhouses/mine" => greenhouse::subscribe(request, message, connection, context)?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -217,10 +220,13 @@ impl Handler<DispatchMessage> for Socket {
 
         let data: WebSocketMessageData = match message.event {
             DispatchEvent::UserUpdate { id } => {
-                WebSocketMessageData::from(User::find(id)?)
+                WebSocketMessageData::from(UserPublic::find(id)?)
             },
             DispatchEvent::UserMeUpdate { id } => {
-                WebSocketMessageData::from(UserMe::from(User::find(id)?))
+                WebSocketMessageData::from(UserMe::find(id)?)
+            },
+            DispatchEvent::GreenhouseUpdate { id } => {
+                WebSocketMessageData::from(Greenhouse::find(id)?)
             },
         };
 
