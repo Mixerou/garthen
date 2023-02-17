@@ -38,6 +38,7 @@ fn create_greenhouse(
     };
     let greenhouse = Greenhouse::create(greenhouse)?;
 
+    // Response to request
     let response = WebSocketMessage {
         id: message.id,
         connection_id: connection.id,
@@ -57,11 +58,40 @@ fn create_greenhouse(
         context,
     )?;
 
+    // Notify all owner sessions
     let response = DispatchMessage {
         event: DispatchEvent::GreenhouseCreate {
             id: Some(greenhouse.id),
             owner_id: session_user_id,
         },
+        new_subscribers: None,
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.address.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
+    // Notify all those who are subscribed to this user
+    let response = DispatchMessage {
+        event: DispatchEvent::UserUpdate { id: session_user_id },
+        new_subscribers: None,
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.address.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
+    // Notify all user sessions that are subscribed to themselves
+    let response = DispatchMessage {
+        event: DispatchEvent::UserMeUpdate { id: session_user_id },
         new_subscribers: None,
     };
 
