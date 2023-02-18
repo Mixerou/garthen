@@ -1,5 +1,7 @@
 export const useSystemStore = definePiniaStore('system', () => {
   const modals = ref([])
+  const isAppLayout = ref(false)
+  const isNavbarFolded = ref(false)
   const webSocket = ref(null)
   const webSocketNextMessageId = ref(0)
   const isWebSocketAuthorized = ref(false)
@@ -11,6 +13,14 @@ export const useSystemStore = definePiniaStore('system', () => {
 
   function unregisterActiveModal() {
     modals.value.pop()
+  }
+
+  function setIsNavbarFolded(state) {
+    isNavbarFolded.value = state
+  }
+
+  function setIsAppLayout(state) {
+    isAppLayout.value = state
   }
 
   function openWebSocketConnection(uri) {
@@ -32,11 +42,15 @@ export const useSystemStore = definePiniaStore('system', () => {
 
   return {
     modals,
+    isAppLayout,
+    isNavbarFolded,
     webSocket,
     isWebSocketAuthorized,
     isEetfInitialized,
     registerModal,
     unregisterActiveModal,
+    setIsAppLayout,
+    setIsNavbarFolded,
     openWebSocketConnection,
     getWebSocketMessageId,
     setIsWebSocketAuthorized,

@@ -61,12 +61,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="app">
-    <div id="modals" />
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </div>
+  <div id="modals" />
+  <NuxtLayout class="layout">
+    <NuxtPage />
+  </NuxtLayout>
 </template>
 
 <style lang="scss">
@@ -87,7 +85,7 @@ body {
   justify-content: center;
   width: 100vw;
   height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
   background: var(--layer-0-background);
   color: var(--layer-0-color);
   transition: var(--default-transition);
@@ -122,5 +120,26 @@ h5 {
 h6 {
   line-height: var(--medium-line-height);
   font-size: var(--medium-font-size);
+}
+
+.layout {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  &.layout-enter-active,
+  &.layout-leave-active {
+    transition: var(--default-transition);
+  }
+
+  &.layout-enter-from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  &.layout-leave-to {
+    opacity: 0;
+    transform: scale(1.05);
+  }
 }
 </style>
