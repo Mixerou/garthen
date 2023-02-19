@@ -39,7 +39,7 @@ async fn index(
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().unwrap();
+    dotenv().ok();
     env_logger::init();
 
     db::init();
