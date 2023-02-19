@@ -50,7 +50,7 @@ useHead({
 onMounted(async () => {
   user.setToken(localStorage.getItem('token'))
 
-  if (user.isLoggedIn && user.token.constructor === String) {
+  if (user.isLoggedIn && user.token !== null) {
     $wsOpenConnection()
     $wsSend({
       o: constants.GLOBAL_WS_OPCODES.subscribe,

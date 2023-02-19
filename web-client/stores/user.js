@@ -12,6 +12,12 @@ export const useUserStore = definePiniaStore('user', () => {
   const createdAt = ref(0)
 
   function setToken(value) {
+    if (value === null || value === 'null') {
+      isLoggedIn.value = false
+
+      return
+    }
+
     localStorage.setItem('token', value)
     token.value = value
   }
