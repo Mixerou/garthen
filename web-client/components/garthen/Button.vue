@@ -34,10 +34,7 @@ button {
   cursor: pointer;
   font-size: var(--default-font-size);
   font-weight: 600;
-  color: var(--white-original);
-  fill: var(--white-original);
-  transition-duration: var(--fast-transition-duration);
-  transition-property: background-color, color, fill;
+  transition: background-color var(--fast-transition-duration);
 
   @include medium-screen {
     height: 2.75rem;
@@ -52,8 +49,11 @@ button {
 
     &:active {
       background: var(--primary-600);
-      color: var(--white-original-100);
-      fill: var(--white-original-100);
+
+      &:deep(*) {
+        color: var(--white-original-100);
+        fill: var(--white-original-100);
+      }
     }
   }
 
@@ -77,6 +77,13 @@ button {
       transform: translate(-50%, -50%);
       opacity: 1;
     }
+  }
+
+  &:deep(*) {
+    fill: var(--white-original);
+    color: var(--white-original);
+    transition-duration: var(--fast-transition-duration);
+    transition-property: background-color, color, fill;
   }
 
   .content {
