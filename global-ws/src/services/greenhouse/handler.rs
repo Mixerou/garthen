@@ -16,6 +16,9 @@ fn create_greenhouse(
         _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
     };
 
+    Greenhouse::check_name_length(&name)?;
+    Greenhouse::check_token_length(&token)?;
+
     let session = Session::find(connection.session_id.unwrap())?;
     let session_user_id = match session.user_id {
         Some(user_id) => user_id,

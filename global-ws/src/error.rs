@@ -167,6 +167,10 @@ websocket_error_template! {
 
     // Minimum / Maximum number of ... reached
     (400, Some(30001), GreenhousesTooMany, "There are too many greenhouses");
+    (400, Some(30002), GreenhouseNameTooShort, "Greenhouse name is too short");
+    (400, Some(30003), GreenhouseNameTooLong, "Greenhouse name is too long");
+    (400, Some(30004), GreenhouseTokenTooShort, "Greenhouse token is too short");
+    (400, Some(30005), GreenhouseTokenTooLong, "Greenhouse token is too long");
 
     // Invalid body or something else
     (400, Some(40001), InvalidRequestField, "Invalid request");

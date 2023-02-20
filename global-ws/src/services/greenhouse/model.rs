@@ -5,7 +5,7 @@ use diesel::{ExpressionMethods, Insertable, Queryable, RunQueryDsl};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::error::WebSocketError;
+use crate::error::{WebSocketError, WebSocketErrorTemplate};
 
 #[derive(Clone, Debug, Deserialize, Serialize, Insertable, Queryable)]
 #[diesel(table_name = greenhouses)]
@@ -18,6 +18,7 @@ pub struct Greenhouse {
 }
 
 impl Greenhouse {
+    // CRUD
     pub fn create(greenhouse: NewGreenhouse) -> Result<Self, WebSocketError> {
         let connection = &mut db::get_connection()?;
 
@@ -75,6 +76,27 @@ impl Greenhouse {
             .get_result(connection)?;
 
         Ok(greenhouses)
+    }
+
+    // Default implementations
+    pub fn check_name_length(name: &str) -> Result<(), WebSocketError> {
+        let name_length = name.chars().count();
+
+        match name_length {
+            length if length < 3 => Err(WebSocketErrorTemplate::GreenhouseNameTooShort(None).into()),
+            length if length > 32 => Err(WebSocketErrorTemplate::GreenhouseNameTooLong(None).into()),
+            _ => Ok(())
+        }
+    }
+
+    pub fn check_token_length(token: &str) -> Result<(), WebSocketError> {
+        let token_length = token.chars().count();
+
+        match token_length {
+            length if length < 3 => Err(WebSocketErrorTemplate::GreenhouseTokenTooShort(None).into()),
+            length if length > 32 => Err(WebSocketErrorTemplate::GreenhouseTokenTooLong(None).into()),
+            _ => Ok(())
+        }
     }
 }
 
