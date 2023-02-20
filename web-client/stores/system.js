@@ -5,6 +5,8 @@ export const useSystemStore = definePiniaStore('system', () => {
   const webSocket = ref(null)
   const webSocketNextMessageId = ref(0)
   const isWebSocketAuthorized = ref(false)
+  const isWebSocketConnected = ref(false)
+  const webSocketSubscriptions = ref([])
   const isEetfInitialized = ref(false)
 
   function registerModal(id, priority = null) {
@@ -36,6 +38,18 @@ export const useSystemStore = definePiniaStore('system', () => {
     isWebSocketAuthorized.value = state
   }
 
+  function setIsWebSocketConnected(state) {
+    isWebSocketConnected.value = state
+  }
+
+  function addWebSocketSubscription(subscription) {
+    webSocketSubscriptions.value.push(subscription)
+  }
+
+  function deleteWebSocketSubscriptions() {
+    webSocketSubscriptions.value = []
+  }
+
   function setIsEetfInitialized(state) {
     isEetfInitialized.value = state
   }
@@ -46,6 +60,8 @@ export const useSystemStore = definePiniaStore('system', () => {
     isNavbarFolded,
     webSocket,
     isWebSocketAuthorized,
+    isWebSocketConnected,
+    webSocketSubscriptions,
     isEetfInitialized,
     registerModal,
     unregisterActiveModal,
@@ -54,6 +70,9 @@ export const useSystemStore = definePiniaStore('system', () => {
     openWebSocketConnection,
     getWebSocketMessageId,
     setIsWebSocketAuthorized,
+    setIsWebSocketConnected,
+    addWebSocketSubscription,
+    deleteWebSocketSubscriptions,
     setIsEetfInitialized,
   }
 })

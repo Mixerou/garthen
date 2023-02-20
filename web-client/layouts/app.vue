@@ -1,5 +1,5 @@
 <script setup>
-const { $wsSend } = useNuxtApp()
+const { $wsSend, $wsSubscribe } = useNuxtApp()
 const router = useRouter()
 const constants = useConstantsStore()
 const system = useSystemStore()
@@ -16,21 +16,15 @@ onMounted(() => {
   })
 
   watchEffect(() => {
-    const state = user.id !== 0
+    const state = user.id !== 0 && system.isWebSocketConnected
 
     isLoading.value = !state
 
     setTimeout(() => (isNavbarVisible.value = state), 1)
 
     // TODO: Check is already subscribed
-    $wsSend({
-      o: constants.GLOBAL_WS_OPCODES.subscribe,
-      r: 'greenhouses/mine',
-    })
-    $wsSend({
-      o: constants.GLOBAL_WS_OPCODES.subscribe,
-      r: 'greenhouse-create',
-    })
+    $wsSubscribe('greenhouses/mine', {}, true)
+    $wsSubscribe('greenhouse-create', {}, true)
   })
 })
 

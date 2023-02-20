@@ -5,8 +5,13 @@ export const useDataStore = definePiniaStore('data', () => {
     greenhouses.value[greenhouse.id] = greenhouse
   }
 
+  function deleteData() {
+    greenhouses.value = {}
+  }
+
   return {
     greenhouses,
     setGreenhouse,
+    deleteData,
   }
 })

@@ -22,17 +22,23 @@ export default defineNuxtPlugin(plugin => {
 
         system.webSocket.onclose = event => {
           clearInterval(heartbeating)
+          system.setIsWebSocketConnected(false)
           system.setIsWebSocketAuthorized(false)
+          dataStore.deleteData()
 
           if (
             event.code === constants.GLOBAL_WS_CLOSE_ERRORS.authenticationFailed
           ) {
+            system.deleteWebSocketSubscriptions()
             user.setIsLoggedIn(false)
 
             return
           }
 
-          if (event.code === 1005) return
+          if (event.code === 1005) {
+            system.deleteWebSocketSubscriptions()
+            return
+          }
 
           setTimeout(() => plugin.$wsOpenConnection(), 1e3)
         }
@@ -60,13 +66,7 @@ export default defineNuxtPlugin(plugin => {
           } else if (event === constants.GLOBAL_WS_EVENTS.greenhouseCreate) {
             // TODO: dataStore.setGreenhouse(data)
 
-            plugin.$wsSend({
-              o: constants.GLOBAL_WS_OPCODES.subscribe,
-              r: 'greenhouse',
-              d: {
-                id: data.id,
-              },
-            })
+            plugin.$wsSubscribe('greenhouse', { id: data.id }, true, false)
           }
         }
 
@@ -91,6 +91,15 @@ export default defineNuxtPlugin(plugin => {
                 binary: true,
               })
 
+              for (const subscription of system.webSocketSubscriptions) {
+                plugin.$wsSubscribe(
+                  subscription.request,
+                  subscription.data,
+                  false,
+                  false
+                )
+              }
+
               system.webSocket.addEventListener(
                 'message',
                 () => {
@@ -99,6 +108,7 @@ export default defineNuxtPlugin(plugin => {
                   }, 30e3)
 
                   system.setIsWebSocketAuthorized(true)
+                  system.setIsWebSocketConnected(true)
                   resolve()
                 },
                 { once: true }
@@ -113,6 +123,7 @@ export default defineNuxtPlugin(plugin => {
 
         if (
           !system.isWebSocketAuthorized ||
+          !system.isWebSocketConnected ||
           system.webSocket.readyState !== system.webSocket.OPEN
         ) {
           system.webSocket.addEventListener(
@@ -138,6 +149,7 @@ export default defineNuxtPlugin(plugin => {
         return new Promise(resolve => {
           if (
             !system.isWebSocketAuthorized ||
+            !system.isWebSocketConnected ||
             system.webSocket.readyState !== system.webSocket.OPEN
           ) {
             system.webSocket.addEventListener(
@@ -182,6 +194,31 @@ export default defineNuxtPlugin(plugin => {
               }
             }
           )
+        })
+      },
+      wsSubscribe: (
+        request,
+        data = {},
+        needToCheckExistence = false,
+        needToRememberSubscription = true
+      ) => {
+        if (needToCheckExistence) {
+          for (const subscription of system.webSocketSubscriptions.filter(
+            subscription => subscription.request === request
+          )) {
+            if (JSON.stringify(subscription.data) === JSON.stringify(data)) {
+              return
+            }
+          }
+        }
+
+        if (needToRememberSubscription)
+          system.addWebSocketSubscription({ request, data })
+
+        plugin.$wsSend({
+          o: constants.GLOBAL_WS_OPCODES.subscribe,
+          r: request,
+          d: data,
         })
       },
     },

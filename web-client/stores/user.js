@@ -42,8 +42,11 @@ export const useUserStore = definePiniaStore('user', () => {
     isLoggedInCookie.value = JSON.stringify(false)
 
     isLoggedIn.value = false
+    id.value = 0
     email.value = ''
     username.value = ''
+    createdAt.value = 0
+    greenhousesCount.value = 0
 
     system.webSocket.close()
   }

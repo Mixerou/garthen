@@ -1,6 +1,6 @@
 <script setup>
 const { t, locale } = useI18n()
-const { $authorizedFetch, $wsOpenConnection, $wsSend } = useNuxtApp()
+const { $authorizedFetch, $wsOpenConnection, $wsSubscribe } = useNuxtApp()
 const constants = useConstantsStore()
 const system = useSystemStore()
 const user = useUserStore()
@@ -135,10 +135,7 @@ const auth = async () => {
 
       user.setIsLoggedIn(true)
       $wsOpenConnection()
-      $wsSend({
-        o: constants.GLOBAL_WS_OPCODES.subscribe,
-        r: 'user/me',
-      })
+      $wsSubscribe('user/me', {}, true)
 
       // TODO: Make it safe
       system.unregisterActiveModal()

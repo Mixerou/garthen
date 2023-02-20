@@ -1,5 +1,5 @@
 <script setup>
-const { $wsOpenConnection, $wsSend } = useNuxtApp()
+const { $wsOpenConnection, $wsSubscribe } = useNuxtApp()
 const constants = useConstantsStore()
 const system = useSystemStore()
 const user = useUserStore()
@@ -52,10 +52,7 @@ onMounted(async () => {
 
   if (user.isLoggedIn && user.token.constructor === String) {
     $wsOpenConnection()
-    $wsSend({
-      o: constants.GLOBAL_WS_OPCODES.subscribe,
-      r: 'user/me',
-    })
+    $wsSubscribe('user/me', {}, true)
   }
 })
 </script>
