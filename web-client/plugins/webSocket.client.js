@@ -4,6 +4,7 @@ import serdeEetfWasmUrl from '@/node_modules/serde-eetf/serde_eetf_bg.wasm?url'
 export default defineNuxtPlugin(plugin => {
   const config = useRuntimeConfig()
   const constants = useConstantsStore()
+  const dataStore = useDataStore()
   const system = useSystemStore()
   const user = useUserStore()
 
@@ -54,6 +55,18 @@ export default defineNuxtPlugin(plugin => {
               data['created_at'],
               data.greenhouses
             )
+          } else if (event === constants.GLOBAL_WS_EVENTS.greenhouseUpdate) {
+            dataStore.setGreenhouse(data)
+          } else if (event === constants.GLOBAL_WS_EVENTS.greenhouseCreate) {
+            // TODO: dataStore.setGreenhouse(data)
+
+            plugin.$wsSend({
+              o: constants.GLOBAL_WS_OPCODES.subscribe,
+              r: 'greenhouse',
+              d: {
+                id: data.id,
+              },
+            })
           }
         }
 

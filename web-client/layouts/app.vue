@@ -1,5 +1,7 @@
 <script setup>
+const { $wsSend } = useNuxtApp()
 const router = useRouter()
+const constants = useConstantsStore()
 const system = useSystemStore()
 const user = useUserStore()
 
@@ -13,8 +15,23 @@ onMounted(() => {
     if (!user.isLoggedIn) router.push('/')
   })
 
-  isLoading.value = false
-  setTimeout(() => (isNavbarVisible.value = true), 1)
+  watchEffect(() => {
+    const state = user.id !== 0
+
+    isLoading.value = !state
+
+    setTimeout(() => (isNavbarVisible.value = state), 1)
+
+    // TODO: Check is already subscribed
+    $wsSend({
+      o: constants.GLOBAL_WS_OPCODES.subscribe,
+      r: 'greenhouses/mine',
+    })
+    $wsSend({
+      o: constants.GLOBAL_WS_OPCODES.subscribe,
+      r: 'greenhouse-create',
+    })
+  })
 })
 
 onBeforeUnmount(() => {
@@ -64,12 +81,12 @@ onBeforeUnmount(() => {
 
   .v-enter-from {
     opacity: 0;
-    transform: scale(0.75);
+    transform: scale(0.95);
   }
 
   .v-leave-to {
     opacity: 0;
-    transform: scale(1.25);
+    transform: scale(1.05);
   }
 
   .v-enter-active,
@@ -80,17 +97,20 @@ onBeforeUnmount(() => {
   .content {
     display: flex;
     width: 100%;
+    height: 100vh;
 
     nav {
       transition: transform var(--default-transition);
 
       &.hide {
-        transform: translateX(-200%) scale(1.25);
+        transform: translateX(-200%) scale(1.05);
       }
     }
 
     main {
       width: 100%;
+      height: 100%;
+      overflow-y: auto;
     }
   }
 }
