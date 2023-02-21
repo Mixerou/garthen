@@ -23,3 +23,10 @@ $ npm run lint
 # Fix code
 $ npm run lint:fix
 ```
+
+## Environment Variables
+
+| Variable                      | Default Value | Description                                             |
+|-------------------------------|:-------------:|---------------------------------------------------------|
+| `NUXT_PUBLIC_GLOBAL_API_PATH` |       -       | Path to the `Global API` module without `/` at the end. |
+| `NUXT_PUBLIC_GLOBAL_WS_URI`   |       -       | URI to the `Global WebSocket` module.                   |
