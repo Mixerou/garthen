@@ -2,33 +2,50 @@ use std::time::UNIX_EPOCH;
 
 use serde::{Deserialize, Serialize};
 
-use crate::services::user::{User, UserMe};
+use crate::services::greenhouse::Greenhouse;
+use crate::services::user::{UserMe, UserPublic};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum WebSocketMessageData {
+    // Default
+    RequestWithId {
+        id: i64,
+    },
+
+    // Requests (Opcode: Request)
+    RequestPostGreenhouse {
+        name: String,
+        token: String,
+    },
+
     // Requests (Opcode: Authorize)
     Authorize {
         token: String,
     },
 
     // Requests (Opcode: Subscribe)
-    SubscribeToUserUpdates {
-        id: Option<i64>,
-        is_me: Option<bool>,
-    },
     SubscribeToUserMeUpdates {},
 
     // Dispatches
-    DispatchUser {
+    DispatchUserUpdate {
         id: i64,
         username: String,
         created_at: u64,
+        greenhouses: i64,
     },
-    DispatchUserMe {
+    DispatchUserMeUpdate {
         id: i64,
         email: String,
         username: String,
+        created_at: u64,
+        greenhouses: i64,
+    },
+    DispatchGreenhouseMine {
+        id: i64,
+        name: String,
+        token: String,
+        owner_id: i64,
         created_at: u64,
     },
 
@@ -52,23 +69,37 @@ impl Default for WebSocketMessageData {
     }
 }
 
-impl From<User> for WebSocketMessageData {
-    fn from(user: User) -> Self {
-        WebSocketMessageData::DispatchUser {
+impl From<UserPublic> for WebSocketMessageData {
+    fn from(user: UserPublic) -> Self {
+        WebSocketMessageData::DispatchUserUpdate {
             id: user.id,
             username: user.username,
             created_at: user.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            greenhouses: user.greenhouses,
         }
     }
 }
 
 impl From<UserMe> for WebSocketMessageData {
     fn from(user: UserMe) -> Self {
-        WebSocketMessageData::DispatchUserMe {
+        WebSocketMessageData::DispatchUserMeUpdate {
             id: user.id,
             email: user.email,
             username: user.username,
             created_at: user.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            greenhouses: user.greenhouses,
+        }
+    }
+}
+
+impl From<Greenhouse> for WebSocketMessageData {
+    fn from(greenhouse: Greenhouse) -> Self {
+        WebSocketMessageData::DispatchGreenhouseMine {
+            id: greenhouse.id,
+            name: greenhouse.name,
+            token: greenhouse.token,
+            owner_id: greenhouse.owner_id,
+            created_at: greenhouse.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
         }
     }
 }

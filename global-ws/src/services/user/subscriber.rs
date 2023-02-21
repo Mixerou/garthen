@@ -10,32 +10,13 @@ fn user_update(
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
-    let (id, is_me) = match message.data {
-        WebSocketMessageData::SubscribeToUserUpdates { id, is_me} => (id, is_me),
+    let id = match message.data {
+        WebSocketMessageData::RequestWithId { id } => id,
         _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
     };
 
-    if id.is_none() && !is_me.unwrap_or(false) {
-        return Err(WebSocketErrorTemplate::BadRequest(None).into());
-    }
-
-    let mut user_id: i64 = 0;
-    let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
-
-    if let Some(id) = id {
-        user_id = id;
-    }
-
-    if is_me.unwrap_or(false) {
-        user_id = session_user_id;
-    }
-
     let response = DispatchMessage {
-        event: DispatchEvent::UserUpdate { id: user_id },
+        event: DispatchEvent::UserUpdate { id },
         new_subscribers: Some(vec![connection.id]),
     };
 

@@ -161,10 +161,20 @@ websocket_error_template! {
     // Default HTTP errors
     (400, None, BadRequest, "Bad request");
     (401, None, Unauthorized, "Unauthorized");
+    (403, None, Forbidden, "Forbidden");
     (404, None, NotFound, "Not found");
+    (405, None, MethodNotAllowed, "Method not allowed");
+
+    // Minimum / Maximum number of ... reached
+    (400, Some(30001), GreenhousesTooMany, "There are too many greenhouses");
+    (400, Some(30002), GreenhouseNameTooShort, "Greenhouse name is too short");
+    (400, Some(30003), GreenhouseNameTooLong, "Greenhouse name is too long");
+    (400, Some(30004), GreenhouseTokenTooShort, "Greenhouse token is too short");
+    (400, Some(30005), GreenhouseTokenTooLong, "Greenhouse token is too long");
 
     // Invalid body or something else
     (400, Some(40001), InvalidRequestField, "Invalid request");
+    (400, Some(40002), GreenhouseTokenTaken, "Greenhouse token taken");
 }
 
 macro_rules! close_error {
