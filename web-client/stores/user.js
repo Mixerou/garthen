@@ -37,7 +37,7 @@ export const useUserStore = definePiniaStore('user', () => {
     isLoggedInCookie.value = JSON.stringify(true)
 
     isLoggedIn.value = true
-    id.value = authedEmail
+    id.value = authedId
     email.value = authedEmail
     username.value = authedUsername
     createdAt.value = authedCreatedAt
