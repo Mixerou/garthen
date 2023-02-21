@@ -1,4 +1,6 @@
 <script setup>
+const emit = defineEmits(['close'])
+
 const { $wsSendAndWait } = useNuxtApp()
 const { t } = useI18n()
 const constants = useConstantsStore()
@@ -68,15 +70,20 @@ const create = () => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="error-container" :class="{ hide: !isError || error === '' }">
+  <GarthenModal
+    close-on-click-outside
+    :is-dropdown-visible="isError"
+    @close="emit('close')"
+  >
+    <template #dropdown>
       <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
         <span :key="`error-${error}`">
           {{ $t(`globalWsErrors.${error}`) }}
         </span>
       </Transition>
-    </div>
-    <div class="content">
+    </template>
+
+    <template #content>
       <h5>{{ t('connection') }}</h5>
 
       <div class="credentials">
@@ -101,60 +108,22 @@ const create = () => {
       <GarthenButton :disabled="isLoading" @click="create">
         {{ $t('go') }}
       </GarthenButton>
-    </div>
-  </div>
+    </template>
+  </GarthenModal>
 </template>
 
 <style lang="scss" scoped>
-.container {
-  position: relative;
-
-  .error-container {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    bottom: 1rem;
-    left: 0;
-    width: 18rem;
-    max-width: calc(100vw - 5rem);
-    padding: 1rem 1.5rem;
-    border-radius: var(--large-radius);
-    box-shadow: var(--large-shadow);
-    background: var(--primary);
-    color: var(--primary-layer-0-color);
-    transform: translateY(calc(100% + 1.5rem));
-    transition: var(--default-transition);
+.dropdown {
+  span {
+    transition-duration: var(--fast-transition-duration);
 
     &.hide {
-      box-shadow: unset;
-      transform: translateY(0);
-    }
-
-    span {
-      transition-duration: var(--fast-transition-duration);
-
-      &.hide {
-        opacity: 0;
-      }
+      opacity: 0;
     }
   }
 }
 
 .content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 18rem;
-  max-width: calc(100vw - 5rem);
-  padding: 1rem 1.5rem;
-  border-radius: var(--large-radius);
-  box-shadow: var(--large-shadow);
-  background: var(--primary);
-  color: var(--primary-layer-0-color);
-
   h5 {
     font-weight: 900;
     transition-duration: var(--fast-transition-duration);

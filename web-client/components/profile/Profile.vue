@@ -34,20 +34,15 @@ const openCardModal = () => {
 
 <template>
   <div class="profile">
-    <GarthenModal
+    <ProfileAuthModal
       v-if="isAuthModalOpened"
-      close-on-click-outside
       @close="isAuthModalOpened = false"
-    >
-      <ProfileAuth />
-    </GarthenModal>
-    <GarthenModal
+    />
+    <ProfileCardModal
       v-if="isCardModalOpened"
-      close-on-click-outside
       @close="isCardModalOpened = false"
-    >
-      <ProfileCardModal />
-    </GarthenModal>
+    />
+
     <transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
       <ProfileCard
         v-if="user.isLoggedIn"

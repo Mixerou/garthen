@@ -28,13 +28,10 @@ onMounted(() => {
 
 <template>
   <div class="content">
-    <GarthenModal
+    <GreenhousesConnectModal
       v-if="isGreenhouseCreationModalOpened"
-      close-on-click-outside
       @close="isGreenhouseCreationModalOpened = false"
-    >
-      <GreenhousesCreateModal />
-    </GarthenModal>
+    />
     <div class="heading-container">
       <Transition
         enter-active-class="transition"

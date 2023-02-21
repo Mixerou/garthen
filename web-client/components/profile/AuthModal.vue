@@ -1,4 +1,6 @@
 <script setup>
+const emit = defineEmits(['close'])
+
 const { t, locale } = useI18n()
 const { $authorizedFetch, $wsOpenConnection, $wsSubscribe } = useNuxtApp()
 const constants = useConstantsStore()
@@ -153,15 +155,20 @@ const auth = async () => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="error-container" :class="{ hide: !isError || error === '' }">
+  <GarthenModal
+    close-on-click-outside
+    :is-dropdown-visible="isError"
+    @close="emit('close')"
+  >
+    <template #dropdown>
       <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
-        <span :key="`error-${error}`">{{
-          $t(`globalApiErrors.${error}`)
-        }}</span>
+        <span :key="`error-${error}`">
+          {{ $t(`globalApiErrors.${error}`) }}
+        </span>
       </Transition>
-    </div>
-    <div class="content">
+    </template>
+
+    <template #content>
       <transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
         <h5 v-if="isRegistrationTemplate">{{ t('signUp', 2) }}</h5>
         <h5 v-else>{{ $t('signIn', 2) }}</h5>
@@ -230,62 +237,23 @@ const auth = async () => {
           </Transition>
         </GarthenButton>
       </div>
-    </div>
-  </div>
+    </template>
+  </GarthenModal>
 </template>
 
 <style lang="scss" scoped>
-.container {
-  position: relative;
-
-  .error-container {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    bottom: 1rem;
-    left: 0;
-    width: 18rem;
-    max-width: calc(100vw - 5rem);
-    padding: 1rem 1.5rem;
-    border-radius: var(--large-radius);
-    box-shadow: var(--large-shadow);
-    background: var(--primary);
-    color: var(--primary-layer-0-color);
-    transform: translateY(calc(100% + 1.5rem));
-    transition: var(--default-transition);
+.dropdown {
+  span {
+    transition-duration: var(--fast-transition-duration);
 
     &.hide {
-      box-shadow: unset;
-      transform: translateY(0);
-    }
-
-    span {
-      transition-duration: var(--fast-transition-duration);
-
-      &.hide {
-        opacity: 0;
-      }
+      opacity: 0;
     }
   }
 }
 
 .content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 18rem;
-  max-width: calc(100vw - 5rem);
-  padding: 1rem 1.5rem;
-  border-radius: var(--large-radius);
-  box-shadow: var(--large-shadow);
-  background: var(--primary);
-  color: var(--primary-layer-0-color);
-
   h5 {
-    font-weight: 900;
     transition-duration: var(--fast-transition-duration);
   }
 
@@ -294,24 +262,6 @@ const auth = async () => {
     flex-direction: column;
     gap: 0.5rem;
     width: 100%;
-
-    input {
-      border-color: #ffffff66;
-      color: var(--primary-layer-0-color);
-
-      &:focus {
-        border-color: #ffffff;
-      }
-
-      &::placeholder {
-        color: var(--primary-layer-0-color);
-      }
-
-      &.v-enter-active,
-      &.v-leave-active {
-        transition: var(--default-transition);
-      }
-    }
 
     .hide {
       margin-bottom: -3.25rem;
@@ -328,7 +278,7 @@ const auth = async () => {
     gap: 0.5rem;
 
     button span {
-      transition-duration: var(--fast-transition-duration);
+      transition: all var(--fast-transition-duration);
     }
   }
 
