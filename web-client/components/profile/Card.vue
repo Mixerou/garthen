@@ -5,6 +5,11 @@ defineProps({
     required: false,
     default: false,
   },
+  avatarOnly: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const user = useUserStore()
@@ -19,7 +24,10 @@ const user = useUserStore()
       class="loader"
       :stop="user.email !== '' && user.username !== ''"
     />
-    <div class="card" :class="{ 'hide-on-mobile': avatarOnlyOnMobile }">
+    <div
+      class="card"
+      :class="{ 'hide-on-mobile': avatarOnlyOnMobile, hide: avatarOnly }"
+    >
       <ProfileAvatar class="avatar" :username="user.username" />
       <div class="information">
         <p class="username">{{ user.username }}</p>
@@ -102,6 +110,14 @@ const user = useUserStore()
         @include medium-screen {
           display: flex;
         }
+      }
+    }
+
+    &.hide {
+      width: auto;
+
+      .information {
+        display: none;
       }
     }
 

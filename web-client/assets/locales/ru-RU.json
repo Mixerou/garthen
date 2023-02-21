@@ -13,6 +13,15 @@
     "emailInvalid": "Адрес эл. почты недействителен",
     "usernameInvalidOrTaken": "Имя пользователя недействительно или занято"
   },
+  "globalWsErrors": {
+    "greenhousesTooMany": "Слишком много теплиц",
+    "greenhouseNameTooShort": "Слишком короткое название теплицы",
+    "greenhouseNameTooLong": "Слишком длинное название теплицы",
+    "greenhouseTokenTooShort": "Токен теплицы слишком короткий",
+    "greenhouseTokenTooLong": "Токен теплицы слишком длинный",
+    "invalidRequestField": "Недействительный запрос",
+    "greenhouseTokenTaken": "Токен теплицы уже взят кем-то"
+  },
   "monthShortNames": {
     "january": "Янв",
     "february": "Фев",

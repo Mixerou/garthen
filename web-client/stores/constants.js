@@ -13,7 +13,16 @@ export const useConstantsStore = definePiniaStore('constants', () => {
   }
 
   const GLOBAL_WS_ERRORS = {
+    // Minimum / Maximum number of ... reached
+    greenhousesTooMany: 30001,
+    greenhouseNameTooShort: 30002,
+    greenhouseNameTooLong: 30003,
+    greenhouseTokenTooShort: 30004,
+    greenhouseTokenTooLong: 30005,
+
+    // Invalid body or something else
     invalidRequestField: 40001,
+    greenhouseTokenTaken: 40002,
   }
 
   const GLOBAL_WS_CLOSE_ERRORS = {
@@ -38,6 +47,8 @@ export const useConstantsStore = definePiniaStore('constants', () => {
   const GLOBAL_WS_EVENTS = {
     userUpdate: 'user_update',
     userMeUpdate: 'user_me_update',
+    greenhouseUpdate: 'greenhouse_update',
+    greenhouseCreate: 'greenhouse_create',
   }
 
   function parseGlobalApiErrorCode(code) {

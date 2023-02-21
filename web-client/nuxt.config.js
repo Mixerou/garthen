@@ -23,12 +23,14 @@ export default defineNuxtConfig({
         'data-theme': 'light',
       },
     },
+    layoutTransition: { name: 'layout' },
   },
   css: ['@/assets/styles/_colors.scss', '@/assets/styles/_variables.scss'],
   modules: [
     [
       '@nuxtjs/i18n',
       {
+        skipSettingLocaleOnNavigate: true,
         strategy: 'no_prefix',
         locales: [
           {

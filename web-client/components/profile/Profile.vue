@@ -10,6 +10,11 @@ defineProps({
     required: false,
     default: false,
   },
+  avatarOnly: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 const user = useUserStore()
 
@@ -49,6 +54,7 @@ const openCardModal = () => {
         class="fast-transition"
         :class="{ hide: hideCardWhenCardModalOpened && isCardModalOpened }"
         :avatar-only-on-mobile="avatarOnlyInCardOnMobile"
+        :avatar-only="avatarOnly"
         @click="openCardModal"
       />
       <GarthenButton

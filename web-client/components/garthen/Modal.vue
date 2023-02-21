@@ -38,6 +38,12 @@ onMounted(() => {
   system.registerModal(id)
   setTimeout(() => (isMounted.value = true), 10)
 })
+
+onBeforeUnmount(() => {
+  if (system.modals.indexOf(id) >= 0) {
+    system.unregisterActiveModal()
+  }
+})
 </script>
 
 <template>

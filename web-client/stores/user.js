@@ -10,6 +10,7 @@ export const useUserStore = definePiniaStore('user', () => {
   const email = ref('')
   const username = ref('')
   const createdAt = ref(0)
+  const greenhousesCount = ref(0)
 
   function setToken(value) {
     if (value === null || value === 'null') {
@@ -26,7 +27,13 @@ export const useUserStore = definePiniaStore('user', () => {
     isLoggedIn.value = state
   }
 
-  function login(authedId, authedEmail, authedUsername, authedCreatedAt) {
+  function login(
+    authedId,
+    authedEmail,
+    authedUsername,
+    authedCreatedAt,
+    authedGreenhousesCount
+  ) {
     isLoggedInCookie.value = JSON.stringify(true)
 
     isLoggedIn.value = true
@@ -34,14 +41,18 @@ export const useUserStore = definePiniaStore('user', () => {
     email.value = authedEmail
     username.value = authedUsername
     createdAt.value = authedCreatedAt
+    greenhousesCount.value = authedGreenhousesCount
   }
 
   function logout() {
     isLoggedInCookie.value = JSON.stringify(false)
 
     isLoggedIn.value = false
+    id.value = 0
     email.value = ''
     username.value = ''
+    createdAt.value = 0
+    greenhousesCount.value = 0
 
     system.webSocket.close()
   }
@@ -53,6 +64,7 @@ export const useUserStore = definePiniaStore('user', () => {
     email,
     username,
     createdAt,
+    greenhousesCount,
     setToken,
     setIsLoggedIn,
     login,
