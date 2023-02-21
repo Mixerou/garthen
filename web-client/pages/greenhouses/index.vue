@@ -88,7 +88,7 @@ onMounted(() => {
           v-if="user.greenhousesCount === 0"
           @click="isGreenhouseCreationModalOpened = true"
         >
-          {{ $t('noGreenhousesConnectButton') }}
+          {{ t('noGreenhousesConnectButton') }}
         </GarthenButton>
         <GarthenButton v-else @click="isGreenhouseCreationModalOpened = true">
           {{ t('connectButton') }}
