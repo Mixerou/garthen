@@ -90,7 +90,15 @@ const auth = async () => {
 
   // TODO: Make better validation
   setTimeout(async () => {
-    if (email.value < 3 || !email.value.includes('@')) {
+    const emailParts = email.value.split('@')
+
+    if (
+      email.value.length < 3 ||
+      email.value.length > 512 ||
+      emailParts.length !== 2 ||
+      emailParts[0].length === 0 ||
+      emailParts[1] < 3
+    ) {
       isEmailIncorrect.value = true
     }
 
