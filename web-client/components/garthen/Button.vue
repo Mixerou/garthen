@@ -50,7 +50,7 @@ button {
     &:active {
       background: var(--primary-600);
 
-      &:deep(*) {
+      &:deep(*:not(.loader *)) {
         color: var(--white-original-100);
         fill: var(--white-original-100);
       }
@@ -79,7 +79,7 @@ button {
     }
   }
 
-  &:deep(*) {
+  &:deep(*:not(.loader *)) {
     fill: var(--white-original);
     color: var(--white-original);
     transition-duration: var(--fast-transition-duration);
