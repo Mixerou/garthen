@@ -11,6 +11,7 @@ const system = useSystemStore()
 const user = useUserStore()
 
 const isGreenhouseAnimationDisabled = ref(true)
+const isGreenhouseCreationModalOpened = ref(false)
 
 watchEffect(() => {
   useHead({
@@ -27,6 +28,13 @@ onMounted(() => {
 
 <template>
   <div class="content">
+    <GarthenModal
+      v-if="isGreenhouseCreationModalOpened"
+      close-on-click-outside
+      @close="isGreenhouseCreationModalOpened = false"
+    >
+      <GreenhousesCreateModal />
+    </GarthenModal>
     <div class="heading-container">
       <Transition
         enter-active-class="transition"
@@ -76,10 +84,15 @@ onMounted(() => {
         leave-to-class="hide"
         mode="out-in"
       >
-        <GarthenButton v-if="user.greenhousesCount === 0">
-          {{ t('noGreenhousesConnectButton') }}
+        <GarthenButton
+          v-if="user.greenhousesCount === 0"
+          @click="isGreenhouseCreationModalOpened = true"
+        >
+          {{ $t('noGreenhousesConnectButton') }}
         </GarthenButton>
-        <GarthenButton v-else>{{ t('connectButton') }}</GarthenButton>
+        <GarthenButton v-else @click="isGreenhouseCreationModalOpened = true">
+          {{ t('connectButton') }}
+        </GarthenButton>
       </Transition>
     </div>
   </div>

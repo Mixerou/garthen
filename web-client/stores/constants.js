@@ -15,6 +15,10 @@ export const useConstantsStore = definePiniaStore('constants', () => {
   const GLOBAL_WS_ERRORS = {
     // Minimum / Maximum number of ... reached
     greenhousesTooMany: 30001,
+    greenhouseNameTooShort: 30002,
+    greenhouseNameTooLong: 30003,
+    greenhouseTokenTooShort: 30004,
+    greenhouseTokenTooLong: 30005,
 
     // Invalid body or something else
     invalidRequestField: 40001,

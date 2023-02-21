@@ -8,6 +8,45 @@ export default defineNuxtPlugin(plugin => {
   const system = useSystemStore()
   const user = useUserStore()
 
+  const parseJson = json => {
+    return JSON.parse(json, (_, value) => {
+      if (typeof value === 'number' && !Number.isSafeInteger(value)) {
+        return BigInt(value)
+      }
+
+      return value
+    })
+  }
+
+  const stringifyToJson = data => {
+    if (data !== undefined) {
+      let intCount = 0
+      let repCount = 0
+
+      const json = JSON.stringify(data, (_, value) => {
+        if (typeof value === 'bigint') {
+          intCount++
+
+          return `${value}#bigint`
+        }
+
+        return value
+      })
+
+      const result = json.replace(/"(-?\d+)#bigint"/g, (_, value) => {
+        repCount++
+
+        return value
+      })
+
+      if (repCount > intCount) {
+        throw new Error(`BigInt serialization conflict with a string value.`)
+      }
+
+      return result
+    }
+  }
+
   return {
     provide: {
       wsOpenConnection: async () => {
@@ -44,7 +83,7 @@ export default defineNuxtPlugin(plugin => {
         }
 
         system.webSocket.onmessage = message => {
-          message = JSON.parse(unpack(new Uint8Array(message.data)))
+          message = parseJson(unpack(new Uint8Array(message.data)))
 
           if (message.o !== constants.GLOBAL_WS_OPCODES.dispatch) return
 
@@ -87,7 +126,7 @@ export default defineNuxtPlugin(plugin => {
                 system.setIsEetfInitialized(true)
               }
 
-              system.webSocket.send(pack(JSON.stringify(data)).buffer, {
+              system.webSocket.send(pack(stringifyToJson(data)).buffer, {
                 binary: true,
               })
 
@@ -129,7 +168,7 @@ export default defineNuxtPlugin(plugin => {
           system.webSocket.addEventListener(
             'message',
             () => {
-              system.webSocket.send(pack(JSON.stringify(data)).buffer, {
+              system.webSocket.send(pack(stringifyToJson(data)).buffer, {
                 binary: true,
               })
             },
@@ -139,7 +178,7 @@ export default defineNuxtPlugin(plugin => {
           return
         }
 
-        system.webSocket.send(pack(JSON.stringify(data)).buffer, {
+        system.webSocket.send(pack(stringifyToJson(data)).buffer, {
           binary: true,
         })
       },
@@ -155,14 +194,14 @@ export default defineNuxtPlugin(plugin => {
             system.webSocket.addEventListener(
               'message',
               () => {
-                system.webSocket.send(pack(JSON.stringify(data)).buffer, {
+                system.webSocket.send(pack(stringifyToJson(data)).buffer, {
                   binary: true,
                 })
 
                 system.webSocket.addEventListener(
                   'message',
                   function handler(message) {
-                    message = JSON.parse(unpack(new Uint8Array(message.data)))
+                    message = parseJson(unpack(new Uint8Array(message.data)))
 
                     if (data.i === message.i) {
                       this.removeEventListener('message', handler)
@@ -178,14 +217,14 @@ export default defineNuxtPlugin(plugin => {
             return
           }
 
-          system.webSocket.send(pack(JSON.stringify(data)).buffer, {
+          system.webSocket.send(pack(stringifyToJson(data)).buffer, {
             binary: true,
           })
 
           system.webSocket.addEventListener(
             'message',
             function handler(message) {
-              message = JSON.parse(unpack(new Uint8Array(message.data)))
+              message = parseJson(unpack(new Uint8Array(message.data)))
 
               if (data.i === message.i) {
                 this.removeEventListener('message', handler)
@@ -206,7 +245,7 @@ export default defineNuxtPlugin(plugin => {
           for (const subscription of system.webSocketSubscriptions.filter(
             subscription => subscription.request === request
           )) {
-            if (JSON.stringify(subscription.data) === JSON.stringify(data)) {
+            if (stringifyToJson(subscription.data) === stringifyToJson(data)) {
               return
             }
           }

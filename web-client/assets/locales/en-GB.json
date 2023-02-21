@@ -13,6 +13,15 @@
     "emailInvalid": "Email is not valid",
     "usernameInvalidOrTaken": "The username is invalid or taken"
   },
+  "globalWsErrors": {
+    "greenhousesTooMany": "There are too many greenhouses",
+    "greenhouseNameTooShort": "Greenhouse name is too short",
+    "greenhouseNameTooLong": "Greenhouse name is too long",
+    "greenhouseTokenTooShort": "Greenhouse token is too short",
+    "greenhouseTokenTooLong": "Greenhouse token is too long",
+    "invalidRequestField": "Invalid request",
+    "greenhouseTokenTaken": "Greenhouse token already taken by someone"
+  },
   "monthShortNames": {
     "january": "Jan",
     "february": "Feb",
