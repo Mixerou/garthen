@@ -7,6 +7,9 @@ const { locale, locales, t } = useI18n()
 const localeCookie = useCookie('locale', {
   expires: new Date(Date.now() * 2),
 })
+const themeCookie = useCookie('theme', {
+  expires: new Date(Date.now() * 2),
+})
 
 const getClientLocale = () => {
   if (
@@ -31,20 +34,37 @@ const getClientLocale = () => {
 
 const clientLocale = getClientLocale()
 
-locale.value = clientLocale.code
+system.setLocale(clientLocale.code)
+system.setTheme(
+  constants.USER_THEMES[constants.parseUserTheme(themeCookie.value) || 'light']
+)
 
-useHead({
-  titleTemplate: title => (title ? `${title} - Garthen` : 'Garthen'),
-  htmlAttrs: {
-    lang: clientLocale.iso,
-  },
-  meta: [
-    {
-      name: 'description',
-      content: t('garthen.description.short'),
-      lang: clientLocale.iso,
+watchEffect(() => {
+  locale.value = system.locale
+
+  // TODO: Auto theme
+  const theme =
+    system.theme === constants.USER_THEMES.light ||
+    system.theme === constants.USER_THEMES.dark
+      ? constants.parseUserTheme(system.theme)
+      : 'light'
+
+  useHead({
+    titleTemplate: title => (title ? `${title} - Garthen` : 'Garthen'),
+    htmlAttrs: {
+      lang: system.locale,
     },
-  ],
+    bodyAttrs: {
+      ['data-theme']: theme,
+    },
+    meta: [
+      {
+        name: 'description',
+        content: t('garthen.description.short'),
+        lang: system.locale,
+      },
+    ],
+  })
 })
 
 onMounted(async () => {

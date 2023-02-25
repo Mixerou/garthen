@@ -1,4 +1,11 @@
 export const useSystemStore = definePiniaStore('system', () => {
+  const localeCookie = useCookie('locale', {
+    expires: new Date(Date.now() * 2),
+  })
+  const themeCookie = useCookie('theme', {
+    expires: new Date(Date.now() * 2),
+  })
+
   const modals = ref([])
   const isAppLayout = ref(false)
   const isNavbarFolded = ref(false)
@@ -8,6 +15,8 @@ export const useSystemStore = definePiniaStore('system', () => {
   const isWebSocketConnected = ref(false)
   const webSocketSubscriptions = ref([])
   const isEetfInitialized = ref(false)
+  const locale = ref('')
+  const theme = ref(0)
 
   function registerModal(id, priority = null) {
     modals.value.push(id)
@@ -54,6 +63,16 @@ export const useSystemStore = definePiniaStore('system', () => {
     isEetfInitialized.value = state
   }
 
+  function setLocale(code) {
+    localeCookie.value = code
+    locale.value = code
+  }
+
+  function setTheme(code) {
+    themeCookie.value = code
+    theme.value = code
+  }
+
   return {
     modals,
     isAppLayout,
@@ -63,6 +82,8 @@ export const useSystemStore = definePiniaStore('system', () => {
     isWebSocketConnected,
     webSocketSubscriptions,
     isEetfInitialized,
+    locale,
+    theme,
     registerModal,
     unregisterActiveModal,
     setIsAppLayout,
@@ -74,5 +95,7 @@ export const useSystemStore = definePiniaStore('system', () => {
     addWebSocketSubscription,
     deleteWebSocketSubscriptions,
     setIsEetfInitialized,
+    setLocale,
+    setTheme,
   }
 })

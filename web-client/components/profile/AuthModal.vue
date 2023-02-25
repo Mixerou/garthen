@@ -33,6 +33,8 @@ const register = async () => {
     email: email.value,
     password: password.value,
     username: username.value,
+    locale: system.locale,
+    theme: system.theme,
   }
 
   const response = await $authorizedFetch('/auth/register', {

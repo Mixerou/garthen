@@ -1,9 +1,10 @@
 use std::time::UNIX_EPOCH;
 
 use serde::{Deserialize, Serialize};
+use serde_variant::to_variant_name;
 
 use crate::services::greenhouse::Greenhouse;
-use crate::services::user::{UserMe, UserPublic};
+use crate::services::user::{UserMe, UserPublic, UserTheme};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(untagged)]
@@ -39,6 +40,8 @@ pub enum WebSocketMessageData {
         email: String,
         username: String,
         created_at: u64,
+        locale: String,
+        theme: UserTheme,
         greenhouses: i64,
     },
     DispatchGreenhouseMine {
@@ -87,6 +90,8 @@ impl From<UserMe> for WebSocketMessageData {
             email: user.email,
             username: user.username,
             created_at: user.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            locale: to_variant_name(&user.locale).unwrap().to_string(),
+            theme: user.theme,
             greenhouses: user.greenhouses,
         }
     }

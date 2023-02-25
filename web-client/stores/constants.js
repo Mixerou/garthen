@@ -51,6 +51,12 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     greenhouseCreate: 'greenhouse_create',
   }
 
+  const USER_THEMES = {
+    auto: 0,
+    light: 1,
+    dark: 2,
+  }
+
   function parseGlobalApiErrorCode(code) {
     return Object.keys(GLOBAL_API_ERRORS).find(
       key => GLOBAL_API_ERRORS[key] === code
@@ -81,16 +87,22 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     )
   }
 
+  function parseUserTheme(id) {
+    return Object.keys(USER_THEMES).find(key => USER_THEMES[key] === id)
+  }
+
   return {
     GLOBAL_API_ERRORS,
     GLOBAL_WS_ERRORS,
     GLOBAL_WS_CLOSE_ERRORS,
     GLOBAL_WS_OPCODES,
     GLOBAL_WS_EVENTS,
+    USER_THEMES,
     parseGlobalApiErrorCode,
     parseGlobalWsErrorCode,
     parseGlobalWsCloseErrorCode,
     parseGlobalWsOpcodeId,
     parseGlobalWsEventName,
+    parseUserTheme,
   }
 })

@@ -20,6 +20,8 @@ log = "0.4.17"
 r2d2 = { version = "0.8.10", default-features = false }
 serde = { version = "1.0.152", features = ["derive"] }
 serde-eetf = { path = "../libs/serde-eetf" }
+serde-enum-str = "0.3.2"
 serde_json = "1.0.93"
 serde_repr = "0.1.10"
+serde_variant = "0.1.2"
 snowflake-generator = { path = "../libs/snowflake-generator" }

@@ -98,6 +98,8 @@ export default defineNuxtPlugin(plugin => {
               data.email,
               data.username,
               data['created_at'],
+              data.locale,
+              data.theme,
               data.greenhouses
             )
           } else if (event === constants.GLOBAL_WS_EVENTS.greenhouseUpdate) {

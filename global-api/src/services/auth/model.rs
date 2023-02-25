@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{ApiError, ApiErrorKind, ApiErrorTemplate};
 use crate::services::session::Session;
-use crate::services::user::{NewUser, User};
+use crate::services::user::{NewUser, User, UserLocale, UserTheme};
 use crate::utils::dns;
 
 pub struct Auth;
@@ -55,6 +55,8 @@ impl Auth {
                             email: credentials.email,
                             password_hash,
                             username: credentials.username,
+                            locale: credentials.locale,
+                            theme: credentials.theme,
                         })?
                     }
                     _ => return Err(error),
@@ -94,6 +96,8 @@ pub struct RegistrationRequest {
     pub email: String,
     pub password: String,
     pub username: String,
+    pub locale: UserLocale,
+    pub theme: UserTheme,
 }
 
 #[derive(Deserialize, Serialize)]

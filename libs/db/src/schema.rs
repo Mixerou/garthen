@@ -24,6 +24,8 @@ diesel::table! {
         password_hash -> Text,
         username -> Varchar,
         created_at -> Timestamp,
+        locale -> Varchar,
+        theme -> Int2,
     }
 }
 
