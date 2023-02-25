@@ -36,6 +36,13 @@
     "november": "Nov",
     "december": "Dec"
   },
+  "themes": {
+    "auto": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
   "go": "Go",
-  "signIn": "Sign in"
+  "signIn": "Sign in",
+  "email": "Email",
+  "username": "Username"
 }

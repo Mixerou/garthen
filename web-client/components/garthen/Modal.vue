@@ -168,6 +168,22 @@ onBeforeUnmount(() => {
         transition: var(--default-transition);
       }
     }
+
+    &:deep(.select) {
+      .selected-value {
+        border-color: #ffffff66;
+        color: var(--primary-layer-0-color);
+
+        &.opened:not(.disabled) {
+          border-color: #ffffff;
+        }
+      }
+
+      .options {
+        border-color: #ffffff;
+        color: var(--primary-layer-0-color);
+      }
+    }
   }
 }
 

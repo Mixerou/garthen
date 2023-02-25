@@ -184,7 +184,7 @@ const auth = async () => {
             type="email"
             :disabled="isLoading"
             :error="isEmailIncorrect"
-            :placeholder="t('inputs.email')"
+            :placeholder="$t('email')"
           />
           <GarthenInput
             v-if="isRegistrationTemplate"
@@ -192,7 +192,7 @@ const auth = async () => {
             v-model:text="username"
             :disabled="isLoading"
             :error="isUsernameIncorrect"
-            :placeholder="t('inputs.username')"
+            :placeholder="$t('username')"
           />
           <GarthenInput
             key="password-field"
@@ -295,8 +295,6 @@ const auth = async () => {
   "en-GB": {
     "signUp": "Register",
     "inputs": {
-      "email": "Email",
-      "username": "Username",
       "password": "Password",
       "passwordConfirmation": "Confirm password"
     }
@@ -304,8 +302,6 @@ const auth = async () => {
   "ru-RU": {
     "signUp": "Зарегистрироваться | Регистрация",
     "inputs": {
-      "email": "Адрес эл. почты",
-      "username": "Имя пользователя",
       "password": "Пароль",
       "passwordConfirmation": "Подтвердить пароль"
     }

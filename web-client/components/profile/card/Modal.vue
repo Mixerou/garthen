@@ -1,5 +1,4 @@
 <script setup>
-import dateFormat, { i18n } from 'dateformat'
 import IconLogout from '@/assets/icons/logout.svg?skipsvgo'
 import IconArrowForward from '@/assets/icons/arrow-forward.svg?skipsvgo'
 
@@ -11,16 +10,34 @@ const router = useRouter()
 const system = useSystemStore()
 const user = useUserStore()
 
-const isOpenAppButtonVisible = ref(false)
+const editedEmail = ref('')
+const editedUsername = ref('')
+const newPassword = ref('')
+const confirmedNewPassword = ref('')
+const currentPassword = ref('')
+const theme = ref('')
+const locale = ref('')
 
+const isOpenAppButtonVisible = ref(false)
+const isEditLayoutVisible = ref(false)
 const isLogoutLoading = ref(false)
+const isSavingLoading = ref(false)
+
+const switchLayout = () => {
+  isEditLayoutVisible.value = !isEditLayoutVisible.value
+  editedEmail.value = user.email
+  editedUsername.value = user.username
+  newPassword.value = ''
+  confirmedNewPassword.value = ''
+  currentPassword.value = ''
+  locale.value = user.locale
+  theme.value = user.theme
+}
 
 const logout = async () => {
   isLogoutLoading.value = true
 
-  const response = await $authorizedFetch('/auth/logout', {
-    method: 'POST',
-  })
+  const response = await $authorizedFetch('/auth/logout', { method: 'POST' })
 
   isLogoutLoading.value = false
 
@@ -36,29 +53,6 @@ const logout = async () => {
     setTimeout(() => user.logout(), timeoutTime)
   }
 }
-
-const createdAt = computed({
-  get() {
-    const date = new Date(user.createdAt * 1000)
-
-    i18n.monthNames = [
-      t('monthShortNames.january'),
-      t('monthShortNames.february'),
-      t('monthShortNames.march'),
-      t('monthShortNames.april'),
-      t('monthShortNames.may'),
-      t('monthShortNames.june'),
-      t('monthShortNames.july'),
-      t('monthShortNames.august'),
-      t('monthShortNames.september'),
-      t('monthShortNames.october'),
-      t('monthShortNames.november'),
-      t('monthShortNames.december'),
-    ]
-
-    return dateFormat(date, 'mmm dd, yyyy')
-  },
-})
 
 const onOpenAppButtonClick = () => {
   const timeoutTime =
@@ -90,7 +84,7 @@ onMounted(() => {
   <GarthenModal
     close-on-click-outside
     disable-dropdown-padding
-    :is-dropdown-visible="isOpenAppButtonVisible"
+    :is-dropdown-visible="isOpenAppButtonVisible && !isEditLayoutVisible"
     @close="emit('close')"
   >
     <template #dropdown>
@@ -103,7 +97,7 @@ onMounted(() => {
     </template>
 
     <template #content>
-      <div class="heading">
+      <div class="heading" :class="{ hide: isEditLayoutVisible }">
         <ProfileAvatar class="avatar" :username="user.username" />
         <div class="main-information">
           <h5>{{ user.username }}</h5>
@@ -111,30 +105,32 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="information">
-        <div class="group">
-          <div class="key">{{ t('groups.greenhousesKey') }}</div>
-          <div class="value greenhouses-count">
-            <Transition
-              enter-from-class="move-to-bottom"
-              leave-to-class="move-to-top"
-            >
-              <span :key="`greenhouses-count-${user.greenhousesCount}`">
-                {{ user.greenhousesCount }}
-              </span>
-            </Transition>
-          </div>
-        </div>
-        <div class="group">
-          <div class="key">{{ t('groups.inProjectSinceKey') }}</div>
-          <div class="value">{{ createdAt }}</div>
-        </div>
-      </div>
+      <ProfileCardModalMiddleContent
+        v-model:email="editedEmail"
+        v-model:username="editedUsername"
+        v-model:new-password="newPassword"
+        v-model:confirmed-new-password="confirmedNewPassword"
+        v-model:current-password="currentPassword"
+        v-model:theme="theme"
+        v-model:locale="locale"
+        :is-edit-layout-visible="isEditLayoutVisible"
+        :disabled="isSavingLoading"
+        @click="isEditLayoutVisible ? null : switchLayout()"
+      />
 
-      <GarthenButton :loading="isLogoutLoading" @click="logout">
-        <IconLogout class="icon" />
-        <span>{{ t('signOutButton') }}</span>
-      </GarthenButton>
+      <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
+        <GarthenButton
+          v-if="isEditLayoutVisible"
+          :loading="isSavingLoading"
+          @click="switchLayout"
+        >
+          <span>{{ t('saveButton') }}</span>
+        </GarthenButton>
+        <GarthenButton v-else :loading="isLogoutLoading" @click="logout">
+          <IconLogout class="icon" />
+          <span>{{ t('signOutButton') }}</span>
+        </GarthenButton>
+      </Transition>
     </template>
   </GarthenModal>
 </template>
@@ -167,6 +163,14 @@ onMounted(() => {
     align-items: center;
     gap: 1rem;
     width: 100%;
+    transition: opacity var(--fast-transition-duration);
+    transition-delay: var(--fast-transition-duration);
+
+    &.hide {
+      opacity: 0;
+      pointer-events: none;
+      transition-delay: 0s;
+    }
 
     .avatar {
       width: 4rem;
@@ -195,48 +199,11 @@ onMounted(() => {
     }
   }
 
-  .information {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    width: calc(100% - 1rem * 2);
-    padding: 0.5rem 1rem;
-    border-radius: var(--large-radius);
-    background: var(--primary-layer-1-background);
-    color: var(--primary-layer-1-color);
+  button {
+    transition: all var(--fast-transition-duration);
 
-    .group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.25rem;
-
-      .key {
-        font-weight: 600;
-      }
-
-      .greenhouses-count {
-        position: relative;
-        width: 1rem;
-        height: 1rem;
-
-        span {
-          position: absolute;
-          top: 0;
-          right: 0;
-          transition-duration: var(--fast-transition-duration);
-
-          &.move-to-top {
-            opacity: 0;
-            transform: translateY(-0.5rem);
-          }
-
-          &.move-to-bottom {
-            opacity: 0;
-            transform: translateY(0.5rem);
-          }
-        }
-      }
+    &.hide {
+      opacity: 0;
     }
   }
 
@@ -253,19 +220,13 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en-GB": {
+    "saveButton": "Save",
     "signOutButton": "Sign out",
-    "groups": {
-      "greenhousesKey": "Greenhouses",
-      "inProjectSinceKey": "In project since"
-    },
     "openAppButton": "Open app"
   },
   "ru-RU": {
+    "saveButton": "Сохранить",
     "signOutButton": "Выйти",
-    "groups": {
-      "greenhousesKey": "Теплиц",
-      "inProjectSinceKey": "В проекте с"
-    },
     "openAppButton": "Открыть приложение"
   }
 }
