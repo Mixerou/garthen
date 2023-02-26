@@ -3,6 +3,8 @@ use std::io::Error;
 
 use actix::{ActorContext, MailboxError as ActixMailboxError};
 use actix_web_actors::ws::{CloseCode, CloseReason, WebsocketContext};
+use argon2::Error as Argon2Error;
+use argon2::password_hash::Error as Argon2PasswordHashError;
 use diesel::result::Error as DieselError;
 use r2d2::Error as R2d2Error;
 use serde::Deserialize;
@@ -15,6 +17,8 @@ use crate::server::{Socket, WebSocketConnection};
 pub enum WebSocketErrorKind {
     StdError(Error),
     ActixMailboxError(ActixMailboxError),
+    Argon2Error(Argon2Error),
+    Argon2PasswordHashError(Argon2PasswordHashError),
     DieselError(DieselError),
     R2d2Error(R2d2Error),
     SerdeEetfError(SerdeEetfError),
@@ -65,6 +69,28 @@ impl From<ActixMailboxError> for WebSocketError {
             None,
             format!("Actix mailbox error: {error}"),
             Some(WebSocketErrorKind::ActixMailboxError(error)),
+        )
+    }
+}
+
+impl From<Argon2Error> for WebSocketError {
+    fn from(error: Argon2Error) -> WebSocketError {
+        WebSocketError::new(
+            500,
+            None,
+            format!("Argon2 error: {error}"),
+            Some(WebSocketErrorKind::Argon2Error(error)),
+        )
+    }
+}
+
+impl From<Argon2PasswordHashError> for WebSocketError {
+    fn from(error: Argon2PasswordHashError) -> WebSocketError {
+        WebSocketError::new(
+            500,
+            None,
+            format!("Argon2 password hash error: {error}"),
+            Some(WebSocketErrorKind::Argon2PasswordHashError(error)),
         )
     }
 }
@@ -171,10 +197,18 @@ websocket_error_template! {
     (400, Some(30003), GreenhouseNameTooLong, "Greenhouse name is too long");
     (400, Some(30004), GreenhouseTokenTooShort, "Greenhouse token is too short");
     (400, Some(30005), GreenhouseTokenTooLong, "Greenhouse token is too long");
+    (400, Some(30006), EmailTooLong, "The email address is too long");
+    (400, Some(30007), PasswordTooShort, "The password is too short");
+    (400, Some(30008), PasswordTooLong, "The password is too long");
+    (400, Some(30009), UsernameTooShort, "The username is too short");
+    (400, Some(30010), UsernameTooLong, "The username is too long");
 
     // Invalid body or something else
     (400, Some(40001), InvalidRequestField, "Invalid request");
     (400, Some(40002), GreenhouseTokenTaken, "Greenhouse token taken");
+    (400, Some(40003), EmailInvalid, "Invalid email");
+    (400, Some(40004), IncorrectPassword, "Incorrect password");
+    (400, Some(40005), UsernameInvalidOrTaken, "The username is either invalid or taken");
 }
 
 macro_rules! close_error {

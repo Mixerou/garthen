@@ -18,6 +18,7 @@ mod error;
 mod messages;
 mod server;
 mod services;
+mod utils;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct QueryParams {

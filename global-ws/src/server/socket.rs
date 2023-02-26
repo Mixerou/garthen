@@ -112,6 +112,13 @@ impl Socket {
                 };
 
                 match request.as_str() {
+                    "user/me" => user::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
                     "greenhouse" => greenhouse::handle(
                         request,
                         method,
