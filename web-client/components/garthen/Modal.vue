@@ -107,7 +107,9 @@ onBeforeUnmount(() => {
     background: var(--primary);
     color: var(--primary-layer-0-color);
     transform: translateY(calc(100% + 1.5rem));
-    transition: transform var(--default-transition);
+    transition: var(--default-transition);
+    transition-property: left, width, max-width, padding-top, padding-bottom,
+      padding-left, padding-right, transform;
 
     &.disable-padding {
       left: 0.5rem;
@@ -166,6 +168,22 @@ onBeforeUnmount(() => {
       &.v-enter-active,
       &.v-leave-active {
         transition: var(--default-transition);
+      }
+    }
+
+    &:deep(.select) {
+      .selected-value {
+        border-color: #ffffff66;
+        color: var(--primary-layer-0-color);
+
+        &.opened:not(.disabled) {
+          border-color: #ffffff;
+        }
+      }
+
+      .options {
+        border-color: #ffffff;
+        color: var(--primary-layer-0-color);
       }
     }
   }

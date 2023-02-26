@@ -19,8 +19,16 @@
     "greenhouseNameTooLong": "Greenhouse name is too long",
     "greenhouseTokenTooShort": "Greenhouse token is too short",
     "greenhouseTokenTooLong": "Greenhouse token is too long",
+    "emailTooLong": "The email address is too long",
+    "passwordTooShort": "The password is too short",
+    "passwordTooLong": "The password is too long",
+    "usernameTooShort": "The username is too short",
+    "usernameTooLong": "The username is too short",
     "invalidRequestField": "Invalid request",
-    "greenhouseTokenTaken": "Greenhouse token already taken by someone"
+    "greenhouseTokenTaken": "Greenhouse token already taken by someone",
+    "emailInvalid": "Email is not valid",
+    "incorrectPassword": "Incorrect password",
+    "usernameInvalidOrTaken": "The username is invalid or taken"
   },
   "monthShortNames": {
     "january": "Jan",
@@ -36,6 +44,13 @@
     "november": "Nov",
     "december": "Dec"
   },
+  "themes": {
+    "auto": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
   "go": "Go",
-  "signIn": "Sign in"
+  "signIn": "Sign in",
+  "email": "Email",
+  "username": "Username"
 }
