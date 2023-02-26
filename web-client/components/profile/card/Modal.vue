@@ -5,23 +5,29 @@ import IconArrowForward from '@/assets/icons/arrow-forward.svg?skipsvgo'
 const emit = defineEmits(['close'])
 
 const { t } = useI18n()
-const { $authorizedFetch } = useNuxtApp()
+const { $authorizedFetch, $wsSendAndWait } = useNuxtApp()
 const router = useRouter()
+const constants = useConstantsStore()
 const system = useSystemStore()
 const user = useUserStore()
+
+const isError = ref(false)
+const error = ref('')
 
 const editedEmail = ref('')
 const editedUsername = ref('')
 const newPassword = ref('')
 const confirmedNewPassword = ref('')
 const currentPassword = ref('')
-const theme = ref('')
-const locale = ref('')
+const editedTheme = ref(0)
+const editedLocale = ref('')
+
+const isConfirmedNewPasswordIncorrect = ref(false)
 
 const isOpenAppButtonVisible = ref(false)
 const isEditLayoutVisible = ref(false)
 const isLogoutLoading = ref(false)
-const isSavingLoading = ref(false)
+const isEditsSaving = ref(false)
 
 const switchLayout = () => {
   isEditLayoutVisible.value = !isEditLayoutVisible.value
@@ -30,8 +36,58 @@ const switchLayout = () => {
   newPassword.value = ''
   confirmedNewPassword.value = ''
   currentPassword.value = ''
-  locale.value = user.locale
-  theme.value = user.theme
+  editedLocale.value = user.locale
+  editedTheme.value = user.theme
+}
+
+const save = () => {
+  isConfirmedNewPasswordIncorrect.value = false
+
+  // TODO: Make better validation
+  setTimeout(async () => {
+    if (
+      newPassword.value !== '' &&
+      confirmedNewPassword.value !== newPassword.value
+    ) {
+      isConfirmedNewPasswordIncorrect.value = true
+
+      return
+    }
+
+    isEditsSaving.value = true
+
+    const data = {
+      email: editedEmail.value,
+      username: editedUsername.value,
+      locale: editedLocale.value,
+      theme: editedTheme.value,
+      ['new_password']: newPassword.value,
+      ['current_password']: currentPassword.value,
+    }
+
+    if (newPassword.value === '') delete data['new_password']
+    if (currentPassword.value === '') delete data['current_password']
+
+    const response = await $wsSendAndWait({
+      o: 2,
+      r: 'user/me',
+      m: { patch: null },
+      d: data,
+    })
+
+    isEditsSaving.value = false
+
+    if (response.d.code !== 200) {
+      isError.value = true
+      error.value = constants.parseGlobalWsErrorCode(response.d.code)
+
+      return
+    }
+
+    isError.value = false
+
+    switchLayout()
+  }, 1)
 }
 
 const logout = async () => {
@@ -83,17 +139,37 @@ onMounted(() => {
 <template>
   <GarthenModal
     close-on-click-outside
-    disable-dropdown-padding
-    :is-dropdown-visible="isOpenAppButtonVisible && !isEditLayoutVisible"
+    :disable-dropdown-padding="!isError"
+    :is-dropdown-visible="
+      (isEditLayoutVisible && isError) ||
+      (!isEditLayoutVisible && isOpenAppButtonVisible)
+    "
     @close="emit('close')"
   >
     <template #dropdown>
-      <GarthenButton @click="onOpenAppButtonClick">
-        <div class="custom-content">
-          <span>{{ t('openAppButton') }}</span>
-          <IconArrowForward class="icon" />
-        </div>
-      </GarthenButton>
+      <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
+        <Transition
+          v-if="isError"
+          enter-from-class="hide"
+          leave-to-class="hide"
+          mode="out-in"
+          class="dropdown-transition"
+        >
+          <span :key="`error-${error}`" class="dropdown-transition">
+            {{ $t(`globalWsErrors.${error}`) }}
+          </span>
+        </Transition>
+        <GarthenButton
+          v-else
+          class="dropdown-transition"
+          @click="onOpenAppButtonClick"
+        >
+          <div class="custom-content">
+            <span>{{ t('openAppButton') }}</span>
+            <IconArrowForward class="icon" />
+          </div>
+        </GarthenButton>
+      </Transition>
     </template>
 
     <template #content>
@@ -111,18 +187,19 @@ onMounted(() => {
         v-model:new-password="newPassword"
         v-model:confirmed-new-password="confirmedNewPassword"
         v-model:current-password="currentPassword"
-        v-model:theme="theme"
-        v-model:locale="locale"
+        v-model:theme="editedTheme"
+        v-model:locale="editedLocale"
         :is-edit-layout-visible="isEditLayoutVisible"
-        :disabled="isSavingLoading"
+        :confirmed-new-password-incorrect="isConfirmedNewPasswordIncorrect"
+        :disabled="isEditsSaving"
         @click="isEditLayoutVisible ? null : switchLayout()"
       />
 
       <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
         <GarthenButton
           v-if="isEditLayoutVisible"
-          :loading="isSavingLoading"
-          @click="switchLayout"
+          :loading="isEditsSaving"
+          @click="save"
         >
           <span>{{ t('saveButton') }}</span>
         </GarthenButton>
@@ -154,6 +231,14 @@ onMounted(() => {
         transition: var(--fast-transition-duration);
       }
     }
+  }
+
+  .hide {
+    opacity: 0;
+  }
+
+  .dropdown-transition {
+    transition: var(--fast-transition-duration);
   }
 }
 

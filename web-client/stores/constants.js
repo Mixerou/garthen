@@ -19,10 +19,18 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     greenhouseNameTooLong: 30003,
     greenhouseTokenTooShort: 30004,
     greenhouseTokenTooLong: 30005,
+    emailTooLong: 30006,
+    passwordTooShort: 30007,
+    passwordTooLong: 30008,
+    usernameTooShort: 30009,
+    usernameTooLong: 30010,
 
     // Invalid body or something else
     invalidRequestField: 40001,
     greenhouseTokenTaken: 40002,
+    emailInvalid: 40003,
+    incorrectPassword: 40004,
+    usernameInvalidOrTaken: 40005,
   }
 
   const GLOBAL_WS_CLOSE_ERRORS = {

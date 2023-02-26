@@ -19,8 +19,16 @@
     "greenhouseNameTooLong": "Слишком длинное название теплицы",
     "greenhouseTokenTooShort": "Токен теплицы слишком короткий",
     "greenhouseTokenTooLong": "Токен теплицы слишком длинный",
+    "emailTooLong": "Адрес эл. почты слишком длинный",
+    "passwordTooShort": "Пароль слишком короткий",
+    "passwordTooLong": "Пароль слишком длинный",
+    "usernameTooShort": "Имя пользователя слишком короткое",
+    "usernameTooLong": "Имя пользователя слишком длинное",
     "invalidRequestField": "Недействительный запрос",
-    "greenhouseTokenTaken": "Токен теплицы уже взят кем-то"
+    "greenhouseTokenTaken": "Токен теплицы уже взят кем-то",
+    "emailInvalid": "Адрес эл. почты недействителен",
+    "incorrectPassword": "Неправильный пароль",
+    "usernameInvalidOrTaken": "Имя пользователя недействительно или занято"
   },
   "monthShortNames": {
     "january": "Янв",

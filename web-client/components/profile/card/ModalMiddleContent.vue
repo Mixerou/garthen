@@ -32,8 +32,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  confirmedNewPasswordIncorrect: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   theme: {
-    type: String,
+    type: Number,
     required: true,
   },
   locale: {
@@ -209,6 +214,7 @@ const createdAt = computed(() => {
             <GarthenInput
               v-model:text="computedConfirmedNewPassword"
               :disabled="disabled"
+              :error="confirmedNewPasswordIncorrect"
               type="password"
             />
           </div>
