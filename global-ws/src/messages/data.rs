@@ -19,6 +19,14 @@ pub enum WebSocketMessageData {
         name: String,
         token: String,
     },
+    RequestPatchUser {
+        email: String,
+        username: String,
+        locale: String,
+        theme: UserTheme,
+        new_password: Option<String>,
+        current_password: Option<String>,
+    },
 
     // Requests (Opcode: Authorize)
     Authorize {
