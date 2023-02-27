@@ -60,6 +60,7 @@ section {
   gap: 2rem;
   width: 100%;
   height: calc(100vh - 6rem);
+  min-height: 40rem;
 
   @include xl-screen {
     justify-content: space-between;
