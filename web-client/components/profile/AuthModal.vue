@@ -159,7 +159,7 @@ const auth = async () => {
 <template>
   <GarthenModal
     close-on-click-outside
-    :is-dropdown-visible="isError"
+    :is-dropdown-visible="isError && error !== ''"
     @close="emit('close')"
   >
     <template #dropdown>
