@@ -151,6 +151,9 @@ h6 {
 
   &.layout-enter-active,
   &.layout-leave-active {
+    height: 100vh;
+    min-height: initial;
+    overflow: hidden;
     transition: var(--default-transition);
   }
 
