@@ -102,11 +102,16 @@ body {
   justify-content: center;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
+  scrollbar-width: none;
   background: var(--layer-0-background);
   color: var(--layer-0-color);
   transition: var(--default-transition);
   transition-property: background-color, color;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 h1 {
