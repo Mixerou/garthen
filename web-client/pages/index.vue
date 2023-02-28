@@ -8,6 +8,7 @@ useSeoMeta({
   <div>
     <HomePageHero />
     <HomePageMainFeatures />
+    <HomePageAdditionalFeatures />
   </div>
 </template>
 
