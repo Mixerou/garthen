@@ -9,6 +9,7 @@ useSeoMeta({
     <HomePageHero />
     <HomePageMainFeatures />
     <HomePageAdditionalFeatures />
+    <HomePageGetStarted />
   </div>
 </template>
 

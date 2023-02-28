@@ -38,10 +38,10 @@ const isAuthModalOpened = ref(false)
         praesent a enim eget erat iaculis urna lacinia.
       </p>
       <NuxtLink v-if="user.isLoggedIn" class="action" to="/greenhouses">
-        <GarthenButton>{{ t('getStartedButton') }}</GarthenButton>
+        <GarthenButton>{{ $t('getStarted') }}</GarthenButton>
       </NuxtLink>
       <GarthenButton v-else class="action" @click="isAuthModalOpened = true">
-        {{ t('getStartedButton') }}
+        {{ $t('getStarted') }}
       </GarthenButton>
     </div>
 
@@ -157,15 +157,13 @@ body[data-theme='dark'] {
     "heading": {
       "firstPart": "Welcome to Garthen",
       "secondPart": "Greenhouse Tools"
-    },
-    "getStartedButton": "Get started"
+    }
   },
   "ru-RU": {
     "heading": {
       "firstPart": "Приветствуем в Garthen",
       "secondPart": "Инструментах для теплиц"
-    },
-    "getStartedButton": "Начать"
+    }
   }
 }
 </i18n>
