@@ -174,15 +174,19 @@ const onSelect = id => {
     transition: var(--fast-transition-duration);
 
     &[data-direction='top'] {
-      transform: translate(-50%, calc(-2rem - 0.25rem));
+      transform: translate(-50%, calc(-2rem - 0.5rem));
 
       @include medium-screen {
-        transform: translate(-50%, calc(-2.25rem - 0.25rem));
+        transform: translate(-50%, calc(-2.25rem - 0.5rem));
       }
 
       &.hide {
         opacity: 0;
-        transform: translate(-50%, calc(-2rem - 1rem));
+        transform: translate(-50%, calc(-2rem - 1.25rem));
+
+        @include medium-screen {
+          transform: translate(-50%, calc(-2.25rem - 1.25rem));
+        }
       }
     }
 
