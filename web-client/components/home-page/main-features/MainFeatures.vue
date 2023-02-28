@@ -8,7 +8,7 @@ const { t } = useI18n()
 
 <template>
   <section>
-    <h3>{{ t('heading') }}</h3>
+    <h2>{{ t('heading') }}</h2>
 
     <div class="cards">
       <HomePageMainFeaturesCard with-later-badge>
