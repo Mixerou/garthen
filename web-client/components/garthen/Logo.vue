@@ -28,6 +28,9 @@ watchEffect(() => {
   if (props.layer.startsWith('layer')) {
     firstLettersWithColor.value = `var(--primary-500)`
     lastLettersColor.value = `var(--${props.layer}-color)`
+  } else if (props.layer === 'primary-layer-0') {
+    firstLettersWithColor.value = `var(--white-original)`
+    lastLettersColor.value = `var(--white-original)`
   } else if (props.layer.startsWith('primary-layer')) {
     firstLettersWithColor.value = `var(--white-original)`
     lastLettersColor.value = `var(--primary-original-700)`

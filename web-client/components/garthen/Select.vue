@@ -22,6 +22,14 @@ const props = defineProps({
     required: false,
     default: false,
   },
+  dropdownDirection: {
+    type: String,
+    required: false,
+    default: 'bottom',
+    validator(direction) {
+      return ['top', 'bottom'].includes(direction)
+    },
+  },
 })
 const emit = defineEmits(['update:selected'])
 
@@ -51,6 +59,7 @@ const onSelect = id => {
     <span
       class="selected-value"
       :class="{ opened: isOpened, disabled }"
+      :data-dropdown-direction="props.dropdownDirection"
       @click="isOpened = disabled ? isOpened : !isOpened"
     >
       {{
@@ -58,7 +67,11 @@ const onSelect = id => {
       }}
     </span>
     <Transition enter-from-class="hide" leave-to-class="hide">
-      <div v-if="isOpened && !disabled" class="options">
+      <div
+        v-if="isOpened && !disabled"
+        class="options"
+        :data-direction="props.dropdownDirection"
+      >
         <div
           v-for="item in items"
           :key="`option-${item.id}`"
@@ -102,7 +115,15 @@ const onSelect = id => {
       cursor: not-allowed;
     }
 
-    &.opened:not(.disabled) {
+    &[data-dropdown-direction='top'].opened:not(.disabled) {
+      transform: translateY(0.125rem);
+
+      @include medium-screen {
+        transform: translateY(0.25rem);
+      }
+    }
+
+    &[data-dropdown-direction='bottom'].opened:not(.disabled) {
       transform: translateY(-0.125rem);
 
       @include medium-screen {
@@ -115,7 +136,16 @@ const onSelect = id => {
         background: var(--primary-500);
       }
 
-      &:active {
+      &[data-dropdown-direction='top']:active {
+        transform: translateY(-0.125rem);
+        background: var(--primary-600);
+
+        @include medium-screen {
+          transform: translateY(-0.25rem);
+        }
+      }
+
+      &[data-dropdown-direction='bottom']:active {
         transform: translateY(0.125rem);
         background: var(--primary-600);
 
@@ -133,20 +163,36 @@ const onSelect = id => {
     gap: 0.25rem;
     z-index: 999;
     bottom: 0;
-    left: 0;
+    left: 50%;
     min-width: calc(100% - 0.625rem * 2);
     padding: 0.5rem 0.5rem;
     border: var(--default-border);
     border-color: var(--white-original);
     border-radius: var(--large-radius);
-    transform: translateY(calc(100% + 0.25rem));
     background: var(--primary-400);
     color: var(--primary-layer-0-color);
     transition: var(--fast-transition-duration);
 
-    &.hide {
-      opacity: 0;
-      transform: translateY(calc(100% + 1rem));
+    &[data-direction='top'] {
+      transform: translate(-50%, calc(-2rem - 0.25rem));
+
+      @include medium-screen {
+        transform: translate(-50%, calc(-2.25rem - 0.25rem));
+      }
+
+      &.hide {
+        opacity: 0;
+        transform: translate(-50%, calc(-2rem - 1rem));
+      }
+    }
+
+    &[data-direction='bottom'] {
+      transform: translate(-50%, calc(100% + 0.25rem));
+
+      &.hide {
+        opacity: 0;
+        transform: translate(-50%, calc(100% + 1rem));
+      }
     }
 
     .option {
