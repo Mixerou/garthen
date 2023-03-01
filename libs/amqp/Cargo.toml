@@ -1,0 +1,15 @@
+[package]
+name = "amqp"
+version = "0.1.0"
+authors = ["Ivan <contact@mixero.dev>"]
+edition = "2021"
+description = "AMQP is a client that can connect to various message brokers, using the `amqp` protocol"
+readme = "README.md"
+homepage = "https://github.com/Mixerou/garthen/tree/main/libs/amqp"
+repository = "https://github.com/Mixerou/garthen"
+
+[dependencies]
+futures = "0.3.26"
+lapin = "2.1.1"
+lazy_static = "1.4.0"
+log = "0.4.17"

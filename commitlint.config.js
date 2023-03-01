@@ -25,6 +25,7 @@ module.exports = {
                 'gl-api',
                 'gl-ws',
                 'data-wrk',
+                'amqp',
                 'db',
                 'eetf',
                 'passwd',

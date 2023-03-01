@@ -59,6 +59,7 @@ Use it to communicate your intent to the project developers.
 - `gl-api` - changes that effects `Global API` module
 - `gl-ws` - changes that effects `Global WebSocket` module
 - `data-wrk` - changes that effects `Data Worker` module
+- `amqp` - changes that effects `AMQP` library
 - `db` - changes that effects `Database` library
 - `eetf` - changes that effects `Serde EETF` library
 - `passwd` - changes that effects `Password` library
