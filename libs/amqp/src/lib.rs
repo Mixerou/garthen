@@ -5,6 +5,7 @@ use std::env;
 
 use futures::executor::block_on;
 use lapin::{Connection, ConnectionProperties};
+pub use lapin::*;
 use lazy_static::lazy_static;
 
 lazy_static! {
