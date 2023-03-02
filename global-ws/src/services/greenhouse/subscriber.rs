@@ -35,7 +35,7 @@ fn greenhouses_update(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;
@@ -67,7 +67,7 @@ fn greenhouses_mine_update(
         Socket::send_message(
             message.id,
             response,
-            connection.address.downgrade().recipient(),
+            connection.socket.downgrade().recipient(),
             connection,
             context,
         )?;
@@ -96,7 +96,7 @@ fn greenhouse_create(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;

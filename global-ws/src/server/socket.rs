@@ -4,10 +4,11 @@ use std::time::Instant;
 
 use actix::{ActorFutureExt, AsyncContext, ContextFutureSpawner, Message, WeakRecipient, WrapFuture};
 use actix::prelude::{Actor, Context, Handler, Recipient};
+use actix_broker::{BrokerIssue, BrokerSubscribe};
 use actix_web_actors::ws::WebsocketContext;
 
 use crate::error::{WebSocketCloseError, WebSocketError, WebSocketErrorTemplate};
-use crate::messages::{AuthorizationMessage, DisconnectionMessage, DispatchEvent, DispatchMessage, Opcode, WebSocketMessage, WebSocketMessageData};
+use crate::messages::{AmqpPayload, AuthorizationMessage, DisconnectionMessage, DispatchAmqpMessage, DispatchEvent, DispatchMessage, InitAmqpConsumersMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::WebSocketConnection;
 use crate::services::{greenhouse, user};
 use crate::services::greenhouse::Greenhouse;
@@ -26,7 +27,7 @@ impl Socket {
         message: WebSocketMessage,
         context: &mut WebsocketContext<WebSocketConnection>,
     ) -> Result<(), WebSocketError> {
-        let address = connection.address.downgrade();
+        let socket = connection.socket.downgrade();
         let message_id = message.id;
 
 
@@ -73,7 +74,7 @@ impl Socket {
             Socket::send_message(
                 message_id,
                 authorization_message,
-                address.recipient(),
+                socket.recipient(),
                 connection,
                 context,
             )?;
@@ -96,7 +97,7 @@ impl Socket {
                 Socket::send_message(
                     message_id,
                     response,
-                    address.recipient(),
+                    socket.recipient(),
                     connection,
                     context,
                 )?;
@@ -237,6 +238,11 @@ impl Socket {
 
 impl Actor for Socket {
     type Context = Context<Self>;
+
+    fn started(&mut self, context: &mut Self::Context) {
+        self.issue_system_async(InitAmqpConsumersMessage(context.address().downgrade()));
+        self.subscribe_system_async::<DispatchAmqpMessage>(context);
+    }
 }
 
 impl Handler<WebSocketMessage> for Socket {
@@ -335,6 +341,18 @@ impl Handler<DispatchMessage> for Socket {
         };
 
         Ok(())
+    }
+}
+
+impl Handler<DispatchAmqpMessage> for Socket {
+    type Result = ();
+
+    fn handle(&mut self, message: DispatchAmqpMessage, _: &mut Self::Context) -> Self::Result {
+        match message.payload {
+            AmqpPayload::DispatchData { .. } => debug!("Got DispatchData from AMQP -> {message:?}"),
+            AmqpPayload::Ping => debug!("Got Ping from AMQP"),
+            _ => {},
+        }
     }
 }
 

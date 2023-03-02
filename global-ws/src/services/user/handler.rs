@@ -145,7 +145,7 @@ fn patch_user(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;
@@ -164,7 +164,7 @@ fn patch_user(
             Socket::send_message(
                 message.id,
                 response,
-                connection.address.downgrade().recipient(),
+                connection.socket.downgrade().recipient(),
                 connection,
                 context,
             )?;
@@ -179,7 +179,7 @@ fn patch_user(
                 Socket::send_message(
                     message.id,
                     response,
-                    connection.address.downgrade().recipient(),
+                    connection.socket.downgrade().recipient(),
                     connection,
                     context,
                 )?;

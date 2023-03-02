@@ -10,9 +10,10 @@ use actix_web::middleware::{NormalizePath, TrailingSlash};
 use actix_web::web::{Data, get, Payload, Query, scope};
 use actix_web_actors::ws;
 use dotenv::dotenv;
+use futures::executor::block_on;
 use serde::{Deserialize, Serialize};
 
-use crate::server::{Encoding, Socket, WebSocketConnection};
+use crate::server::{AmqpClient, Encoding, Socket, WebSocketConnection};
 
 mod error;
 mod messages;
@@ -30,9 +31,14 @@ async fn index(
     stream: Payload,
     params: Query<QueryParams>,
     socket: Data<Addr<Socket>>,
+    amqp: Data<Addr<AmqpClient>>,
 ) -> Result<HttpResponse, Error> {
     ws::start(
-        WebSocketConnection::new(params.encoding, socket.into_inner()),
+        WebSocketConnection::new(
+            params.encoding,
+            socket.into_inner(),
+            amqp.into_inner()
+        ),
         &request,
         stream,
     )
@@ -44,9 +50,13 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     db::init();
+    amqp::init();
     snowflake::init();
 
-    let data = Data::new(Socket::default().start());
+    let amqp_client = block_on(async {
+        Data::new(AmqpClient::new().await.start())
+    });
+    let socket = Data::new(Socket::default().start());
 
     let ip = env::var("GLOBAL_WS_IP").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("GLOBAL_WS_PORT").unwrap_or_else(|_| "9000".to_string());
@@ -56,7 +66,8 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(data.clone())
+            .app_data(amqp_client.clone())
+            .app_data(socket.clone())
             .service(
                 scope(
                     path.as_str())

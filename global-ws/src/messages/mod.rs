@@ -1,9 +1,10 @@
-use actix::{Message, Recipient};
+use actix::{Message, Recipient, WeakAddr};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::error::WebSocketError;
 pub(crate) use crate::messages::data::*;
+use crate::server::Socket;
 
 mod data;
 
@@ -76,6 +77,12 @@ pub struct DispatchMessage {
     pub new_subscribers: Option<Vec<i64>>,
 }
 
+#[derive(Clone, Debug, Message)]
+#[rtype(result = "()")]
+pub struct DispatchAmqpMessage {
+    pub payload: AmqpPayload,
+}
+
 #[derive(Debug, Message)]
 #[rtype(result = "Result<(), WebSocketError>")]
 pub struct AuthorizationMessage {
@@ -89,4 +96,35 @@ pub struct AuthorizationMessage {
 #[rtype(result = "Result<(), WebSocketError>")]
 pub struct DisconnectionMessage {
     pub connection_id: i64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AmqpPayload {
+    DispatchData {
+        device_id: i64,
+    },
+    RequestData {
+        device_id: Option<i64>,
+        greenhouse_id: Option<i64>,
+    },
+    Ping,
+}
+
+#[derive(Clone, Debug, Message)]
+#[rtype(result = "()")]
+pub struct InitAmqpConsumersMessage(pub WeakAddr<Socket>);
+
+impl Default for AmqpPayload {
+    fn default() -> Self {
+        AmqpPayload::Ping
+    }
+}
+
+#[derive(Clone, Debug, Default, Message)]
+#[rtype(result = "()")]
+pub struct AmqpPublisherMessage<'a> {
+    pub exchange: Option<&'a str>,
+    pub routing_key: Option<&'a str>,
+    pub payload: AmqpPayload,
 }

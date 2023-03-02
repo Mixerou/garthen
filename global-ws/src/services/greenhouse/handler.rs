@@ -56,7 +56,7 @@ fn create_greenhouse(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;
@@ -73,7 +73,7 @@ fn create_greenhouse(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;
@@ -87,7 +87,7 @@ fn create_greenhouse(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;
@@ -101,7 +101,7 @@ fn create_greenhouse(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;

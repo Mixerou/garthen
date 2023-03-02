@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{WebSocketCloseError, WebSocketError};
 use crate::messages::{DisconnectionMessage, Opcode, WebSocketMessage, WebSocketMessageData};
-use crate::server::Socket;
+use crate::server::{AmqpClient, Socket};
 
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(15);
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(45);
@@ -26,17 +26,23 @@ pub struct WebSocketConnection {
     pub session_id: Option<i64>,
     pub last_heartbeat_at: Instant,
     pub encoding: Encoding,
-    pub address: Arc<Addr<Socket>>,
+    pub socket: Arc<Addr<Socket>>,
+    pub amqp: Arc<Addr<AmqpClient>>,
 }
 
 impl WebSocketConnection {
-    pub fn new(encoding: Encoding, address: Arc<Addr<Socket>>) -> Self {
+    pub fn new(
+        encoding: Encoding,
+        socket: Arc<Addr<Socket>>,
+        amqp: Arc<Addr<AmqpClient>>,
+    ) -> Self {
         WebSocketConnection {
             id: snowflake::generate(),
             session_id: None,
             last_heartbeat_at: Instant::now(),
             encoding,
-            address,
+            socket,
+            amqp,
         }
     }
 
@@ -119,7 +125,7 @@ impl Actor for WebSocketConnection {
     }
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
-        self.address.do_send(DisconnectionMessage {
+        self.socket.do_send(DisconnectionMessage {
             connection_id: self.id,
         });
 

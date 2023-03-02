@@ -10,13 +10,16 @@ repository = "https://github.com/Mixerou/garthen"
 
 [dependencies]
 actix = "0.13.0"
+actix-broker = "0.4.3"
 actix-web = "4.3.0"
 actix-web-actors = "4.2.0"
+amqp = { path = "../libs/amqp" }
 argon2 = { version = "0.4.1", default-features = false }
 db = { path = "../libs/db" }
 diesel = { version = "2.0.3", default-features = false }
 dotenv = "0.15.0"
 env_logger = "0.10.0"
+futures = "0.3.26"
 log = "0.4.17"
 passwd = { path = "../libs/passwd" }
 r2d2 = { version = "0.8.10", default-features = false }

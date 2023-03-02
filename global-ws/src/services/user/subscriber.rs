@@ -23,7 +23,7 @@ fn user_update(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;
@@ -51,7 +51,7 @@ fn user_me_update(
     Socket::send_message(
         message.id,
         response,
-        connection.address.downgrade().recipient(),
+        connection.socket.downgrade().recipient(),
         connection,
         context,
     )?;
