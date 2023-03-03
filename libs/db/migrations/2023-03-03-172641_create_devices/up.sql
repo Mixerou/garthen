@@ -19,9 +19,9 @@ CREATE INDEX devices_greenhouse_id_index
 CREATE INDEX devices_created_at_index
     ON devices (created_at);
 
-CREATE SEQUENCE snowflake_id_sequence minvalue 0 maxvalue 4096 cycle;
+CREATE SEQUENCE snowflake_id_sequence MINVALUE 0 MAXVALUE 4096 CYCLE;
 
-CREATE OR REPLACE FUNCTION generate_snowflake_id() RETURNS bigint AS
+CREATE OR REPLACE FUNCTION generate_snowflake_id() RETURNS BIGINT AS
 $$
 DECLARE
     our_epoch   BIGINT := 1672531200000;
@@ -33,7 +33,7 @@ BEGIN
     SELECT nextval('snowflake_id_sequence') % 4096 INTO sequence_id;
     SELECT floor(extract(EPOCH FROM clock_timestamp()) * 1000) INTO now_millis;
 
-    return ((now_millis - our_epoch) << 22) | (machine_id << 17) | (node_id << 12) | sequence_id;
+    RETURN ((now_millis - our_epoch) << 22) | (machine_id << 17) | (node_id << 12) | sequence_id;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -70,7 +70,7 @@ BEGIN
            -- Windows Controller
            (generate_snowflake_id(), NULL, 5, NEW.id);
 
-    return NEW;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
