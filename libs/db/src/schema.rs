@@ -1,4 +1,13 @@
 diesel::table! {
+    device_records (id) {
+        id -> Int8,
+        device_id -> Int8,
+        data -> Float8,
+        created_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     devices (id) {
         id -> Int8,
         external_id -> Nullable<Int2>,
@@ -41,11 +50,13 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(device_records -> devices (device_id));
 diesel::joinable!(devices -> greenhouses (greenhouse_id));
 diesel::joinable!(greenhouses -> users (owner_id));
 diesel::joinable!(sessions -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    device_records,
     devices,
     greenhouses,
     sessions,
