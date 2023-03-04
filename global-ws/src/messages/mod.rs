@@ -80,7 +80,10 @@ pub enum DispatchEvent {
         #[serde(skip)]
         owner_id: i64,
     },
-    DeviceUpdate { id: i64 },
+    DeviceUpdate {
+        #[serde(skip)]
+        id: i64,
+    },
 }
 
 #[derive(Debug, Message)]
