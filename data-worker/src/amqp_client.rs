@@ -1,9 +1,12 @@
-use amqp::{Channel, ExchangeKind, Queue};
+use amqp::{BasicProperties, Channel, ExchangeKind, Queue};
 use amqp::options::{ExchangeDeclareOptions, QueueBindOptions, QueueDeclareOptions};
 use amqp::types::FieldTable;
+use futures::executor::block_on;
+use lapin::Connection;
+use lapin::options::BasicPublishOptions;
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use tokio::runtime::Runtime;
-use lapin::Connection;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -18,79 +21,114 @@ pub enum AmqpPayload {
     Ping,
 }
 
-#[derive(Clone, Debug)]
-pub struct AmqpClient<'a> {
-    pub connection: &'a Connection,
-    pub channel: Channel,
+pub struct AmqpPublisherMessage<'a> {
+    pub exchange: Option<&'a str>,
+    pub routing_key: Option<&'a str>,
+    pub payload: AmqpPayload,
 }
 
-impl<'a> AmqpClient<'a> {
-    pub fn init() -> Self {
-        let runtime = Runtime::new().unwrap();
-        let connection = amqp::get_connection();
-        let channel = runtime.block_on(async move {
-            connection.create_channel().await.expect("Failed to create AMQP channel")
-        });
-        let client = AmqpClient { connection, channel };
+lazy_static! {
+    static ref CONNECTION: &'static Connection = {
+        amqp::get_connection()
+    };
 
-        runtime.block_on(async move {
-            // Exchanges
-            AmqpClient::declare_exchange(&client.channel, "data", ExchangeKind::Topic).await;
-
-            // Queues
-            AmqpClient::declare_queue(&client.channel, "request-data").await;
-            AmqpClient::declare_queue(&client.channel, "dispatch-data").await;
-
-            // Queue bindings
-            AmqpClient::bind_queue(
-                &client.channel,
-                "request-data",
-                "data",
-                "data.request",
-            ).await;
-            AmqpClient::bind_queue(
-                &client.channel,
-                "dispatch-data",
-                "data",
-                "data.create",
-            ).await;
-
-            client
+    static ref CHANNEL: Channel = {
+        block_on(async move {
+            get_connection().create_channel().await.expect("Failed to create AMQP channel")
         })
-    }
+    };
+}
 
-    async fn declare_exchange(channel: &Channel, name: &str, kind: ExchangeKind) {
-        channel.exchange_declare(
-            name,
-            kind,
-            ExchangeDeclareOptions {
-                durable: true,
-                ..Default::default()
-            },
-            FieldTable::default(),
-        ).await.unwrap_or_else(|_| panic!("Failed to declare {name} exchange"))
-    }
+pub fn get_connection<'a>() -> &'a Connection
+{
+    CONNECTION.clone()
+}
 
-    async fn declare_queue(channel: &Channel, name: &str) -> Queue {
-        channel.queue_declare(
-            name,
-            QueueDeclareOptions {
-                durable: true,
-                ..Default::default()
-            },
-            FieldTable::default(),
-        ).await.unwrap_or_else(|_| panic!("Failed to declare {name} queue"))
-    }
+pub fn get_channel() -> Channel
+{
+    CHANNEL.clone()
+}
 
-    async fn bind_queue(channel: &Channel, name: &str, exchange: &str, routing_key: &str) {
-        channel.queue_bind(
-            name,
-            exchange,
-            routing_key,
-            QueueBindOptions::default(),
-            FieldTable::default(),
-        ).await.unwrap_or_else(|_| panic!(
-            "Failed to bind {name} queue to {exchange} exchange with {routing_key} routing key",
-        ))
+pub fn init() {
+    info!("Initialize AMQP Client");
+
+    lazy_static::initialize(&CONNECTION);
+    lazy_static::initialize(&CHANNEL);
+
+    let runtime = Runtime::new().unwrap();
+    let channel = get_channel();
+
+    runtime.block_on(async move {
+        // Exchanges
+        declare_exchange(&channel, "data", ExchangeKind::Topic).await;
+
+        // Queues
+        declare_queue(&channel, "request-data").await;
+        declare_queue(&channel, "dispatch-data").await;
+
+        // Queue bindings
+        bind_queue(
+            &channel,
+            "request-data",
+            "data",
+            "data.request",
+        ).await;
+        bind_queue(
+            &channel,
+            "dispatch-data",
+            "data",
+            "data.create",
+        ).await;
+    })
+}
+
+async fn declare_exchange(channel: &Channel, name: &str, kind: ExchangeKind) {
+    channel.exchange_declare(
+        name,
+        kind,
+        ExchangeDeclareOptions {
+            durable: true,
+            ..Default::default()
+        },
+        FieldTable::default(),
+    ).await.unwrap_or_else(|_| panic!("Failed to declare {name} exchange"))
+}
+
+async fn declare_queue(channel: &Channel, name: &str) -> Queue {
+    channel.queue_declare(
+        name,
+        QueueDeclareOptions {
+            durable: true,
+            ..Default::default()
+        },
+        FieldTable::default(),
+    ).await.unwrap_or_else(|_| panic!("Failed to declare {name} queue"))
+}
+
+async fn bind_queue(channel: &Channel, name: &str, exchange: &str, routing_key: &str) {
+    channel.queue_bind(
+        name,
+        exchange,
+        routing_key,
+        QueueBindOptions::default(),
+        FieldTable::default(),
+    ).await.unwrap_or_else(|_| panic!(
+        "Failed to bind {name} queue to {exchange} exchange with {routing_key} routing key",
+    ))
+}
+
+pub async fn publish<'a>(message: AmqpPublisherMessage<'a>) {
+    let channel = get_channel();
+    let exchange = message.exchange.unwrap_or("").to_string();
+    let routing_key = message.routing_key.unwrap_or("").to_string();
+
+    if let Ok(payload) = serde_json::to_string(&message.payload) {
+        channel.basic_publish(
+            exchange.as_str(),
+            routing_key.as_str(),
+            BasicPublishOptions::default(),
+            payload.as_bytes(),
+            BasicProperties::default(),
+        ).await.unwrap().await.unwrap();
     }
 }

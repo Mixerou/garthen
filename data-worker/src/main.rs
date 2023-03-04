@@ -4,7 +4,6 @@ extern crate snowflake_generator as snowflake;
 
 use dotenv::dotenv;
 
-use crate::amqp_client::AmqpClient;
 use crate::services::device_record;
 
 mod amqp_client;
@@ -18,17 +17,16 @@ fn main() {
 
     db::init();
     amqp::init();
+    amqp_client::init();
     snowflake::init();
     garthen::init();
-
-    let amqp_client = AmqpClient::init();
 
     info!("Starting worker");
 
     let data_requesting_thread
         = device_record::start_data_requesting_with_interval();
     let data_requester_consumer_thread
-        = device_record::start_data_request_consumer(&amqp_client);
+        = device_record::start_data_request_consumer();
 
     data_requesting_thread.join()
         .expect("Couldn't join on the data requesting thread")

@@ -9,9 +9,9 @@ use lapin::types::FieldTable;
 use serde::Deserialize;
 use tokio::runtime::Runtime;
 
-use crate::amqp_client::{AmqpClient, AmqpPayload};
+use crate::{amqp_client, garthen};
+use crate::amqp_client::{AmqpPayload, AmqpPublisherMessage};
 use crate::error::WorkerError;
-use crate::garthen;
 use crate::services::device::{Device, DeviceKind, DeviceStatus};
 use crate::services::device_record::{DeviceRecord, NewDeviceRecord};
 use crate::services::greenhouse::Greenhouse;
@@ -52,33 +52,43 @@ fn request(device: Device, token: String, devices: Option<Vec<Device>>) -> JoinH
                         data: data.temperature,
                     }).ok();
 
-                    match devices {
+                    amqp_client::publish(AmqpPublisherMessage {
+                        exchange: Some("data"),
+                        routing_key: Some("data.create"),
+                        payload: AmqpPayload::DispatchData { device_id: device.id },
+                    }).await;
+
+                    let device = match devices {
                         Some(devices) => {
-                            if let Some(device) = devices.iter().find(|&found|
+                            match devices.iter().find(|&found|
                                 found.kind == DeviceKind::HumiditySensor
                                     && found.external_id == device.external_id
                             ) {
-                                DeviceRecord::create(NewDeviceRecord {
-                                    device_id: device.id,
-                                    data: data.humidity,
-                                }).ok();
+                                Some(device) => device.to_owned(),
+                                None => return,
                             }
                         },
                         None => {
-                            let device
-                                = Device::find_humidity_sensor_by_external_id_and_greenhouse_id(
+                            match Device::find_humidity_sensor_by_external_id_and_greenhouse_id(
                                 device.external_id,
                                 device.greenhouse_id,
-                            );
-
-                            if let Ok(device) = device {
-                                DeviceRecord::create(NewDeviceRecord {
-                                    device_id: device.id,
-                                    data: data.humidity,
-                                }).ok();
+                            ) {
+                                Ok(device) => device,
+                                Err(_) => return,
                             }
                         },
-                    }
+                    };
+
+                    DeviceRecord::create(NewDeviceRecord {
+                        device_id: device.id,
+                        data: data.humidity,
+                    }).ok();
+
+                    amqp_client::publish(AmqpPublisherMessage {
+                        exchange: Some("data"),
+                        routing_key: Some("data.create"),
+                        payload: AmqpPayload::DispatchData { device_id: device.id },
+                    }).await;
                 },
                 DeviceKind::SoilMoistureSensor => {
                     let data: SoilMoistureData = client
@@ -94,6 +104,12 @@ fn request(device: Device, token: String, devices: Option<Vec<Device>>) -> JoinH
                         device_id: device.id,
                         data: data.humidity,
                     }).unwrap();
+
+                    amqp_client::publish(AmqpPublisherMessage {
+                        exchange: Some("data"),
+                        routing_key: Some("data.create"),
+                        payload: AmqpPayload::DispatchData { device_id: device.id },
+                    }).await;
                 },
                 _ => {},
             };
@@ -129,16 +145,13 @@ pub fn start_data_requesting_with_interval() -> JoinHandle<Result<(), WorkerErro
     })
 }
 
-pub fn start_data_request_consumer(amqp_client: &AmqpClient) -> JoinHandle<Result<(), WorkerError>> {
+pub fn start_data_request_consumer() -> JoinHandle<Result<(), WorkerError>> {
     let consumer_name = "data-requester";
 
     info!("Starting AMQP {consumer_name} consumer thread");
 
     let runtime = Runtime::new().unwrap();
-    let channel = runtime.block_on(async move {
-        amqp_client.connection.create_channel().await
-            .unwrap_or_else(|_| panic!("Failed to create AMQP channel in {consumer_name} consumer"))
-    });
+    let channel = amqp_client::get_channel();
 
     thread::spawn(move || -> Result<(), WorkerError> {
         runtime.block_on(async move {
