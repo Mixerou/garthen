@@ -2,6 +2,7 @@ use std::time::SystemTime;
 
 use db::schema::greenhouses;
 use diesel::{Insertable, Queryable, RunQueryDsl};
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::error::WorkerError;
@@ -17,6 +18,16 @@ pub struct Greenhouse {
 }
 
 impl Greenhouse {
+    pub fn find(id: i64) -> Result<Self, WorkerError> {
+        let connection = &mut db::get_connection()?;
+
+        let greenhouse = greenhouses::table
+            .filter(greenhouses::id.eq(id))
+            .first(connection)?;
+
+        Ok(greenhouse)
+    }
+
     pub fn find_all() -> Result<Vec<Self>, WorkerError> {
         let connection = &mut db::get_connection()?;
 

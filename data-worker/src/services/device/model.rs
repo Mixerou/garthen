@@ -38,6 +38,36 @@ impl Device {
         Ok(device)
     }
 
+    pub fn find_humidity_sensor_by_external_id_and_greenhouse_id(
+        external_id: Option<i16>,
+        greenhouse_id: i64,
+    ) -> Result<Self, WorkerError> {
+        let connection = &mut db::get_connection()?;
+
+        let device = devices::table
+            .filter(devices::external_id.eq(external_id))
+            .filter(devices::kind.eq(DeviceKind::HumiditySensor))
+            .filter(devices::greenhouse_id.eq(greenhouse_id))
+            .first(connection)?;
+
+        Ok(device)
+    }
+
+    pub fn find_temperature_sensor_by_external_id_and_greenhouse_id(
+        external_id: Option<i16>,
+        greenhouse_id: i64,
+    ) -> Result<Self, WorkerError> {
+        let connection = &mut db::get_connection()?;
+
+        let device = devices::table
+            .filter(devices::external_id.eq(external_id))
+            .filter(devices::kind.eq(DeviceKind::TemperatureSensor))
+            .filter(devices::greenhouse_id.eq(greenhouse_id))
+            .first(connection)?;
+
+        Ok(device)
+    }
+
     pub fn find_all_by_greenhouse_id(greenhouse_id: i64) -> Result<Vec<Self>, WorkerError> {
         let connection = &mut db::get_connection()?;
 
