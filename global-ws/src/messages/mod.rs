@@ -58,15 +58,27 @@ pub struct WebSocketMessage {
     pub data: WebSocketMessageData,
 }
 
+// Tag `n` from the word `name`
 #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq, Hash)]
+#[serde(rename_all = "snake_case", tag = "n")]
 pub enum DispatchEvent {
-    UserUpdate { id: i64 },
-    UserMeUpdate { id: i64 },
-    GreenhouseUpdate { id: i64 },
+    UserUpdate {
+        #[serde(skip)]
+        id: i64,
+    },
+    UserMeUpdate {
+        #[serde(skip)]
+        id: i64,
+    },
+    GreenhouseUpdate {
+        #[serde(skip)]
+        id: i64,
+    },
     GreenhouseCreate {
         #[serde(skip)]
         id: Option<i64>,
-        owner_id: i64
+        #[serde(skip)]
+        owner_id: i64,
     },
     DeviceUpdate { id: i64 },
 }

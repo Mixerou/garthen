@@ -8,14 +8,11 @@ use crate::services::device_record::DeviceRecord;
 use crate::services::greenhouse::Greenhouse;
 use crate::services::user::{UserMe, UserPublic, UserTheme};
 
+// Tag `a` from the word `action`
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(untagged)]
+#[serde(rename_all = "snake_case", tag = "a")]
 pub enum WebSocketMessageData {
     // Requests (Opcode: Request)
-    RequestPostGreenhouse {
-        name: String,
-        token: String,
-    },
     RequestPatchUser {
         email: String,
         username: String,
@@ -24,24 +21,23 @@ pub enum WebSocketMessageData {
         new_password: Option<String>,
         current_password: Option<String>,
     },
-
-    // Requests (Opcode: Authorize)
-    Authorize {
+    RequestPostGreenhouse {
+        name: String,
         token: String,
     },
 
+    // Requests (Opcode: Authorize)
+    Authorize { token: String },
+
     // Requests (Opcode: Subscribe)
+    SubscribeToUserUpdate { id: i64 },
+    SubscribeToUserMeUpdates {},
+    SubscribeToGreenhouseUpdate { id: i64 },
     SubscribeToDeviceUpdate {
         id: i64,
         greenhouse_id: i64,
     },
-    SubscribeToDevicesUpdate {
-        greenhouse_id: i64,
-    },
-    RequestWithId {
-        id: i64,
-    },
-    SubscribeToUserMeUpdates {},
+    SubscribeToDevicesUpdate { greenhouse_id: i64 },
 
     // Dispatches
     DispatchUserUpdate {
@@ -59,7 +55,7 @@ pub enum WebSocketMessageData {
         theme: UserTheme,
         greenhouses: i64,
     },
-    DispatchGreenhouseMine {
+    DispatchGreenhouseMineUpdate {
         id: i64,
         name: String,
         token: String,
@@ -124,7 +120,7 @@ impl From<UserMe> for WebSocketMessageData {
 
 impl From<Greenhouse> for WebSocketMessageData {
     fn from(greenhouse: Greenhouse) -> Self {
-        WebSocketMessageData::DispatchGreenhouseMine {
+        WebSocketMessageData::DispatchGreenhouseMineUpdate {
             id: greenhouse.id,
             name: greenhouse.name,
             token: greenhouse.token,
