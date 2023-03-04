@@ -34,6 +34,9 @@ pub enum WebSocketMessageData {
         id: i64,
         greenhouse_id: i64,
     },
+    SubscribeToDevicesUpdate {
+        greenhouse_id: i64,
+    },
     RequestWithId {
         id: i64,
     },

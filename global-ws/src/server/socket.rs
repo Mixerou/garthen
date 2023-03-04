@@ -168,6 +168,11 @@ impl Socket {
                         message,
                         connection,
                         context)?,
+                    "devices" => device::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },

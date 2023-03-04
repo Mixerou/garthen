@@ -37,6 +37,16 @@ impl Device {
 
         Ok(device)
     }
+
+    pub fn find_all_by_greenhouse_id(greenhouse_id: i64) -> Result<Vec<Self>, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let devices = devices::table
+            .filter(devices::greenhouse_id.eq(greenhouse_id))
+            .load(connection)?;
+
+        Ok(devices)
+    }
 }
 
 #[derive(Copy, Clone, Debug, Deserialize_repr, Serialize_repr, Eq, PartialEq)]
