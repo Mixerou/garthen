@@ -361,9 +361,18 @@ impl Handler<DispatchMessage> for Socket {
 impl Handler<DispatchAmqpMessage> for Socket {
     type Result = ();
 
-    fn handle(&mut self, message: DispatchAmqpMessage, _: &mut Self::Context) -> Self::Result {
+    fn handle(
+        &mut self,
+        message: DispatchAmqpMessage,
+        context: &mut Self::Context,
+    ) -> Self::Result {
         match message.payload {
-            AmqpPayload::DispatchData { .. } => debug!("Got DispatchData from AMQP -> {message:?}"),
+            AmqpPayload::DispatchData { device_id } => {
+                context.address().do_send(DispatchMessage {
+                    event: DispatchEvent::DeviceUpdate { id: device_id },
+                    new_subscribers: None,
+                });
+            },
             AmqpPayload::Ping => debug!("Got Ping from AMQP"),
             _ => {},
         }
