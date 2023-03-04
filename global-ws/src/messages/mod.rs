@@ -68,6 +68,7 @@ pub enum DispatchEvent {
         id: Option<i64>,
         owner_id: i64
     },
+    DeviceUpdate { id: i64 },
 }
 
 #[derive(Debug, Message)]

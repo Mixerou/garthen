@@ -2,6 +2,7 @@ use std::time::UNIX_EPOCH;
 
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
+use crate::services::device::{Device, DeviceKind, DeviceStatus};
 
 use crate::services::greenhouse::Greenhouse;
 use crate::services::user::{UserMe, UserPublic, UserTheme};
@@ -9,11 +10,6 @@ use crate::services::user::{UserMe, UserPublic, UserTheme};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum WebSocketMessageData {
-    // Default
-    RequestWithId {
-        id: i64,
-    },
-
     // Requests (Opcode: Request)
     RequestPostGreenhouse {
         name: String,
@@ -34,6 +30,13 @@ pub enum WebSocketMessageData {
     },
 
     // Requests (Opcode: Subscribe)
+    SubscribeToDeviceUpdate {
+        id: i64,
+        greenhouse_id: i64,
+    },
+    RequestWithId {
+        id: i64,
+    },
     SubscribeToUserMeUpdates {},
 
     // Dispatches
@@ -57,6 +60,14 @@ pub enum WebSocketMessageData {
         name: String,
         token: String,
         owner_id: i64,
+        created_at: u64,
+    },
+    DispatchDeviceUpdate {
+        id: i64,
+        name: Option<String>,
+        status: DeviceStatus,
+        kind: DeviceKind,
+        greenhouse_id: i64,
         created_at: u64,
     },
 
@@ -113,6 +124,19 @@ impl From<Greenhouse> for WebSocketMessageData {
             token: greenhouse.token,
             owner_id: greenhouse.owner_id,
             created_at: greenhouse.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        }
+    }
+}
+
+impl From<Device> for WebSocketMessageData {
+    fn from(device: Device) -> Self {
+        WebSocketMessageData::DispatchDeviceUpdate {
+            id: device.id,
+            name: device.name,
+            status: device.status,
+            kind: device.kind,
+            greenhouse_id: device.greenhouse_id,
+            created_at: device.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
         }
     }
 }

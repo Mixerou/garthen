@@ -10,7 +10,8 @@ use actix_web_actors::ws::WebsocketContext;
 use crate::error::{WebSocketCloseError, WebSocketError, WebSocketErrorTemplate};
 use crate::messages::{AmqpPayload, AuthorizationMessage, DisconnectionMessage, DispatchAmqpMessage, DispatchEvent, DispatchMessage, InitAmqpConsumersMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::WebSocketConnection;
-use crate::services::{greenhouse, user};
+use crate::services::{device, greenhouse, user};
+use crate::services::device::Device;
 use crate::services::greenhouse::Greenhouse;
 use crate::services::session::Session;
 use crate::services::user::{UserMe, UserPublic};
@@ -162,6 +163,11 @@ impl Socket {
                         connection,
                         context,
                     )?,
+                    "device" => device::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -286,6 +292,9 @@ impl Handler<DispatchMessage> for Socket {
                     },
                     None => WebSocketMessageData::None,
                 }
+            },
+            DispatchEvent::DeviceUpdate { id } => {
+                WebSocketMessageData::from(Device::find(id)?)
             },
         };
 
