@@ -37,21 +37,24 @@ pub fn start_data_requesting_with_interval() -> JoinHandle<Result<(), WorkerErro
 
                 for device in devices.clone() {
                     let devices = devices.clone();
+                    let token = greenhouse.token.to_owned();
 
                     threads.push(thread::spawn(move || {
-                        let rt = Runtime::new().unwrap();
+                        let client = reqwest::Client::new();
+                        let runtime = Runtime::new().unwrap();
 
-                        rt.block_on(async move {
+                        runtime.block_on(async move {
                             match device.kind {
                                 // DeviceKind::HumiditySensor gets data from the same path
                                 DeviceKind::TemperatureSensor => {
-                                    let data: TemperatureAndHumidityData = reqwest::get(
-                                        format!(
+                                    let data: TemperatureAndHumidityData = client
+                                        .get(format!(
                                             "{}/temp_hum/{}",
                                             garthen::get_external_devices_api_url(),
                                             device.external_id.unwrap(),
-                                        )
-                                    ).await.unwrap().json().await.unwrap();
+                                        ))
+                                        .header("x-auth-token", token)
+                                        .send().await.unwrap().json().await.unwrap();
 
                                     DeviceRecord::create(NewDeviceRecord {
                                         device_id: device.id,
@@ -69,13 +72,14 @@ pub fn start_data_requesting_with_interval() -> JoinHandle<Result<(), WorkerErro
                                     }
                                 },
                                 DeviceKind::SoilMoistureSensor => {
-                                    let data: SoilMoistureData = reqwest::get(
-                                        format!(
+                                    let data: SoilMoistureData = client
+                                        .get(format!(
                                             "{}/hum/{}",
                                             garthen::get_external_devices_api_url(),
                                             device.external_id.unwrap(),
-                                        )
-                                    ).await.unwrap().json().await.unwrap();
+                                        ))
+                                        .header("x-auth-token", token)
+                                        .send().await.unwrap().json().await.unwrap();
 
                                     DeviceRecord::create(NewDeviceRecord {
                                         device_id: device.id,
