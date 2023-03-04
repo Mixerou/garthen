@@ -3,6 +3,7 @@ use std::time::UNIX_EPOCH;
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
 use crate::services::device::{Device, DeviceKind, DeviceStatus};
+use crate::services::device_record::DeviceRecord;
 
 use crate::services::greenhouse::Greenhouse;
 use crate::services::user::{UserMe, UserPublic, UserTheme};
@@ -72,6 +73,7 @@ pub enum WebSocketMessageData {
         kind: DeviceKind,
         greenhouse_id: i64,
         created_at: u64,
+        latest_data: f64,
     },
 
     // Other
@@ -133,6 +135,11 @@ impl From<Greenhouse> for WebSocketMessageData {
 
 impl From<Device> for WebSocketMessageData {
     fn from(device: Device) -> Self {
+        let latest_data = match DeviceRecord::find_latest_by_device_id(device.id) {
+            Ok(record) => record.data,
+            Err(_) => 0.0,
+        };
+
         WebSocketMessageData::DispatchDeviceUpdate {
             id: device.id,
             name: device.name,
@@ -140,6 +147,7 @@ impl From<Device> for WebSocketMessageData {
             kind: device.kind,
             greenhouse_id: device.greenhouse_id,
             created_at: device.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            latest_data,
         }
     }
 }
