@@ -68,6 +68,7 @@ pub enum WebSocketMessageData {
     },
     DispatchDeviceUpdate {
         id: i64,
+        external_id: Option<i16>,
         name: Option<String>,
         status: DeviceStatus,
         kind: DeviceKind,
@@ -142,6 +143,7 @@ impl From<Device> for WebSocketMessageData {
 
         WebSocketMessageData::DispatchDeviceUpdate {
             id: device.id,
+            external_id: device.external_id,
             name: device.name,
             status: device.status,
             kind: device.kind,
