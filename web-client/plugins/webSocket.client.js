@@ -87,7 +87,7 @@ export default defineNuxtPlugin(plugin => {
 
           if (message.o !== constants.GLOBAL_WS_OPCODES.dispatch) return
 
-          const event = message.e[0]
+          const event = message.e.n
           const data = message.d
 
           if (event === constants.GLOBAL_WS_EVENTS.userUpdate) {
@@ -107,7 +107,12 @@ export default defineNuxtPlugin(plugin => {
           } else if (event === constants.GLOBAL_WS_EVENTS.greenhouseCreate) {
             // TODO: dataStore.setGreenhouse(data)
 
-            plugin.$wsSubscribe('greenhouse', { id: data.id }, true, false)
+            plugin.$wsSubscribe(
+              'greenhouse',
+              { a: 'subscribe_to_greenhouse_update', id: data.id },
+              true,
+              false
+            )
           }
         }
 
@@ -119,6 +124,7 @@ export default defineNuxtPlugin(plugin => {
                 i: system.getWebSocketMessageId(),
                 o: constants.GLOBAL_WS_OPCODES.authorize,
                 d: {
+                  a: 'authorize',
                   token: user.token,
                 },
               }
@@ -163,6 +169,14 @@ export default defineNuxtPlugin(plugin => {
         data.i = system.getWebSocketMessageId()
 
         if (
+          data.d === undefined ||
+          Object.keys(data.d).length === 0 ||
+          data.d.a === undefined
+        ) {
+          delete data.d
+        }
+
+        if (
           !system.isWebSocketAuthorized ||
           !system.isWebSocketConnected ||
           system.webSocket.readyState !== system.webSocket.OPEN
@@ -186,6 +200,14 @@ export default defineNuxtPlugin(plugin => {
       },
       wsSendAndWait: async data => {
         data.i = system.getWebSocketMessageId()
+
+        if (
+          data.d === undefined ||
+          Object.keys(data.d).length === 0 ||
+          data.d.a === undefined
+        ) {
+          delete data.d
+        }
 
         return new Promise(resolve => {
           if (

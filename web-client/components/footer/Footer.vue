@@ -26,6 +26,7 @@ const update = async (theme = system.theme, locale = system.locale) => {
       r: 'user/me',
       m: { patch: null },
       d: {
+        a: 'request_patch_user',
         email: user.email,
         username: user.username,
         locale: locale,

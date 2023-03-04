@@ -57,6 +57,7 @@ const save = () => {
     isEditsSaving.value = true
 
     const data = {
+      a: 'request_patch_user',
       email: editedEmail.value,
       username: editedUsername.value,
       locale: editedLocale.value,
