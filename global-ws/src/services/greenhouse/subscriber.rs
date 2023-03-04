@@ -6,13 +6,13 @@ use crate::server::{Socket, WebSocketConnection};
 use crate::services::greenhouse::Greenhouse;
 use crate::services::session::Session;
 
-fn greenhouses_update(
+fn greenhouse_update(
     message: WebSocketMessage,
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
     let greenhouse_id = match message.data {
-        WebSocketMessageData::RequestWithId { id } => id,
+        WebSocketMessageData::SubscribeToGreenhouseUpdate { id } => id,
         _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
     };
 
@@ -111,7 +111,7 @@ pub fn subscribe(
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
     match to.as_str() {
-        "greenhouse" => greenhouses_update(message, connection, context)?,
+        "greenhouse" => greenhouse_update(message, connection, context)?,
         "greenhouses/mine" => greenhouses_mine_update(message, connection, context)?,
         "greenhouse-create" => greenhouse_create(message, connection, context)?,
         _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),

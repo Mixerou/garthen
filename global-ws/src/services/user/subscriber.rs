@@ -11,7 +11,7 @@ fn user_update(
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
     let id = match message.data {
-        WebSocketMessageData::RequestWithId { id } => id,
+        WebSocketMessageData::SubscribeToUserUpdate { id } => id,
         _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
     };
 
