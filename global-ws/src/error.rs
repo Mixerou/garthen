@@ -202,6 +202,8 @@ websocket_error_template! {
     (400, Some(30008), PasswordTooLong, "The password is too long");
     (400, Some(30009), UsernameTooShort, "The username is too short");
     (400, Some(30010), UsernameTooLong, "The username is too long");
+    (400, Some(30011), DeviceNameTooShort, "The device name is too short");
+    (400, Some(30012), DeviceNameTooLong, "The device name is too long");
 
     // Invalid body or something else
     (400, Some(40001), InvalidRequestField, "Invalid request");

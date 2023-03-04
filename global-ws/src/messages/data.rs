@@ -25,6 +25,11 @@ pub enum WebSocketMessageData {
         name: String,
         token: String,
     },
+    RequestPatchDevice {
+        id: i64,
+        greenhouse_id: i64,
+        name: Option<String>,
+    },
 
     // Requests (Opcode: Authorize)
     Authorize { token: String },

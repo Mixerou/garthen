@@ -128,6 +128,13 @@ impl Socket {
                         connection,
                         context,
                     )?,
+                    "device" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },

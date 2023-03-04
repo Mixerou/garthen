@@ -13,7 +13,7 @@ use diesel::sql_types::SmallInt;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use crate::error::WebSocketError;
+use crate::error::{WebSocketError, WebSocketErrorTemplate};
 
 #[derive(Clone, Debug, Deserialize, Serialize, Insertable, Queryable)]
 #[diesel(table_name = devices)]
@@ -46,6 +46,32 @@ impl Device {
             .load(connection)?;
 
         Ok(devices)
+    }
+
+    pub fn update_name(id: i64, new_name: Option<String>) -> Result<Self, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let device = diesel::update(devices::table)
+            .filter(devices::id.eq(id))
+            .set(devices::name.eq(new_name))
+            .get_result(connection)?;
+
+        Ok(device)
+    }
+
+    // Default implementations
+    pub fn check_name_length(name: &str) -> Result<(), WebSocketError> {
+        let name_length = name.chars().count();
+
+        match name_length {
+            length if length < 1 => Err(
+                WebSocketErrorTemplate::DeviceNameTooShort(None).into()
+            ),
+            length if length > 24 => Err(
+                WebSocketErrorTemplate::DeviceNameTooLong(None).into()
+            ),
+            _ => Ok(())
+        }
     }
 }
 
