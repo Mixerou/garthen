@@ -121,7 +121,7 @@ fn patch_device_state(
         return Err(WebSocketErrorTemplate::NotFound(None).into());
     }
     if device.kind != DeviceKind::HumidificationController
-        && device.kind != DeviceKind::IrrigationControllers
+        && device.kind != DeviceKind::IrrigationController
         && device.kind != DeviceKind::WindowsController {
         return Err(WebSocketErrorTemplate::DeviceIsNotController(None).into());
     }
