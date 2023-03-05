@@ -4,7 +4,7 @@ extern crate snowflake_generator as snowflake;
 
 use dotenv::dotenv;
 
-use crate::services::device_record;
+use crate::services::{device, device_record};
 
 mod amqp_client;
 mod error;
@@ -27,6 +27,8 @@ fn main() {
         = device_record::start_data_requesting_with_interval();
     let data_requester_consumer_thread
         = device_record::start_data_request_consumer();
+    let change_controller_state_consumer_thread
+        = device::start_change_controller_state_consumer();
 
     data_requesting_thread.join()
         .expect("Couldn't join on the data requesting thread")
@@ -34,4 +36,7 @@ fn main() {
     data_requester_consumer_thread.join()
         .expect("Couldn't join on the data-requester consumer thread")
         .expect("Failed to successfully finish data-requester consumer thread");
+    change_controller_state_consumer_thread.join()
+        .expect("Couldn't join on the controller-state-changer consumer thread")
+        .expect("Failed to successfully finish controller-state-changer consumer thread");
 }

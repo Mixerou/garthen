@@ -18,6 +18,13 @@ pub enum AmqpPayload {
         device_id: Option<i64>,
         greenhouse_id: Option<i64>,
     },
+    ChangeControllerState {
+        device_id: i64,
+        state: u8,
+    },
+    DispatchDevice {
+        id: i64,
+    },
     Ping,
 }
 
@@ -61,10 +68,13 @@ pub fn init() {
     runtime.block_on(async move {
         // Exchanges
         declare_exchange(&channel, "data", ExchangeKind::Topic).await;
+        declare_exchange(&channel, "device", ExchangeKind::Topic).await;
 
         // Queues
         declare_queue(&channel, "request-data").await;
         declare_queue(&channel, "dispatch-data").await;
+        declare_queue(&channel, "change-controller-state").await;
+        declare_queue(&channel, "dispatch-device").await;
 
         // Queue bindings
         bind_queue(
@@ -78,6 +88,18 @@ pub fn init() {
             "dispatch-data",
             "data",
             "data.create",
+        ).await;
+        bind_queue(
+            &channel,
+            "change-controller-state",
+            "device",
+            "device.controller.state.change",
+        ).await;
+        bind_queue(
+            &channel,
+            "dispatch-device",
+            "device",
+            "device.controller.state.changed",
         ).await;
     })
 }
