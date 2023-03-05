@@ -73,7 +73,7 @@ pub fn start_change_controller_state_consumer() -> JoinHandle<Result<(), WorkerE
                                 .header("x-auth-token", greenhouse.token)
                                 .send().await.unwrap().json().await.unwrap()
                         },
-                        DeviceKind::IrrigationControllers => {
+                        DeviceKind::IrrigationController => {
                             client.patch(format!(
                                 "{}/watering?id={}&state={}",
                                 garthen::get_external_devices_api_url(),
@@ -82,7 +82,7 @@ pub fn start_change_controller_state_consumer() -> JoinHandle<Result<(), WorkerE
                             ))
                                 .header("x-auth-token", greenhouse.token)
                                 .send().await.unwrap().json().await.unwrap()
-                        },
+                        }
                         DeviceKind::WindowsController => {
                             client.patch(format!(
                                 "{}/fork_drive?state={}",

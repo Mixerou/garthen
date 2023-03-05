@@ -124,7 +124,7 @@ pub enum DeviceKind {
     SoilMoistureSensor = 1,
     TemperatureSensor = 2,
     HumidificationController = 3,
-    IrrigationControllers = 4,
+    IrrigationController = 4,
     WindowsController = 5,
 }
 
