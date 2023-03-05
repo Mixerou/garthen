@@ -2,6 +2,7 @@ use std::str::from_utf8;
 use std::thread;
 use std::thread::JoinHandle;
 
+use futures::executor::block_on;
 use futures::StreamExt;
 use lapin::options::{BasicAckOptions, BasicConsumeOptions};
 use lapin::types::FieldTable;
@@ -26,7 +27,10 @@ pub fn start_change_controller_state_consumer() -> JoinHandle<Result<(), WorkerE
     info!("Starting AMQP {consumer_name} consumer thread");
 
     let runtime = Runtime::new().unwrap();
-    let channel = amqp_client::get_channel();
+    let channel = block_on(async move {
+        amqp_client::get_connection().create_channel()
+            .await.expect("Failed to create AMQP channel in {consumer_name} consumer")
+    });
 
     thread::spawn(move || -> Result<(), WorkerError> {
         runtime.block_on(async move {
