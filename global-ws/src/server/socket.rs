@@ -142,6 +142,13 @@ impl Socket {
                         connection,
                         context,
                     )?,
+                    "device/request-data" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },

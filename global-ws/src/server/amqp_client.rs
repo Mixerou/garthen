@@ -127,6 +127,7 @@ impl Actor for AmqpClient {
         });
 
         self.subscribe_system_async::<InitAmqpConsumersMessage>(context);
+        self.subscribe_system_async::<AmqpPublisherMessage>(context);
     }
 }
 

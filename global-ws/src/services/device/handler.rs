@@ -1,9 +1,10 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use actix_broker::{Broker, BrokerIssue, SystemBroker};
 use actix_web_actors::ws::WebsocketContext;
 
 use crate::error::{WebSocketError, WebSocketErrorTemplate};
-use crate::messages::{DispatchEvent, DispatchMessage, Method, Opcode, WebSocketMessage, WebSocketMessageData};
+use crate::messages::{AmqpPayload, AmqpPublisherMessage, DispatchEvent, DispatchMessage, Method, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::{Socket, WebSocketConnection};
 use crate::services::device::Device;
 use crate::services::device_record::{DeviceRecord, NewDeviceRecord};
@@ -183,6 +184,70 @@ fn post_device_custom_data(
     Ok(())
 }
 
+fn post_device_request_data(
+    message: WebSocketMessage,
+    connection: &mut WebSocketConnection,
+    context: &mut WebsocketContext<WebSocketConnection>,
+) -> Result<(), WebSocketError> {
+    let (device_id, greenhouse_id) = match message.data {
+        WebSocketMessageData::RequestPostDeviceRequestData {
+            id,
+            greenhouse_id,
+        } => (id, greenhouse_id),
+        _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+    };
+    let session = Session::find(connection.session_id.unwrap())?;
+    let session_user_id = match session.user_id {
+        Some(user_id) => user_id,
+        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
+    };
+
+    let greenhouse = Greenhouse::find(greenhouse_id)?;
+
+    if greenhouse.owner_id != session_user_id {
+        return Err(WebSocketErrorTemplate::Forbidden(None).into());
+    }
+
+    if let Some(device_id) = device_id {
+        let device = Device::find(device_id)?;
+
+        if device.greenhouse_id != greenhouse.id {
+            return Err(WebSocketErrorTemplate::NotFound(None).into());
+        }
+    }
+
+    Broker::<SystemBroker>::default().issue_system_async(AmqpPublisherMessage {
+        exchange: Some("data"),
+        routing_key: Some("data.request"),
+        payload: AmqpPayload::RequestData {
+            device_id,
+            greenhouse_id: Some(greenhouse_id),
+        },
+    });
+
+    // Response to request
+    let response = WebSocketMessage {
+        id: message.id,
+        connection_id: connection.id,
+        opcode: Opcode::Response,
+        data: WebSocketMessageData::Response {
+            code: 200,
+            message: "Successfully requested".to_string(),
+        },
+        ..Default::default()
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.socket.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
+    Ok(())
+}
+
 pub fn handle(
     request: String,
     method: Method,
@@ -197,6 +262,7 @@ pub fn handle(
         },
         Method::Post => match request.as_str() {
             "device/custom-data" => post_device_custom_data(message, connection, context)?,
+            "device/request-data" => post_device_request_data(message, connection, context)?,
             _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),
         },
         _ => return Err(WebSocketErrorTemplate::MethodNotAllowed(None).into()),
