@@ -48,7 +48,7 @@ lazy_static! {
 
 pub fn get_connection<'a>() -> &'a Connection
 {
-    CONNECTION.clone()
+    <&Connection>::clone(&CONNECTION)
 }
 
 pub fn get_channel() -> Channel
@@ -139,7 +139,7 @@ async fn bind_queue(channel: &Channel, name: &str, exchange: &str, routing_key: 
     ))
 }
 
-pub async fn publish<'a>(message: AmqpPublisherMessage<'a>) {
+pub async fn publish(message: AmqpPublisherMessage<'_>) {
     let channel = get_channel();
     let exchange = message.exchange.unwrap_or("").to_string();
     let routing_key = message.routing_key.unwrap_or("").to_string();
