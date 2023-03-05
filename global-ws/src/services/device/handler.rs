@@ -216,7 +216,7 @@ fn post_device_request_data(
         }
     }
 
-    Broker::<SystemBroker>::default().issue_system_async(AmqpPublisherMessage {
+    Broker::<SystemBroker>::issue_async(AmqpPublisherMessage {
         exchange: Some("data"),
         routing_key: Some("data.request"),
         payload: AmqpPayload::RequestData {
