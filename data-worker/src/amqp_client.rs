@@ -87,7 +87,7 @@ pub fn init() {
             &channel,
             "dispatch-data",
             "data",
-            "data.create",
+            "data.created",
         ).await;
         bind_queue(
             &channel,

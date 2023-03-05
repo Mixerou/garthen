@@ -54,7 +54,7 @@ fn request(device: Device, token: String, devices: Option<Vec<Device>>) -> JoinH
 
                     amqp_client::publish(AmqpPublisherMessage {
                         exchange: Some("data"),
-                        routing_key: Some("data.create"),
+                        routing_key: Some("data.created"),
                         payload: AmqpPayload::DispatchData { device_id: device.id },
                     }).await;
 
@@ -86,7 +86,7 @@ fn request(device: Device, token: String, devices: Option<Vec<Device>>) -> JoinH
 
                     amqp_client::publish(AmqpPublisherMessage {
                         exchange: Some("data"),
-                        routing_key: Some("data.create"),
+                        routing_key: Some("data.created"),
                         payload: AmqpPayload::DispatchData { device_id: device.id },
                     }).await;
                 },
@@ -107,7 +107,7 @@ fn request(device: Device, token: String, devices: Option<Vec<Device>>) -> JoinH
 
                     amqp_client::publish(AmqpPublisherMessage {
                         exchange: Some("data"),
-                        routing_key: Some("data.create"),
+                        routing_key: Some("data.created"),
                         payload: AmqpPayload::DispatchData { device_id: device.id },
                     }).await;
                 },
