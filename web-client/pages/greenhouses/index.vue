@@ -24,6 +24,8 @@ system.setIsNavbarFolded(true)
 onMounted(() => {
   setTimeout(() => (isGreenhouseAnimationDisabled.value = false), 300)
 })
+
+onBeforeUnmount(() => system.setIsNavbarFolded(false))
 </script>
 
 <template>

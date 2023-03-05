@@ -17,6 +17,7 @@ export const useSystemStore = definePiniaStore('system', () => {
   const isEetfInitialized = ref(false)
   const locale = ref('')
   const theme = ref(0)
+  const appPageName = ref('')
 
   function registerModal(id, priority = null) {
     modals.value.push(id)
@@ -73,6 +74,10 @@ export const useSystemStore = definePiniaStore('system', () => {
     theme.value = code
   }
 
+  function setAppPageName(name) {
+    appPageName.value = name
+  }
+
   return {
     modals,
     isAppLayout,
@@ -84,6 +89,7 @@ export const useSystemStore = definePiniaStore('system', () => {
     isEetfInitialized,
     locale,
     theme,
+    appPageName,
     registerModal,
     unregisterActiveModal,
     setIsAppLayout,
@@ -97,5 +103,6 @@ export const useSystemStore = definePiniaStore('system', () => {
     setIsEetfInitialized,
     setLocale,
     setTheme,
+    setAppPageName,
   }
 })

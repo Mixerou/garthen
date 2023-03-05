@@ -26,7 +26,7 @@ const user = useUserStore()
     />
     <div
       class="card"
-      :class="{ 'hide-on-mobile': avatarOnlyOnMobile, hide: avatarOnly }"
+      :class="{ 'fold-on-mobile': avatarOnlyOnMobile, fold: avatarOnly }"
     >
       <ProfileAvatar class="avatar" :username="user.username" />
       <div class="information">
@@ -84,8 +84,9 @@ const user = useUserStore()
     padding: 0 1rem;
     background: transparent;
     cursor: pointer;
-    transition: var(--fast-transition-duration);
-    transition-property: background-color, transform;
+    transition: width var(--default-transition),
+      background-color var(--fast-transition-duration),
+      transform var(--fast-transition-duration);
 
     &:hover {
       background: var(--primary-400);
@@ -97,7 +98,7 @@ const user = useUserStore()
       color: var(--white-original-100);
     }
 
-    &.hide-on-mobile {
+    &.fold-on-mobile {
       width: auto;
 
       @include medium-screen {
@@ -113,11 +114,13 @@ const user = useUserStore()
       }
     }
 
-    &.hide {
-      width: auto;
+    &.fold {
+      width: calc(4.75rem - 1rem * 2);
 
       .information {
-        display: none;
+        width: 0;
+        margin-right: calc(-100% - 1rem);
+        opacity: 0;
       }
     }
 
@@ -130,8 +133,10 @@ const user = useUserStore()
     .information {
       display: flex;
       flex-direction: column;
-      width: calc(100% - 3.75rem);
+      width: 12.25rem;
       font-size: var(--default-font-size);
+      transition: var(--default-transition);
+      transition-property: width, margin-right, opacity;
 
       .username {
         overflow: hidden;

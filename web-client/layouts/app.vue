@@ -93,18 +93,19 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 100vh;
 
-    nav {
-      transition: transform var(--default-transition);
-
-      &.hide {
-        transform: translateX(-200%) scale(1.05);
-      }
+    nav.hide {
+      transform: translateX(-200%) scale(1.05);
     }
 
     main {
       width: 100%;
       height: 100%;
+      padding: 0 1rem;
       overflow-y: auto;
+
+      @include medium-screen {
+        padding: 0 2rem;
+      }
     }
   }
 }

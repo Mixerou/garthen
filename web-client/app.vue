@@ -167,4 +167,17 @@ h6 {
     transform: scale(1.05);
   }
 }
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity var(--fast-transition-duration);
+}
+
+.page-enter-from {
+  opacity: 0;
+}
+
+.page-leave-to {
+  opacity: 0;
+}
 </style>

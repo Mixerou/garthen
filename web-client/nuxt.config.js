@@ -21,6 +21,7 @@ export default defineNuxtConfig({
       ],
     },
     layoutTransition: { name: 'layout' },
+    pageTransition: { name: 'page', mode: 'out-in' },
   },
   css: ['@/assets/styles/_colors.scss', '@/assets/styles/_variables.scss'],
   modules: [
