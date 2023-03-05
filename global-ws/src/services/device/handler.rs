@@ -1,6 +1,6 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use actix_broker::{Broker, BrokerIssue, SystemBroker};
+use actix_broker::{Broker, SystemBroker};
 use actix_web_actors::ws::WebsocketContext;
 
 use crate::error::{WebSocketError, WebSocketErrorTemplate};
