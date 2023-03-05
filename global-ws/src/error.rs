@@ -215,6 +215,9 @@ websocket_error_template! {
     (400, Some(40003), EmailInvalid, "Invalid email");
     (400, Some(40004), IncorrectPassword, "Incorrect password");
     (400, Some(40005), UsernameInvalidOrTaken, "The username is either invalid or taken");
+    (400, Some(40006), InvalidDeviceState, "Invalid device state");
+    (400, Some(40007), DeviceIsNotSensor, "The device is not a sensor");
+    (400, Some(40008), DeviceIsNotController, "The device is not a controller");
 }
 
 macro_rules! close_error {

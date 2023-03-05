@@ -135,6 +135,13 @@ impl Socket {
                         connection,
                         context,
                     )?,
+                    "device/state" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
                     "device/custom-data" => device::handle(
                         request,
                         method,
@@ -391,6 +398,12 @@ impl Handler<DispatchAmqpMessage> for Socket {
             AmqpPayload::DispatchData { device_id } => {
                 context.address().do_send(DispatchMessage {
                     event: DispatchEvent::DeviceUpdate { id: device_id },
+                    new_subscribers: None,
+                });
+            },
+            AmqpPayload::DispatchDevice { id } => {
+                context.address().do_send(DispatchMessage {
+                    event: DispatchEvent::DeviceUpdate { id },
                     new_subscribers: None,
                 });
             },

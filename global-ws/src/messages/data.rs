@@ -30,6 +30,11 @@ pub enum WebSocketMessageData {
         greenhouse_id: i64,
         name: Option<String>,
     },
+    RequestPatchDeviceState {
+        id: i64,
+        greenhouse_id: i64,
+        state: u8,
+    },
     RequestPostDeviceCustomData {
         id: i64,
         greenhouse_id: i64,

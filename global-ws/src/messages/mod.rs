@@ -124,6 +124,13 @@ pub enum AmqpPayload {
         device_id: Option<i64>,
         greenhouse_id: Option<i64>,
     },
+    ChangeControllerState {
+        device_id: i64,
+        state: u8,
+    },
+    DispatchDevice {
+        id: i64,
+    },
     Ping,
 }
 
