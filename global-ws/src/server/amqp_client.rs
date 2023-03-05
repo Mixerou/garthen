@@ -122,7 +122,7 @@ impl Actor for AmqpClient {
                 &channel,
                 "dispatch-data",
                 "data",
-                "data.create",
+                "data.created",
             ).await;
         });
 
