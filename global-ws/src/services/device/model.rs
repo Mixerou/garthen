@@ -59,6 +59,17 @@ impl Device {
         Ok(device)
     }
 
+    pub fn update_status(id: i64, new_status: DeviceStatus) -> Result<Self, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let device = diesel::update(devices::table)
+            .filter(devices::id.eq(id))
+            .set(devices::status.eq(new_status))
+            .get_result(connection)?;
+
+        Ok(device)
+    }
+
     // Default implementations
     pub fn check_name_length(name: &str) -> Result<(), WebSocketError> {
         let name_length = name.chars().count();

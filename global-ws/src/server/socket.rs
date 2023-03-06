@@ -156,6 +156,20 @@ impl Socket {
                         connection,
                         context,
                     )?,
+                    "device/disable" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    "device/enable" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },

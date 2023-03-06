@@ -45,6 +45,14 @@ pub enum WebSocketMessageData {
         id: Option<i64>,
         greenhouse_id: i64,
     },
+    RequestPostDeviceDisable {
+        id: i64,
+        greenhouse_id: i64,
+    },
+    RequestPostDeviceEnable {
+        id: i64,
+        greenhouse_id: i64,
+    },
 
     // Requests (Opcode: Authorize)
     Authorize { token: String },
