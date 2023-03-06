@@ -3,6 +3,7 @@ definePageMeta({
   layout: 'app',
 })
 
+const { $wsSubscribe } = useNuxtApp()
 const { t } = useI18n()
 const route = useRoute()
 const dataStore = useDataStore()
@@ -22,22 +23,41 @@ watchEffect(() => {
   }
 })
 
-onMounted(() => system.setAppPageName('dashboard'))
+watchEffect(() => {
+  $wsSubscribe(
+    'devices',
+    {
+      a: 'subscribe_to_devices_update',
+      greenhouse_id: BigInt(route.params.greenhouseId || 0),
+    },
+    true
+  )
+})
+
+onMounted(() => {
+  system.setAppPageName('dashboard')
+})
+
 onBeforeUnmount(() => system.setAppPageName(''))
 </script>
 
 <template>
   <div class="page">
     <DashboardHeader />
+    <DashboardGroups />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .page {
-  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  margin: 1.5rem 0 4rem 0;
 
   @include medium-screen {
-    margin-top: 2.125rem;
+    gap: 4rem;
+    margin: 2.125rem 0;
   }
 }
 </style>

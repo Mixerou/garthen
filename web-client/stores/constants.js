@@ -57,12 +57,22 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     userMeUpdate: 'user_me_update',
     greenhouseUpdate: 'greenhouse_update',
     greenhouseCreate: 'greenhouse_create',
+    deviceUpdate: 'device_update',
   }
 
   const USER_THEMES = {
     auto: 0,
     light: 1,
     dark: 2,
+  }
+
+  const DEVICE_KINDS = {
+    humiditySensor: 0,
+    soilMoistureSensor: 1,
+    temperatureSensor: 2,
+    humidificationController: 3,
+    irrigationController: 4,
+    windowsController: 5,
   }
 
   function parseGlobalApiErrorCode(code) {
@@ -99,6 +109,10 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     return Object.keys(USER_THEMES).find(key => USER_THEMES[key] === id)
   }
 
+  function parseDeviceKind(id) {
+    return Object.keys(DEVICE_KINDS).find(key => DEVICE_KINDS[key] === id)
+  }
+
   return {
     GLOBAL_API_ERRORS,
     GLOBAL_WS_ERRORS,
@@ -106,11 +120,13 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     GLOBAL_WS_OPCODES,
     GLOBAL_WS_EVENTS,
     USER_THEMES,
+    DEVICE_KINDS,
     parseGlobalApiErrorCode,
     parseGlobalWsErrorCode,
     parseGlobalWsCloseErrorCode,
     parseGlobalWsOpcodeId,
     parseGlobalWsEventName,
     parseUserTheme,
+    parseDeviceKind,
   }
 })
