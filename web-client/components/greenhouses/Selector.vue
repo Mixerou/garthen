@@ -139,7 +139,6 @@ onBeforeUnmount(() => {
     position: fixed;
     top: 1.5rem;
     right: 1em;
-    box-shadow: var(--large-shadow);
     transition: var(--default-transition);
 
     @include medium-screen {
@@ -151,12 +150,17 @@ onBeforeUnmount(() => {
       opacity: 1;
       transform: translateY(calc(-100% - 4rem));
     }
+
+    .greenhouses {
+      box-shadow: var(--large-shadow);
+    }
   }
 
   .selector {
     position: relative;
     display: flex;
     justify-content: flex-end;
+    border-radius: var(--large-radius);
     transition: var(--default-transition);
 
     &.invisible {
@@ -183,6 +187,8 @@ onBeforeUnmount(() => {
 
         .add-button {
           left: calc(-2.75rem - 0.5rem);
+          border-radius: var(--large-radius);
+          box-shadow: var(--large-shadow);
         }
 
         .icon {
