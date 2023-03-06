@@ -8,9 +8,12 @@ const isCloseBlocked = ref(false)
 const animateSelector = ref(false)
 const isGreenhouseCreationModalOpened = ref(false)
 
+const selectorPosition = ref('absolute')
+const selectorTransition = ref('none')
+
 const invisibleSelector = ref(null)
-const invisibleSelectorTop = ref('auto')
-const invisibleSelectorLeft = ref('auto')
+const invisibleSelectorTop = ref('0')
+const invisibleSelectorLeft = ref('0')
 const invisibleSelectorWidth = ref('auto')
 
 const greenhousesList = ref(null)
@@ -26,6 +29,7 @@ const open = () => {
 
   isCloseBlocked.value = true
   isGreenhousesListOpened.value = true
+  selectorPosition.value = 'fixed'
   invisibleSelectorTop.value = `${invisibleSelectorRect.top}px`
   invisibleSelectorLeft.value = `${invisibleSelectorRect.left}px`
   invisibleSelectorWidth.value = `${invisibleSelectorRect.width}px`
@@ -34,6 +38,7 @@ const open = () => {
     const greenhousesListRect = greenhousesList.value.getBoundingClientRect()
 
     animateSelector.value = true
+    selectorTransition.value = 'var(--default-transition)'
     invisibleSelectorLeft.value = `${greenhousesListRect.left}px`
     greenhouseListHeight.value = `${greenhousesListRect.height}px`
   }, 1)
@@ -41,6 +46,8 @@ const open = () => {
 
 const close = () => {
   clearTimeout(animationTimeout)
+
+  if (!isGreenhousesListOpened.value) return
 
   const invisibleSelectorRect = invisibleSelector.value.getBoundingClientRect()
 
@@ -53,8 +60,10 @@ const close = () => {
     animateSelector.value = false
 
     animationTimeout = setTimeout(() => {
-      invisibleSelectorTop.value = `auto`
-      invisibleSelectorLeft.value = `auto`
+      selectorPosition.value = 'absolute'
+      selectorTransition.value = 'none'
+      invisibleSelectorTop.value = `0`
+      invisibleSelectorLeft.value = `0`
       invisibleSelectorWidth.value = `auto`
       isCloseBlocked.value = false
     }, 700)
@@ -134,6 +143,8 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .container {
+  position: relative;
+
   .greenhouses-list {
     z-index: 999;
     position: fixed;
@@ -157,11 +168,10 @@ onBeforeUnmount(() => {
   }
 
   .selector {
-    position: relative;
     display: flex;
     justify-content: flex-end;
     border-radius: var(--large-radius);
-    transition: var(--default-transition);
+    transition: v-bind(selectorTransition);
 
     &.invisible {
       opacity: 0;
@@ -169,12 +179,13 @@ onBeforeUnmount(() => {
     }
 
     &:not(.invisible) {
+      position: v-bind(selectorPosition);
       top: v-bind(invisibleSelectorTop);
       left: v-bind(invisibleSelectorLeft);
       width: v-bind(invisibleSelectorWidth);
-      position: fixed;
 
       &.opened {
+        z-index: 999;
         top: calc(1.5rem + 0.5rem + v-bind(greenhouseListHeight));
         left: calc(v-bind(invisibleSelectorLeft) + 2.75rem + 0.5rem);
         width: calc(16rem - 1.25rem - 0.5rem * 2);
