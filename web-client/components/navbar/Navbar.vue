@@ -9,6 +9,7 @@ defineProps({
   },
 })
 
+const { t } = useI18n()
 const system = useSystemStore()
 
 const isMobile = ref(true)
@@ -37,7 +38,7 @@ onBeforeUnmount(() => {
           :transparent-background="system.appPageName !== 'dashboard'"
         >
           <IconGridView />
-          <span>Dashboard</span>
+          <span>{{ t('buttons.dashboard') }}</span>
         </GarthenButton>
       </NuxtLink>
     </div>
@@ -166,3 +167,18 @@ body[data-theme='dark'] nav {
   background: #1c2b31;
 }
 </style>
+
+<i18n lang="json">
+{
+  "en-GB": {
+    "buttons": {
+      "dashboard": "Dashboard"
+    }
+  },
+  "ru-RU": {
+    "buttons": {
+      "dashboard": "Панель управления"
+    }
+  }
+}
+</i18n>

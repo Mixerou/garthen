@@ -1,12 +1,9 @@
 <script setup>
-import IconPsychiatry from '@/assets/icons/psychiatry.svg?skipsvgo'
-
 definePageMeta({
   layout: 'app',
 })
 
 const { t } = useI18n()
-const dataStore = useDataStore()
 const system = useSystemStore()
 const user = useUserStore()
 
@@ -50,29 +47,7 @@ onBeforeUnmount(() => system.setIsNavbarFolded(false))
     </div>
 
     <Transition enter-from-class="hide" leave-to-class="hide">
-      <div v-if="user.greenhousesCount !== 0" class="greenhouses">
-        <TransitionGroup
-          enter-active-class="transition"
-          enter-from-class="hide"
-          leave-active-class="transition"
-          leave-to-class="hide"
-        >
-          <NuxtLink
-            v-for="greenhouse in dataStore.greenhouses"
-            :key="`greenhouse-${greenhouse.id}`"
-            class="greenhouse"
-            :class="{
-              ['disable-transition-animation']: isGreenhouseAnimationDisabled,
-            }"
-            :to="`/greenhouses/${greenhouse.id}`"
-          >
-            <GarthenButton>
-              <IconPsychiatry class="icon" />
-              <span>{{ greenhouse.name }}</span>
-            </GarthenButton>
-          </NuxtLink>
-        </TransitionGroup>
-      </div>
+      <GreenhousesList :animations-disabled="isGreenhouseAnimationDisabled" />
     </Transition>
 
     <div class="button-container">
@@ -113,70 +88,6 @@ onBeforeUnmount(() => system.setIsNavbarFolded(false))
 
   .heading-container .hide {
     opacity: 0;
-  }
-
-  .greenhouses {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    width: 16rem;
-    max-height: 20rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--large-radius);
-    background: var(--primary);
-    overflow-y: auto;
-    transition: var(--default-transition);
-
-    @include medium-screen {
-      gap: 0.5rem;
-      width: 20rem;
-      padding: 0.5rem 1rem;
-    }
-
-    &.hide {
-      max-height: 0;
-      margin-bottom: calc(-1rem - 0.25rem * 2);
-      opacity: 0;
-
-      @include medium-screen {
-        margin-bottom: calc(-1rem - 0.5rem * 2);
-      }
-    }
-
-    .greenhouse {
-      border-radius: var(--large-radius);
-      text-decoration: none;
-      width: 100%;
-
-      &.hide:not(.disable-transition-animation) {
-        margin-top: calc(-2.5rem - 0.25rem);
-        opacity: 0;
-
-        @include medium-screen {
-          margin-top: calc(-2.75rem - 0.5rem);
-        }
-      }
-
-      &.transition {
-        transition: var(--default-transition);
-      }
-
-      button {
-        width: calc(100% - 2rem - 1rem * 2);
-
-        @include medium-screen {
-          width: calc(100% - 1.5rem - 1rem * 2);
-        }
-      }
-
-      .icon {
-        width: 1.5rem;
-
-        @include medium-screen {
-          width: 1.75rem;
-        }
-      }
-    }
   }
 
   .button-container .hide {
