@@ -310,8 +310,8 @@ const enable = () => {
   padding: 2rem 1rem;
   border: 0.0625rem solid #1d313666;
   border-radius: var(--xl-radius);
-  cursor: pointer;
   overflow: hidden;
+  cursor: pointer;
   transition: var(--fast-transition-duration);
 
   &:not(.controller):not(.disabled) {
@@ -419,9 +419,9 @@ const enable = () => {
 
   &.main-menu-opened {
     border-color: transparent;
-    background: var(--primary-400);
     box-shadow: var(--large-shadow);
     transform: scale(1.1);
+    background: var(--primary-400);
     cursor: auto;
 
     @include medium-screen {
@@ -539,8 +539,8 @@ const enable = () => {
 
   .name {
     opacity: 0.75;
-    font-size: var(--default-font-size);
     white-space: nowrap;
+    font-size: var(--default-font-size);
     text-overflow: ellipsis;
     transition: var(--fast-transition-duration);
   }

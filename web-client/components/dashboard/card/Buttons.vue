@@ -55,7 +55,6 @@ const { t } = useI18n()
   .save {
     position: absolute;
     bottom: 0;
-    transform: translateY(-1remrem);
   }
 
   .save,
