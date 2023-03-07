@@ -1,6 +1,7 @@
 export const useDataStore = definePiniaStore('data', () => {
   const greenhouses = ref({})
   const devices = ref({})
+  const deviceRecordsQuantities = ref({})
 
   function setGreenhouse(greenhouse) {
     greenhouses.value[greenhouse.id] = greenhouse
@@ -10,6 +11,10 @@ export const useDataStore = definePiniaStore('data', () => {
     devices.value[device.id] = device
   }
 
+  function setDeviceRecordsQuantity(data) {
+    deviceRecordsQuantities.value[data['device_id']] = data
+  }
+
   function deleteData() {
     greenhouses.value = {}
   }
@@ -17,8 +22,10 @@ export const useDataStore = definePiniaStore('data', () => {
   return {
     greenhouses,
     devices,
+    deviceRecordsQuantities,
     setGreenhouse,
     setDevice,
+    setDeviceRecordsQuantity,
     deleteData,
   }
 })

@@ -58,6 +58,7 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     greenhouseUpdate: 'greenhouse_update',
     greenhouseCreate: 'greenhouse_create',
     deviceUpdate: 'device_update',
+    deviceRecordsUpdate: 'device_records_update',
   }
 
   const USER_THEMES = {

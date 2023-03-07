@@ -15,12 +15,24 @@ defineProps({
     required: false,
     default: false,
   },
+  variant: {
+    type: String,
+    required: false,
+    default: 'default',
+    validator(variant) {
+      return ['default', 'danger'].includes(variant)
+    },
+  },
 })
 </script>
 
 <template>
   <button
-    :class="{ loading, ['transparent-background']: transparentBackground }"
+    :class="{
+      loading,
+      ['transparent-background']: transparentBackground,
+      ['variant-danger']: variant === 'danger',
+    }"
     :disabled="disabled || loading"
   >
     <GarthenLoader class="loader" :stop="!loading" />
@@ -47,6 +59,25 @@ button {
   @include medium-screen {
     height: 2.75rem;
     padding: 0 1.75rem;
+  }
+
+  &.variant-danger {
+    background: var(--red-400);
+
+    &:not(.loading):not(:disabled) {
+      &:hover,
+      &:focus-visible {
+        background: var(--red-500);
+
+        &:active {
+          background: var(--red-600);
+        }
+      }
+    }
+
+    &:disabled {
+      background: var(--red-500);
+    }
   }
 
   &.transparent-background {

@@ -43,9 +43,10 @@ defineProps({
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 2rem;
+    gap: 1.5rem;
 
     @include medium-screen {
+      gap: 2rem;
       flex-direction: row;
     }
   }

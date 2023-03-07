@@ -125,6 +125,8 @@ export default defineNuxtPlugin(plugin => {
             )
           } else if (event === constants.GLOBAL_WS_EVENTS.deviceUpdate) {
             dataStore.setDevice(data)
+          } else if (event === constants.GLOBAL_WS_EVENTS.deviceRecordsUpdate) {
+            dataStore.setDeviceRecordsQuantity(data)
           }
         }
 

@@ -32,11 +32,13 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
-const { $wsSendAndWait } = useNuxtApp()
+const { $wsSend, $wsSendAndWait, $wsSubscribe } = useNuxtApp()
 const route = useRoute()
 const constants = useConstantsStore()
 
 const isActionButtonLoading = ref(false)
+const isMainMenuOpened = ref(false)
+const isEditMenuOpened = ref(false)
 
 const isController = computed(() => {
   return (
@@ -74,6 +76,31 @@ const computedValue = computed(() => {
   return value
 })
 
+const computedName = computed({
+  get() {
+    return props.name === null
+      ? t(`defaultNames.${props.kind}`, { externalId: props.externalId })
+      : props.name
+  },
+  set(value) {
+    const data = {
+      a: 'request_patch_device',
+      id: props.id,
+      greenhouse_id: BigInt(route.params.greenhouseId),
+      name: value,
+    }
+
+    if (value === null || value === '') delete data.name
+
+    $wsSend({
+      o: 2,
+      r: 'device',
+      m: { patch: null },
+      d: data,
+    })
+  },
+})
+
 const changeState = async () => {
   isActionButtonLoading.value = true
 
@@ -90,6 +117,30 @@ const changeState = async () => {
   })
 }
 
+const openCard = () => {
+  setTimeout(() => {
+    if (isActionButtonLoading.value) return
+    if (!isController.value) {
+      $wsSubscribe(
+        'device_records',
+        {
+          a: 'subscribe_to_device_records_update',
+          device_id: props.id,
+          greenhouse_id: BigInt(route.params.greenhouseId || 0),
+        },
+        true
+      )
+    }
+
+    isMainMenuOpened.value = true
+  }, 10)
+}
+
+const closeCard = () => {
+  isMainMenuOpened.value = false
+  isEditMenuOpened.value = false
+}
+
 watchEffect(() => {
   props.value
 
@@ -99,11 +150,15 @@ watchEffect(() => {
 
 <template>
   <div
+    v-click-outside="closeCard"
     class="card"
     :class="{
       controller: isController,
       attention: isController && value === 1,
+      ['main-menu-opened']: isMainMenuOpened,
+      ['edit-menu-opened']: isEditMenuOpened,
     }"
+    @click="openCard"
   >
     <div class="bubbles">
       <div class="small left" />
@@ -131,6 +186,7 @@ watchEffect(() => {
     </div>
     <GarthenButton
       v-if="isController && kind === constants.DEVICE_KINDS.windowsController"
+      class="button"
       :loading="isActionButtonLoading"
       @click="changeState"
     >
@@ -138,6 +194,7 @@ watchEffect(() => {
     </GarthenButton>
     <GarthenButton
       v-else-if="isController"
+      class="button"
       :loading="isActionButtonLoading"
       @click="changeState"
     >
@@ -145,17 +202,33 @@ watchEffect(() => {
     </GarthenButton>
     <p v-else class="value">{{ computedValue }}</p>
     <p class="name">
-      {{
-        name === null
-          ? t(`defaultNames.${kind}`, { externalId: externalId })
-          : name
-      }}
+      {{ computedName }}
     </p>
+
+    <DashboardCardInputs
+      :name="name"
+      :edit-menu-opened="isEditMenuOpened"
+      :default-name="t(`defaultNames.${kind}`)"
+      @update:name="value => (computedName = value)"
+    />
+    <DashboardCardStatistics
+      :device-id="id"
+      :edit-menu-opened="isEditMenuOpened"
+      :value="computedValue"
+      :controller="isController"
+    />
+    <DashboardCardButtons
+      :main-menu-opened="isMainMenuOpened"
+      :edit-menu-opened="isEditMenuOpened"
+      @open:edit-menu="isEditMenuOpened = true"
+      @close:edit-menu="isEditMenuOpened = false"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -167,16 +240,21 @@ watchEffect(() => {
   border: 0.0625rem solid #1d313666;
   border-radius: var(--xl-radius);
   cursor: pointer;
+  overflow: hidden;
   transition: var(--fast-transition-duration);
 
   &:not(.controller) {
     &:hover {
       border-color: transparent;
       background: var(--primary-400);
-      color: var(--primary-layer-0-color);
+
+      .value,
+      .name {
+        color: var(--primary-layer-0-color);
+      }
     }
 
-    &:active {
+    &:active:not(.main-menu-opened) {
       opacity: 0.75;
       transform: scale(0.99);
 
@@ -208,10 +286,126 @@ watchEffect(() => {
     width: calc(16rem - 1rem * 2);
   }
 
+  :deep(button) {
+    width: fit-content;
+    height: 1.75rem;
+    transition: var(--fast-transition-duration);
+  }
+
+  :deep(input) {
+    border-color: #ffffff66;
+    font-size: var(--small-font-size);
+    color: var(--primary-layer-0-color);
+
+    &:focus {
+      border-color: #ffffff;
+    }
+
+    &::placeholder {
+      color: var(--primary-layer-0-color);
+    }
+  }
+
+  &.controller:not(.attention) {
+    &:hover {
+      border-color: #1d313640;
+    }
+
+    &:active {
+      border-color: #1d313680;
+    }
+  }
+
   &.attention {
     border-color: transparent;
     background: var(--primary-300);
-    color: var(--white-original);
+
+    .value,
+    .name {
+      opacity: 1;
+      color: var(--white-original);
+    }
+  }
+
+  &.controller.edit-menu-opened {
+    height: calc(6.5rem - 2rem * 2);
+    margin: 3rem 0 3rem 0;
+
+    .bubbles {
+      transform: scale(0.75) translate(-56%, 0.625rem);
+
+      @include medium-screen {
+        transform: scale(0.75) translate(-56%, 0.875rem);
+      }
+    }
+  }
+
+  &.main-menu-opened {
+    border-color: transparent;
+    background: var(--primary-400);
+    box-shadow: var(--large-shadow);
+    transform: scale(1.1);
+    cursor: auto;
+
+    @include medium-screen {
+      transform: scale(1.125);
+    }
+
+    .bubbles {
+      .left {
+        &.small {
+          transform: translateX(5.5rem);
+        }
+
+        &.medium {
+          transform: translateX(3.25rem);
+        }
+      }
+
+      .right {
+        &.small {
+          transform: translateX(-5.5rem);
+        }
+
+        &.medium {
+          transform: translateX(-3.25rem);
+        }
+      }
+
+      .big {
+        transform: scale(1.125);
+      }
+    }
+
+    .value,
+    .button {
+      opacity: 0;
+      transform: translateY(-1rem);
+      color: var(--primary-layer-0-color);
+    }
+
+    .name {
+      opacity: 1;
+      transform: translateY(-3rem);
+      font-size: var(--medium-font-size);
+      font-weight: 600;
+      color: var(--primary-layer-0-color);
+    }
+  }
+
+  &.edit-menu-opened {
+    .bubbles {
+      transform: scale(0.75) translate(-56%, -2.25rem);
+
+      @include medium-screen {
+        transform: scale(0.75) translate(-56%, -2.125rem);
+      }
+    }
+
+    .name {
+      opacity: 0;
+      transform: translateY(-3.5rem);
+    }
   }
 
   .bubbles {
@@ -220,6 +414,7 @@ watchEffect(() => {
     align-items: center;
     gap: 1rem;
     width: 100%;
+    transition: var(--fast-transition-duration);
 
     div {
       border-radius: 100%;
@@ -243,6 +438,7 @@ watchEffect(() => {
       display: flex;
       justify-content: center;
       align-items: center;
+      z-index: 1;
       width: 3.25rem;
       height: 3.25em;
 
@@ -259,15 +455,19 @@ watchEffect(() => {
   .value {
     font-size: var(--medium-font-size);
     font-weight: 600;
+    transition: var(--fast-transition-duration);
   }
 
   .name {
     opacity: 0.75;
     font-size: var(--default-font-size);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    transition: var(--fast-transition-duration);
   }
 }
 
-body[data-theme='dark'] .card {
+body[data-theme='dark'] .card:not(.main-menu-opened) {
   border-color: #ffffff66;
 
   &:not(.controller) {
