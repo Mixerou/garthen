@@ -257,6 +257,20 @@ fn post_device_custom_data(
         )?;
     }
 
+    // Notify all those who are subscribed to this device records
+    let response = DispatchMessage {
+        event: DispatchEvent::DeviceRecordsUpdate { device_id: device.id },
+        new_subscribers: None,
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.socket.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
     Ok(())
 }
 

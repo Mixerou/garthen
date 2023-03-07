@@ -49,6 +49,17 @@ impl DeviceRecord {
         Ok(device_record)
     }
 
+    pub fn count_by_device_id(device_id: i64) -> Result<i64, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let greenhouses = device_records::table
+            .filter(device_records::device_id.eq(device_id))
+            .count()
+            .get_result(connection)?;
+
+        Ok(greenhouses)
+    }
+
     // Default implementations
     pub fn check_data_size(data: &f64) -> Result<(), WebSocketError> {
         match data {

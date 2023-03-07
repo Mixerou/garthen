@@ -10,8 +10,9 @@ use actix_web_actors::ws::WebsocketContext;
 use crate::error::{WebSocketCloseError, WebSocketError, WebSocketErrorTemplate};
 use crate::messages::{AmqpPayload, AuthorizationMessage, DisconnectionMessage, DispatchAmqpMessage, DispatchEvent, DispatchMessage, InitAmqpConsumersMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::WebSocketConnection;
-use crate::services::{device, greenhouse, user};
+use crate::services::{device, device_record, greenhouse, user};
 use crate::services::device::Device;
+use crate::services::device_record::DeviceRecord;
 use crate::services::greenhouse::Greenhouse;
 use crate::services::session::Session;
 use crate::services::user::{UserMe, UserPublic};
@@ -215,6 +216,11 @@ impl Socket {
                         message,
                         connection,
                         context)?,
+                    "device_records" => device_record::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -343,6 +349,12 @@ impl Handler<DispatchMessage> for Socket {
             DispatchEvent::DeviceUpdate { id } => {
                 WebSocketMessageData::from(Device::find(id)?)
             },
+            DispatchEvent::DeviceRecordsUpdate { device_id } => {
+                WebSocketMessageData::DispatchDeviceRecordsUpdate {
+                    device_id,
+                    quantity: DeviceRecord::count_by_device_id(device_id)?,
+                }
+            }
         };
 
         let subscribers = self.subscriptions.entry(event.to_owned())
@@ -412,6 +424,10 @@ impl Handler<DispatchAmqpMessage> for Socket {
             AmqpPayload::DispatchData { device_id } => {
                 context.address().do_send(DispatchMessage {
                     event: DispatchEvent::DeviceUpdate { id: device_id },
+                    new_subscribers: None,
+                });
+                context.address().do_send(DispatchMessage {
+                    event: DispatchEvent::DeviceRecordsUpdate { device_id },
                     new_subscribers: None,
                 });
             },

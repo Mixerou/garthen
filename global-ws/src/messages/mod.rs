@@ -84,6 +84,10 @@ pub enum DispatchEvent {
         #[serde(skip)]
         id: i64,
     },
+    DeviceRecordsUpdate {
+        #[serde(skip)]
+        device_id: i64,
+    },
 }
 
 #[derive(Debug, Message)]

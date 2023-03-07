@@ -66,6 +66,10 @@ pub enum WebSocketMessageData {
         greenhouse_id: i64,
     },
     SubscribeToDevicesUpdate { greenhouse_id: i64 },
+    SubscribeToDeviceRecordsUpdate {
+        device_id: i64,
+        greenhouse_id: i64,
+    },
 
     // Dispatches
     DispatchUserUpdate {
@@ -99,6 +103,10 @@ pub enum WebSocketMessageData {
         greenhouse_id: i64,
         created_at: u64,
         latest_data: Option<f64>,
+    },
+    DispatchDeviceRecordsUpdate {
+        device_id: i64,
+        quantity: i64,
     },
 
     // Other
