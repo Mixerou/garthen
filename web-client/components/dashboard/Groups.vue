@@ -38,6 +38,7 @@ const devices = computed(() => {
   }
 
   return devices
+    .filter(device => device.status !== 2)
     .sort((a, b) => (a['external_id'] < b['external_id'] ? 1 : -1))
     .sort((a, b) => (a.kind > b.kind ? 1 : -1))
 })

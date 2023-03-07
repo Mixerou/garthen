@@ -9,7 +9,7 @@ defineProps({
     required: true,
   },
 })
-const emit = defineEmits(['open:edit-menu', 'close:edit-menu'])
+const emit = defineEmits(['open:edit-menu', 'close:edit-menu', 'disable'])
 
 const { t } = useI18n()
 </script>
@@ -35,6 +35,7 @@ const { t } = useI18n()
         v-if="mainMenuOpened && !editMenuOpened"
         class="disable"
         variant="danger"
+        @click="emit('disable')"
       >
         {{ t('buttons.disable') }}
       </GarthenButton>
@@ -86,16 +87,14 @@ const { t } = useI18n()
     "buttons": {
       "back": "Back",
       "disable": "Disable",
-      "edit": "Edit",
-      "enable": "Enable"
+      "edit": "Edit"
     }
   },
   "ru-RU": {
     "buttons": {
       "back": "Назад",
       "disable": "Отключить",
-      "edit": "Изменить",
-      "enable": "Включить"
+      "edit": "Изменить"
     }
   }
 }

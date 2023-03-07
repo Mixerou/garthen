@@ -10,6 +10,8 @@ const dataStore = useDataStore()
 const system = useSystemStore()
 const user = useUserStore()
 
+const isDisabledDevicesModalOpened = ref(false)
+
 watchEffect(() => {
   try {
     useHead({
@@ -43,8 +45,17 @@ onBeforeUnmount(() => system.setAppPageName(''))
 
 <template>
   <div class="page">
+    <DashboardDisabledCardsModal
+      v-if="isDisabledDevicesModalOpened"
+      @close="isDisabledDevicesModalOpened = false"
+    />
+
     <DashboardHeader />
     <DashboardGroups />
+
+    <GarthenButton @click="isDisabledDevicesModalOpened = true">{{
+      t('buttons.showDisabled')
+    }}</GarthenButton>
   </div>
 </template>
 
@@ -59,6 +70,11 @@ onBeforeUnmount(() => system.setAppPageName(''))
     gap: 4rem;
     margin: 2.125rem 0;
   }
+
+  button {
+    width: fit-content;
+    margin: 0 auto;
+  }
 }
 </style>
 
@@ -67,14 +83,16 @@ onBeforeUnmount(() => system.setAppPageName(''))
   "en-GB": {
     "title": "Dashboard",
     "fullTitle": "Dashboard - {greenhouseName}",
-    "heading": "Dashboard",
-    "headingWithGreeting": "Welcome back, #!"
+    "buttons": {
+      "showDisabled": "Show disabled"
+    }
   },
   "ru-RU": {
     "title": "Панель управления",
     "fullTitle": "Панель управления - {greenhouseName}",
-    "heading": "Панель управления",
-    "headingWithGreeting": "С возвращением, #!"
+    "buttons": {
+      "showDisabled": "Показать отключенные"
+    }
   }
 }
 </i18n>

@@ -29,6 +29,11 @@ const props = defineProps({
     required: false,
     default: null,
   },
+  disabled: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const { t } = useI18n()
@@ -119,7 +124,7 @@ const changeState = async () => {
 
 const openCard = () => {
   setTimeout(() => {
-    if (isActionButtonLoading.value) return
+    if (isActionButtonLoading.value || props.disabled) return
     if (!isController.value) {
       $wsSubscribe(
         'device_records',
@@ -146,6 +151,55 @@ watchEffect(() => {
 
   isActionButtonLoading.value = false
 })
+
+const disable = () => {
+  setTimeout(() => closeCard(), 100)
+
+  const timeoutTime =
+    getComputedStyle(document.body)
+      .getPropertyValue('--default-transition-duration')
+      .split('s')[0] * 1000
+
+  if (isController.value && props.value === 1) {
+    $wsSend({
+      o: 2,
+      r: 'device/state',
+      m: { patch: null },
+      d: {
+        a: 'request_patch_device_state',
+        id: props.id,
+        greenhouse_id: BigInt(route.params.greenhouseId),
+        state: 0,
+      },
+    })
+  }
+
+  setTimeout(() => {
+    $wsSend({
+      o: 2,
+      r: 'device/disable',
+      m: { post: null },
+      d: {
+        a: 'request_post_device_disable',
+        id: props.id,
+        ['greenhouse_id']: BigInt(route.params.greenhouseId || 0),
+      },
+    })
+  }, timeoutTime)
+}
+
+const enable = () => {
+  $wsSend({
+    o: 2,
+    r: 'device/enable',
+    m: { post: null },
+    d: {
+      a: 'request_post_device_disable',
+      id: props.id,
+      ['greenhouse_id']: BigInt(route.params.greenhouseId || 0),
+    },
+  })
+}
 </script>
 
 <template>
@@ -153,6 +207,7 @@ watchEffect(() => {
     v-click-outside="closeCard"
     class="card"
     :class="{
+      disabled,
       controller: isController,
       attention: isController && value === 1,
       ['main-menu-opened']: isMainMenuOpened,
@@ -185,7 +240,17 @@ watchEffect(() => {
       <div class="small right" />
     </div>
     <GarthenButton
-      v-if="isController && kind === constants.DEVICE_KINDS.windowsController"
+      v-if="disabled"
+      class="button"
+      :loading="isActionButtonLoading"
+      @click="enable"
+    >
+      {{ t('buttons.enable') }}
+    </GarthenButton>
+    <GarthenButton
+      v-else-if="
+        isController && kind === constants.DEVICE_KINDS.windowsController
+      "
       class="button"
       :loading="isActionButtonLoading"
       @click="changeState"
@@ -222,6 +287,7 @@ watchEffect(() => {
       :edit-menu-opened="isEditMenuOpened"
       @open:edit-menu="isEditMenuOpened = true"
       @close:edit-menu="isEditMenuOpened = false"
+      @disable="disable"
     />
   </div>
 </template>
@@ -243,7 +309,7 @@ watchEffect(() => {
   overflow: hidden;
   transition: var(--fast-transition-duration);
 
-  &:not(.controller) {
+  &:not(.controller):not(.disabled) {
     &:hover {
       border-color: transparent;
       background: var(--primary-400);
@@ -304,6 +370,12 @@ watchEffect(() => {
     &::placeholder {
       color: var(--primary-layer-0-color);
     }
+  }
+
+  &.disabled {
+    border-color: transparent;
+    background: var(--primary-600);
+    cursor: auto;
   }
 
   &.controller:not(.attention) {
@@ -381,6 +453,7 @@ watchEffect(() => {
     .button {
       opacity: 0;
       transform: translateY(-1rem);
+      pointer-events: none;
       color: var(--primary-layer-0-color);
     }
 
@@ -467,7 +540,7 @@ watchEffect(() => {
   }
 }
 
-body[data-theme='dark'] .card:not(.main-menu-opened) {
+body[data-theme='dark'] .card:not(.main-menu-opened):not(.disabled) {
   border-color: #ffffff66;
 
   &:not(.controller) {
@@ -505,6 +578,7 @@ body[data-theme='dark'] .card:not(.main-menu-opened) {
       "5": "Windows controller"
     },
     "buttons": {
+      "enable": "Enable",
       "start": "Start",
       "stop": "Stop",
       "open": "Open",
@@ -521,6 +595,7 @@ body[data-theme='dark'] .card:not(.main-menu-opened) {
       "5": "Контроллер форточек"
     },
     "buttons": {
+      "enable": "Включить",
       "start": "Запустить",
       "stop": "Остановить",
       "open": "Открыть",
