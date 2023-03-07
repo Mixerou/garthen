@@ -1,4 +1,12 @@
 {
+  "defaultDeviceNames": {
+    "0": "Влажность {externalId}",
+    "1": "Влажность почвы {externalId}",
+    "2": "Температура {externalId}",
+    "3": "Контроллер влажности",
+    "4": "Контроллер полива {externalId}",
+    "5": "Контроллер форточек"
+  },
   "garthen": {
     "description": {
       "short": "Инструменты для теплиц"
@@ -24,11 +32,20 @@
     "passwordTooLong": "Пароль слишком длинный",
     "usernameTooShort": "Имя пользователя слишком короткое",
     "usernameTooLong": "Имя пользователя слишком длинное",
+    "deviceNameTooShort": "Имя устройства слишком короткое",
+    "deviceNameTooLong": "Слишком длинное имя устройства",
+    "deviceRecordDataTooSmall": "Данные слишком малы",
+    "deviceRecordDataTooBig": "Данные слишком большие",
+    "tooLongAgo": "Слишком давно",
+    "futureTime": "Не может быть будущим",
     "invalidRequestField": "Недействительный запрос",
     "greenhouseTokenTaken": "Токен теплицы уже взят кем-то",
     "emailInvalid": "Адрес эл. почты недействителен",
     "incorrectPassword": "Неправильный пароль",
-    "usernameInvalidOrTaken": "Имя пользователя недействительно или занято"
+    "usernameInvalidOrTaken": "Имя пользователя недействительно или занято",
+    "invalidDeviceState": "Недействительное состояние устройства",
+    "deviceIsNotSensor": "Устройство не является датчиком",
+    "deviceIsNotController": "Устройство не является контроллером"
   },
   "monthShortNames": {
     "january": "Янв",

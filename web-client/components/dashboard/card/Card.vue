@@ -37,6 +37,7 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
+const i18n = useI18n()
 const { $wsSend, $wsSendAndWait, $wsSubscribe } = useNuxtApp()
 const route = useRoute()
 const constants = useConstantsStore()
@@ -84,7 +85,9 @@ const computedValue = computed(() => {
 const computedName = computed({
   get() {
     return props.name === null
-      ? t(`defaultNames.${props.kind}`, { externalId: props.externalId })
+      ? i18n.t(`defaultDeviceNames.${props.kind}`, {
+          externalId: props.externalId,
+        })
       : props.name
   },
   set(value) {
@@ -273,7 +276,9 @@ const enable = () => {
     <DashboardCardInputs
       :name="name"
       :edit-menu-opened="isEditMenuOpened"
-      :default-name="t(`defaultNames.${kind}`)"
+      :default-name="
+        $t(`defaultDeviceNames.${kind}`, { externalId: externalId })
+      "
       @update:name="value => (computedName = value)"
     />
     <DashboardCardStatistics
@@ -569,14 +574,6 @@ body[data-theme='dark'] .card:not(.main-menu-opened):not(.disabled) {
 <i18n lang="json">
 {
   "en-GB": {
-    "defaultNames": {
-      "0": "Humidity {externalId}",
-      "1": "Soil moisture {externalId}",
-      "2": "Temperature {externalId}",
-      "3": "Humidification controller",
-      "4": "Irrigation controller {externalId}",
-      "5": "Windows controller"
-    },
     "buttons": {
       "enable": "Enable",
       "start": "Start",
@@ -586,14 +583,6 @@ body[data-theme='dark'] .card:not(.main-menu-opened):not(.disabled) {
     }
   },
   "ru-RU": {
-    "defaultNames": {
-      "0": "Влажность {externalId}",
-      "1": "Влажность почвы {externalId}",
-      "2": "Температура {externalId}",
-      "3": "Контроллер влажности",
-      "4": "Контроллер полива {externalId}",
-      "5": "Контроллер форточек"
-    },
     "buttons": {
       "enable": "Включить",
       "start": "Запустить",

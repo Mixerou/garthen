@@ -24,6 +24,12 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     passwordTooLong: 30008,
     usernameTooShort: 30009,
     usernameTooLong: 30010,
+    deviceNameTooShort: 30011,
+    deviceNameTooLong: 30012,
+    deviceRecordDataTooSmall: 30013,
+    deviceRecordDataTooBig: 30014,
+    tooLongAgo: 30015,
+    futureTime: 30016,
 
     // Invalid body or something else
     invalidRequestField: 40001,
@@ -31,6 +37,9 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     emailInvalid: 40003,
     incorrectPassword: 40004,
     usernameInvalidOrTaken: 40005,
+    invalidDeviceState: 40006,
+    deviceIsNotSensor: 40007,
+    deviceIsNotController: 40008,
   }
 
   const GLOBAL_WS_CLOSE_ERRORS = {

@@ -1,4 +1,12 @@
 {
+  "defaultDeviceNames": {
+    "0": "Humidity {externalId}",
+    "1": "Soil moisture {externalId}",
+    "2": "Temperature {externalId}",
+    "3": "Humidification controller",
+    "4": "Irrigation controller {externalId}",
+    "5": "Windows controller"
+  },
   "garthen": {
     "description": {
       "short": "Greenhouse tools"
@@ -24,11 +32,20 @@
     "passwordTooLong": "The password is too long",
     "usernameTooShort": "The username is too short",
     "usernameTooLong": "The username is too short",
+    "deviceNameTooShort": "The device name is too short",
+    "deviceNameTooLong": "The device name is too long",
+    "deviceRecordDataTooSmall": "The data is too small",
+    "deviceRecordDataTooBig": "The data is too big",
+    "tooLongAgo": "Too long ago",
+    "futureTime": "Can't be the future",
     "invalidRequestField": "Invalid request",
     "greenhouseTokenTaken": "Greenhouse token already taken by someone",
     "emailInvalid": "Email is not valid",
     "incorrectPassword": "Incorrect password",
-    "usernameInvalidOrTaken": "The username is invalid or taken"
+    "usernameInvalidOrTaken": "The username is invalid or taken",
+    "invalidDeviceState": "Invalid device state",
+    "deviceIsNotSensor": "The device is not a sensor",
+    "deviceIsNotController": "The device is not a controller"
   },
   "monthShortNames": {
     "january": "Jan",

@@ -11,6 +11,7 @@ const system = useSystemStore()
 const user = useUserStore()
 
 const isDisabledDevicesModalOpened = ref(false)
+const isAddDataModalOpened = ref(false)
 
 watchEffect(() => {
   try {
@@ -49,13 +50,21 @@ onBeforeUnmount(() => system.setAppPageName(''))
       v-if="isDisabledDevicesModalOpened"
       @close="isDisabledDevicesModalOpened = false"
     />
+    <DashboardAddDataModal
+      v-if="isAddDataModalOpened"
+      @close="isAddDataModalOpened = false"
+    />
 
     <DashboardHeader />
     <DashboardGroups />
 
-    <GarthenButton @click="isDisabledDevicesModalOpened = true">{{
-      t('buttons.showDisabled')
-    }}</GarthenButton>
+    <div class="buttons">
+      <GarthenButton @click="isDisabledDevicesModalOpened = true">
+        {{ t('buttons.showDisabled') }} </GarthenButton
+      ><GarthenButton @click="isAddDataModalOpened = true">
+        {{ t('buttons.addData') }}
+      </GarthenButton>
+    </div>
   </div>
 </template>
 
@@ -71,9 +80,16 @@ onBeforeUnmount(() => system.setAppPageName(''))
     margin: 2.125rem 0;
   }
 
-  button {
-    width: fit-content;
-    margin: 0 auto;
+  .buttons {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+
+    @include large-screen {
+      flex-direction: row;
+    }
   }
 }
 </style>
@@ -84,14 +100,16 @@ onBeforeUnmount(() => system.setAppPageName(''))
     "title": "Dashboard",
     "fullTitle": "Dashboard - {greenhouseName}",
     "buttons": {
-      "showDisabled": "Show disabled"
+      "showDisabled": "Show disabled",
+      "addData": "Add data"
     }
   },
   "ru-RU": {
     "title": "Панель управления",
     "fullTitle": "Панель управления - {greenhouseName}",
     "buttons": {
-      "showDisabled": "Показать отключенные"
+      "showDisabled": "Показать отключенные",
+      "addData": "Добавить данные"
     }
   }
 }
