@@ -52,7 +52,7 @@ fn patch_device(
 
         let response = DispatchMessage {
             event: DispatchEvent::DeviceUpdate { id: updated_device.id },
-            new_subscribers: Some(vec![connection.id]),
+            new_subscribers: None,
         };
 
         Socket::send_message(
@@ -245,7 +245,7 @@ fn post_device_custom_data(
         // Notify all those who are subscribed to this device
         let response = DispatchMessage {
             event: DispatchEvent::DeviceUpdate { id: device.id },
-            new_subscribers: Some(vec![connection.id]),
+            new_subscribers: None,
         };
 
         Socket::send_message(
@@ -364,7 +364,7 @@ fn post_device_status(
         // Notify all those who are subscribed to this device
         let response = DispatchMessage {
             event: DispatchEvent::DeviceUpdate { id: device.id },
-            new_subscribers: Some(vec![connection.id]),
+            new_subscribers: None,
         };
 
         Socket::send_message(
