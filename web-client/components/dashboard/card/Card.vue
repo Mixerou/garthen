@@ -497,6 +497,7 @@ const enable = () => {
     div {
       border-radius: 100%;
       background: v-bind(bubblesColor);
+      font-size: initial;
       transition: var(--fast-transition-duration);
     }
 
