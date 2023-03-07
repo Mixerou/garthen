@@ -177,8 +177,12 @@ const add = () => {
     width: 100%;
 
     :deep(.select .options) {
-      max-height: 7rem;
+      max-height: 6.25rem;
       overflow-y: auto;
+
+      @include medium-screen {
+        max-height: 7rem;
+      }
     }
   }
 
