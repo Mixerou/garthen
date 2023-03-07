@@ -497,7 +497,7 @@ body[data-theme='dark'] .card:not(.main-menu-opened) {
 {
   "en-GB": {
     "defaultNames": {
-      "0": "Humidity percentage {externalId}",
+      "0": "Humidity {externalId}",
       "1": "Soil moisture {externalId}",
       "2": "Temperature {externalId}",
       "3": "Humidification controller",
@@ -513,7 +513,7 @@ body[data-theme='dark'] .card:not(.main-menu-opened) {
   },
   "ru-RU": {
     "defaultNames": {
-      "0": "Процент влажности {externalId}",
+      "0": "Влажность {externalId}",
       "1": "Влажность почвы {externalId}",
       "2": "Температура {externalId}",
       "3": "Контроллер влажности",
