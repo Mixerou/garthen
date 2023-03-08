@@ -1,4 +1,5 @@
 use actix::{Message, Recipient, WeakAddr};
+use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
@@ -59,7 +60,8 @@ pub struct WebSocketMessage {
 }
 
 // Tag `n` from the word `name`
-#[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq, Hash)]
+#[derivative(Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Derivative, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", tag = "n")]
 pub enum DispatchEvent {
     UserUpdate {
@@ -75,6 +77,8 @@ pub enum DispatchEvent {
         id: i64,
     },
     GreenhouseCreate {
+        #[derivative(PartialEq = "ignore")]
+        #[derivative(Hash = "ignore")]
         #[serde(skip)]
         id: Option<i64>,
         #[serde(skip)]

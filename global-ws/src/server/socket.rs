@@ -326,6 +326,11 @@ impl Handler<DispatchMessage> for Socket {
         let new_subscribers = message.new_subscribers.unwrap_or(vec![]);
         let mut event = message.event;
 
+        let subscribers = self.subscriptions.entry(event.to_owned())
+            .or_insert(HashSet::new());
+
+        if new_subscribers.is_empty() && subscribers.is_empty() { return Ok(()) }
+
         let data: WebSocketMessageData = match event {
             DispatchEvent::UserUpdate { id } => {
                 WebSocketMessageData::from(UserPublic::find(id)?)
@@ -356,9 +361,6 @@ impl Handler<DispatchMessage> for Socket {
                 }
             }
         };
-
-        let subscribers = self.subscriptions.entry(event.to_owned())
-            .or_insert(HashSet::new());
 
         match new_subscribers {
             new_subscribers if new_subscribers.is_empty() => {

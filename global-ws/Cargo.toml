@@ -16,6 +16,7 @@ actix-web-actors = "4.2.0"
 amqp = { path = "../libs/amqp" }
 argon2 = { version = "0.4.1", default-features = false }
 db = { path = "../libs/db" }
+derivative = "2.2.0"
 diesel = { version = "2.0.3", default-features = false }
 dotenv = "0.15.0"
 env_logger = "0.10.0"
