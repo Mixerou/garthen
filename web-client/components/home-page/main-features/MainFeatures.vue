@@ -11,7 +11,7 @@ const { t } = useI18n()
     <h2>{{ t('heading') }}</h2>
 
     <div class="cards">
-      <HomePageMainFeaturesCard with-later-badge>
+      <HomePageMainFeaturesCard>
         <template #icon>
           <IconTune />
         </template>
