@@ -8,15 +8,25 @@ export default defineNuxtPlugin(plugin => {
   const system = useSystemStore()
   const user = useUserStore()
 
-  const parseJson = json => {
-    return JSON.parse(json, (_, value) => {
-      if (typeof value === 'number' && !Number.isSafeInteger(value)) {
-        return BigInt(value)
-      }
+  const isBigNumber = number => !Number.isSafeInteger(+number)
 
-      return value
-    })
-  }
+  const enquoteBigNumber = jsonString =>
+    jsonString.replaceAll(
+      /([:\s\[,]*)(\d+)([\s,\]]*)/g,
+      (matchingSubstring, prefix, bigNumber, suffix) =>
+        isBigNumber(bigNumber)
+          ? `${prefix}"${bigNumber}"${suffix}`
+          : matchingSubstring
+    )
+
+  const parseJson = jsonString =>
+    JSON.parse(
+      enquoteBigNumber(jsonString.replaceAll('"nil"', 'null')),
+      (key, value) =>
+        !isNaN(value) && isBigNumber(value) && !/[.]/.test(String(value))
+          ? BigInt(value)
+          : value
+    )
 
   const stringifyToJson = data => {
     if (data !== undefined) {
@@ -113,6 +123,10 @@ export default defineNuxtPlugin(plugin => {
               true,
               false
             )
+          } else if (event === constants.GLOBAL_WS_EVENTS.deviceUpdate) {
+            dataStore.setDevice(data)
+          } else if (event === constants.GLOBAL_WS_EVENTS.deviceRecordsUpdate) {
+            dataStore.setDeviceRecordsQuantity(data)
           }
         }
 

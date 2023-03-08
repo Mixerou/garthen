@@ -45,7 +45,7 @@ watchEffect(() => {
 })
 
 onMounted(() => {
-  system.registerModal(id)
+  setTimeout(() => system.registerModal(id), 5)
   setTimeout(() => (isMounted.value = true), 10)
 })
 
@@ -89,15 +89,25 @@ onBeforeUnmount(() => {
   z-index: 100;
   top: 1.5rem;
   right: 1rem;
+  height: fit-content;
+  max-height: calc(100vh - 1.5rem * 2 - 4rem);
+  padding-bottom: 4rem;
+  border-radius: var(--large-radius);
+  overflow-y: auto;
+  scrollbar-width: none;
   transition: var(--default-transition);
   transform: translateX(0);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .dropdown {
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
-    bottom: 1rem;
+    bottom: 5rem;
     left: 0;
     width: 18rem;
     max-width: calc(100vw - 5rem);
@@ -109,7 +119,7 @@ onBeforeUnmount(() => {
     transform: translateY(calc(100% + 1.5rem));
     transition: var(--default-transition);
     transition-property: left, width, max-width, padding-top, padding-bottom,
-      padding-left, padding-right, transform;
+      padding-left, padding-right, opacity, transform;
 
     &.disable-padding {
       left: 0.5rem;
@@ -125,6 +135,7 @@ onBeforeUnmount(() => {
 
     &.hide {
       box-shadow: unset;
+      opacity: 0;
       transform: translateY(0);
     }
   }

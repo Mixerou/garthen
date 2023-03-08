@@ -30,6 +30,11 @@ const props = defineProps({
     required: false,
     default: '',
   },
+  maxLength: {
+    type: Number,
+    required: false,
+    default: -1,
+  },
   disabled: {
     type: Boolean,
     required: false,
@@ -62,6 +67,7 @@ const computedText = computed({
     :disabled="disabled"
     :placeholder="placeholder"
     :type="type"
+    :maxlength="maxLength"
   />
 </template>
 

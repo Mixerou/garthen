@@ -10,11 +10,31 @@ defineProps({
     required: false,
     default: false,
   },
+  transparentBackground: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  variant: {
+    type: String,
+    required: false,
+    default: 'default',
+    validator(variant) {
+      return ['default', 'danger'].includes(variant)
+    },
+  },
 })
 </script>
 
 <template>
-  <button :class="{ loading }" :disabled="disabled || loading">
+  <button
+    :class="{
+      loading,
+      ['transparent-background']: transparentBackground,
+      ['variant-danger']: variant === 'danger',
+    }"
+    :disabled="disabled || loading"
+  >
     <GarthenLoader class="loader" :stop="!loading" />
     <div class="content">
       <slot />
@@ -41,10 +61,43 @@ button {
     padding: 0 1.75rem;
   }
 
+  &.variant-danger {
+    background: var(--red-400);
+
+    &:not(.loading):not(:disabled) {
+      &:hover,
+      &:focus-visible {
+        background: var(--red-500);
+
+        &:active {
+          background: var(--red-600);
+        }
+      }
+    }
+
+    &:disabled {
+      background: var(--red-500);
+    }
+  }
+
+  &.transparent-background {
+    background: transparent;
+
+    &:deep(*:not(.loader *)) {
+      color: var(--white-900);
+      fill: var(--white-900);
+    }
+  }
+
   &:not(.loading):not(:disabled) {
     &:hover,
     &:focus-visible {
       background: var(--primary-500);
+
+      &:deep(*:not(.loader *)) {
+        color: var(--white-original);
+        fill: var(--white-original);
+      }
     }
 
     &:active {
@@ -80,10 +133,10 @@ button {
   }
 
   &:deep(*:not(.loader *)) {
-    fill: var(--white-original);
     color: var(--white-original);
-    transition-duration: var(--fast-transition-duration);
-    transition-property: background-color, color, fill;
+    fill: var(--white-original);
+    transition: background-color var(--fast-transition-duration),
+      color var(--fast-transition-duration), fill 0.1s;
   }
 
   .content {
