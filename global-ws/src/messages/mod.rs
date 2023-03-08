@@ -60,8 +60,8 @@ pub struct WebSocketMessage {
 }
 
 // Tag `n` from the word `name`
-#[derivative(Eq, PartialEq, Hash)]
 #[derive(Clone, Debug, Derivative, Deserialize, Serialize)]
+#[derivative(Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case", tag = "n")]
 pub enum DispatchEvent {
     UserUpdate {
