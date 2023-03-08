@@ -80,6 +80,14 @@ pub enum DispatchEvent {
         #[serde(skip)]
         owner_id: i64,
     },
+    DeviceUpdate {
+        #[serde(skip)]
+        id: i64,
+    },
+    DeviceRecordsUpdate {
+        #[serde(skip)]
+        device_id: i64,
+    },
 }
 
 #[derive(Debug, Message)]
@@ -119,6 +127,13 @@ pub enum AmqpPayload {
     RequestData {
         device_id: Option<i64>,
         greenhouse_id: Option<i64>,
+    },
+    ChangeControllerState {
+        device_id: i64,
+        state: u8,
+    },
+    DispatchDevice {
+        id: i64,
     },
     Ping,
 }

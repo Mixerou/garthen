@@ -10,7 +10,9 @@ use actix_web_actors::ws::WebsocketContext;
 use crate::error::{WebSocketCloseError, WebSocketError, WebSocketErrorTemplate};
 use crate::messages::{AmqpPayload, AuthorizationMessage, DisconnectionMessage, DispatchAmqpMessage, DispatchEvent, DispatchMessage, InitAmqpConsumersMessage, Opcode, WebSocketMessage, WebSocketMessageData};
 use crate::server::WebSocketConnection;
-use crate::services::{greenhouse, user};
+use crate::services::{device, device_record, greenhouse, user};
+use crate::services::device::Device;
+use crate::services::device_record::DeviceRecord;
 use crate::services::greenhouse::Greenhouse;
 use crate::services::session::Session;
 use crate::services::user::{UserMe, UserPublic};
@@ -127,6 +129,48 @@ impl Socket {
                         connection,
                         context,
                     )?,
+                    "device" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    "device/state" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    "device/custom-data" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    "device/request-data" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    "device/disable" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
+                    "device/enable" => device::handle(
+                        request,
+                        method,
+                        message,
+                        connection,
+                        context,
+                    )?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -162,6 +206,21 @@ impl Socket {
                         connection,
                         context,
                     )?,
+                    "device" => device::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
+                    "devices" => device::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
+                    "device_records" => device_record::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -287,6 +346,15 @@ impl Handler<DispatchMessage> for Socket {
                     None => WebSocketMessageData::None,
                 }
             },
+            DispatchEvent::DeviceUpdate { id } => {
+                WebSocketMessageData::from(Device::find(id)?)
+            },
+            DispatchEvent::DeviceRecordsUpdate { device_id } => {
+                WebSocketMessageData::DispatchDeviceRecordsUpdate {
+                    device_id,
+                    quantity: DeviceRecord::count_by_device_id(device_id)?,
+                }
+            }
         };
 
         let subscribers = self.subscriptions.entry(event.to_owned())
@@ -347,9 +415,28 @@ impl Handler<DispatchMessage> for Socket {
 impl Handler<DispatchAmqpMessage> for Socket {
     type Result = ();
 
-    fn handle(&mut self, message: DispatchAmqpMessage, _: &mut Self::Context) -> Self::Result {
+    fn handle(
+        &mut self,
+        message: DispatchAmqpMessage,
+        context: &mut Self::Context,
+    ) -> Self::Result {
         match message.payload {
-            AmqpPayload::DispatchData { .. } => debug!("Got DispatchData from AMQP -> {message:?}"),
+            AmqpPayload::DispatchData { device_id } => {
+                context.address().do_send(DispatchMessage {
+                    event: DispatchEvent::DeviceUpdate { id: device_id },
+                    new_subscribers: None,
+                });
+                context.address().do_send(DispatchMessage {
+                    event: DispatchEvent::DeviceRecordsUpdate { device_id },
+                    new_subscribers: None,
+                });
+            },
+            AmqpPayload::DispatchDevice { id } => {
+                context.address().do_send(DispatchMessage {
+                    event: DispatchEvent::DeviceUpdate { id },
+                    new_subscribers: None,
+                });
+            },
             AmqpPayload::Ping => debug!("Got Ping from AMQP"),
             _ => {},
         }

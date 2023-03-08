@@ -202,6 +202,12 @@ websocket_error_template! {
     (400, Some(30008), PasswordTooLong, "The password is too long");
     (400, Some(30009), UsernameTooShort, "The username is too short");
     (400, Some(30010), UsernameTooLong, "The username is too long");
+    (400, Some(30011), DeviceNameTooShort, "The device name is too short");
+    (400, Some(30012), DeviceNameTooLong, "The device name is too long");
+    (400, Some(30013), DeviceRecordDataTooSmall, "The data is too small");
+    (400, Some(30014), DeviceRecordDataTooBig, "The data is too big");
+    (400, Some(30015), TooLongAgo, "Too long ago");
+    (400, Some(30016), FutureTime, "Can't be the future");
 
     // Invalid body or something else
     (400, Some(40001), InvalidRequestField, "Invalid request");
@@ -209,6 +215,9 @@ websocket_error_template! {
     (400, Some(40003), EmailInvalid, "Invalid email");
     (400, Some(40004), IncorrectPassword, "Incorrect password");
     (400, Some(40005), UsernameInvalidOrTaken, "The username is either invalid or taken");
+    (400, Some(40006), InvalidDeviceState, "Invalid device state");
+    (400, Some(40007), DeviceIsNotSensor, "The device is not a sensor");
+    (400, Some(40008), DeviceIsNotController, "The device is not a controller");
 }
 
 macro_rules! close_error {

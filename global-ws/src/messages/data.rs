@@ -2,6 +2,8 @@ use std::time::UNIX_EPOCH;
 
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
+use crate::services::device::{Device, DeviceKind, DeviceStatus};
+use crate::services::device_record::DeviceRecord;
 
 use crate::services::greenhouse::Greenhouse;
 use crate::services::user::{UserMe, UserPublic, UserTheme};
@@ -23,6 +25,34 @@ pub enum WebSocketMessageData {
         name: String,
         token: String,
     },
+    RequestPatchDevice {
+        id: i64,
+        greenhouse_id: i64,
+        name: Option<String>,
+    },
+    RequestPatchDeviceState {
+        id: i64,
+        greenhouse_id: i64,
+        state: u8,
+    },
+    RequestPostDeviceCustomData {
+        id: i64,
+        greenhouse_id: i64,
+        data: f64,
+        time: u64,
+    },
+    RequestPostDeviceRequestData {
+        id: Option<i64>,
+        greenhouse_id: i64,
+    },
+    RequestPostDeviceDisable {
+        id: i64,
+        greenhouse_id: i64,
+    },
+    RequestPostDeviceEnable {
+        id: i64,
+        greenhouse_id: i64,
+    },
 
     // Requests (Opcode: Authorize)
     Authorize { token: String },
@@ -31,6 +61,15 @@ pub enum WebSocketMessageData {
     SubscribeToUserUpdate { id: i64 },
     SubscribeToUserMeUpdates {},
     SubscribeToGreenhouseUpdate { id: i64 },
+    SubscribeToDeviceUpdate {
+        id: i64,
+        greenhouse_id: i64,
+    },
+    SubscribeToDevicesUpdate { greenhouse_id: i64 },
+    SubscribeToDeviceRecordsUpdate {
+        device_id: i64,
+        greenhouse_id: i64,
+    },
 
     // Dispatches
     DispatchUserUpdate {
@@ -54,6 +93,20 @@ pub enum WebSocketMessageData {
         token: String,
         owner_id: i64,
         created_at: u64,
+    },
+    DispatchDeviceUpdate {
+        id: i64,
+        external_id: Option<i16>,
+        name: Option<String>,
+        status: DeviceStatus,
+        kind: DeviceKind,
+        greenhouse_id: i64,
+        created_at: u64,
+        latest_data: Option<f64>,
+    },
+    DispatchDeviceRecordsUpdate {
+        device_id: i64,
+        quantity: i64,
     },
 
     // Other
@@ -109,6 +162,26 @@ impl From<Greenhouse> for WebSocketMessageData {
             token: greenhouse.token,
             owner_id: greenhouse.owner_id,
             created_at: greenhouse.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+        }
+    }
+}
+
+impl From<Device> for WebSocketMessageData {
+    fn from(device: Device) -> Self {
+        let latest_data = match DeviceRecord::find_latest_by_device_id(device.id) {
+            Ok(record) => Some(record.data),
+            Err(_) => None,
+        };
+
+        WebSocketMessageData::DispatchDeviceUpdate {
+            id: device.id,
+            external_id: device.external_id,
+            name: device.name,
+            status: device.status,
+            kind: device.kind,
+            greenhouse_id: device.greenhouse_id,
+            created_at: device.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            latest_data,
         }
     }
 }

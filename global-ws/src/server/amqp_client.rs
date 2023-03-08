@@ -106,10 +106,13 @@ impl Actor for AmqpClient {
         block_on(async move {
             // Exchanges
             AmqpClient::declare_exchange(&channel, "data", ExchangeKind::Topic).await;
+            AmqpClient::declare_exchange(&channel, "device", ExchangeKind::Topic).await;
 
             // Queues
             AmqpClient::declare_queue(&channel, "request-data").await;
             AmqpClient::declare_queue(&channel, "dispatch-data").await;
+            AmqpClient::declare_queue(&channel, "change-controller-state").await;
+            AmqpClient::declare_queue(&channel, "dispatch-device").await;
 
             // Queue bindings
             AmqpClient::bind_queue(
@@ -122,11 +125,24 @@ impl Actor for AmqpClient {
                 &channel,
                 "dispatch-data",
                 "data",
-                "data.create",
+                "data.created",
+            ).await;
+            AmqpClient::bind_queue(
+                &channel,
+                "change-controller-state",
+                "device",
+                "device.controller.state.change",
+            ).await;
+            AmqpClient::bind_queue(
+                &channel,
+                "dispatch-device",
+                "device",
+                "device.controller.state.changed",
             ).await;
         });
 
         self.subscribe_system_async::<InitAmqpConsumersMessage>(context);
+        self.subscribe_system_async::<AmqpPublisherMessage>(context);
     }
 }
 
@@ -134,7 +150,16 @@ impl Handler<InitAmqpConsumersMessage> for AmqpClient {
     type Result = ();
 
     fn handle(&mut self, message: InitAmqpConsumersMessage, _: &mut Self::Context) -> Self::Result {
-        AmqpClient::start_consumer(message.0, "data-dispatcher", "dispatch-data");
+        AmqpClient::start_consumer(
+            message.0.clone(),
+            "data-dispatcher",
+            "dispatch-data",
+        );
+        AmqpClient::start_consumer(
+            message.0,
+            "device-dispatcher",
+            "dispatch-device",
+        );
     }
 }
 
