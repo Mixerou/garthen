@@ -52,12 +52,12 @@ impl DeviceRecord {
     pub fn count_by_device_id(device_id: i64) -> Result<i64, WebSocketError> {
         let connection = &mut db::get_connection()?;
 
-        let greenhouses = device_records::table
+        let device_records = device_records::table
             .filter(device_records::device_id.eq(device_id))
             .count()
             .get_result(connection)?;
 
-        Ok(greenhouses)
+        Ok(device_records)
     }
 
     // Default implementations
