@@ -2,8 +2,10 @@ use std::time::SystemTime;
 
 use db::schema::device_records;
 use diesel::{Insertable, Queryable, RunQueryDsl};
+use diesel::dsl::avg;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::error::{WebSocketError, WebSocketErrorTemplate};
 
@@ -60,6 +62,21 @@ impl DeviceRecord {
         Ok(device_records)
     }
 
+    pub fn get_average_between_timestamp_by_device_id(
+        device_id: i64,
+        range: (SystemTime, SystemTime),
+    ) -> Result<Option<f64>, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let data = device_records::table
+            .select(avg(device_records::data))
+            .filter(device_records::device_id.eq(device_id))
+            .filter(device_records::created_at.between(range.0, range.1))
+            .get_result(connection)?;
+
+        Ok(data)
+    }
+
     // Default implementations
     pub fn check_data_size(data: &f64) -> Result<(), WebSocketError> {
         match data {
@@ -77,4 +94,27 @@ impl DeviceRecord {
 pub struct NewDeviceRecord {
     pub device_id: i64,
     pub data: f64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct DeviceRecordsAverage {
+    pub(crate) data: Option<f64>,
+    pub(crate) range: (u64, u64),
+}
+
+#[derive(Copy, Clone, Debug, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash)]
+#[repr(u8)]
+pub enum DeviceRecordsTimestampRange {
+    Today = 0,
+    Week = 1,
+    Month = 2,
+    LastMonth = 3,
+    MonthBeforeLast = 4,
+    LastThreeMoths = 5,
+}
+
+impl Default for DeviceRecordsTimestampRange {
+    fn default() -> Self {
+        DeviceRecordsTimestampRange::Today
+    }
 }

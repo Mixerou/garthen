@@ -1,6 +1,6 @@
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
-use std::time::Instant;
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use actix::{ActorFutureExt, AsyncContext, ContextFutureSpawner, Message, WeakRecipient, WrapFuture};
 use actix::prelude::{Actor, Context, Handler, Recipient};
@@ -12,10 +12,16 @@ use crate::messages::{AmqpPayload, AuthorizationMessage, DisconnectionMessage, D
 use crate::server::WebSocketConnection;
 use crate::services::{device, device_record, greenhouse, user};
 use crate::services::device::Device;
-use crate::services::device_record::DeviceRecord;
+use crate::services::device_record::{DeviceRecord, DeviceRecordsAverage, DeviceRecordsTimestampRange};
 use crate::services::greenhouse::Greenhouse;
 use crate::services::session::Session;
 use crate::services::user::{UserMe, UserPublic};
+
+const MINUTE_AS_SECS: u64 = 60;
+const HOUR_AS_SECS: u64 = MINUTE_AS_SECS * 60;
+const DAY_AS_SECS: u64 = HOUR_AS_SECS * 24;
+const WEEK_AS_SECS: u64 = DAY_AS_SECS * 7;
+const MONTH_AS_SECS: u64 = 365 / 12 * DAY_AS_SECS;
 
 #[derive(Debug, Default)]
 pub struct Socket {
@@ -221,6 +227,11 @@ impl Socket {
                         message,
                         connection,
                         context)?,
+                    "device_records/average" => device_record::subscribe(
+                        request,
+                        message,
+                        connection,
+                        context)?,
                     _ => {
                         return Err(WebSocketErrorTemplate::BadRequest(None).into());
                     },
@@ -360,6 +371,47 @@ impl Handler<DispatchMessage> for Socket {
                     quantity: DeviceRecord::count_by_device_id(device_id)?,
                 }
             }
+            DispatchEvent::DeviceRecordsAverageUpdate {
+                device_id,
+                range,
+            } => {
+                let now = SystemTime::now()
+                    .duration_since(UNIX_EPOCH).unwrap()
+                    .as_secs();
+                let mut records = vec![];
+
+                let (now, iterations, interval): (u64, u64, u64) = match range {
+                    DeviceRecordsTimestampRange::Today => (now, 24, MINUTE_AS_SECS),
+                    DeviceRecordsTimestampRange::Week => (now, 7, DAY_AS_SECS),
+                    DeviceRecordsTimestampRange::Month => (now, 5, WEEK_AS_SECS),
+                    DeviceRecordsTimestampRange::LastMonth =>
+                        (now - MONTH_AS_SECS, 5, MINUTE_AS_SECS),
+                    DeviceRecordsTimestampRange::MonthBeforeLast =>
+                        (now - MONTH_AS_SECS * 2, 5, MINUTE_AS_SECS),
+                    DeviceRecordsTimestampRange::LastThreeMoths => (now, 3, MONTH_AS_SECS),
+                };
+
+                for i in 0..iterations {
+                    let from = now - interval * (i + 1);
+                    let until = now - interval * i;
+
+                    let data
+                        = DeviceRecord::get_average_between_timestamp_by_device_id(
+                        device_id,
+                        (
+                            UNIX_EPOCH + Duration::from_secs(from),
+                            UNIX_EPOCH + Duration::from_secs(until),
+                        ),
+                    )?.map(|data| (data * 100.0).trunc() / 100.0);
+
+                    records.push(DeviceRecordsAverage {
+                        data,
+                        range: (from, until),
+                    });
+                }
+
+                WebSocketMessageData::DispatchDeviceRecordsAverageUpdate { device_id, records }
+            }
         };
 
         match new_subscribers {
@@ -432,6 +484,20 @@ impl Handler<DispatchAmqpMessage> for Socket {
                     event: DispatchEvent::DeviceRecordsUpdate { device_id },
                     new_subscribers: None,
                 });
+
+                let device_records_average_ranges = vec![
+                    DeviceRecordsTimestampRange::Today,
+                    DeviceRecordsTimestampRange::Week,
+                    DeviceRecordsTimestampRange::Month,
+                    DeviceRecordsTimestampRange::LastThreeMoths,
+                ];
+
+                for range in device_records_average_ranges {
+                    context.address().do_send(DispatchMessage {
+                        event: DispatchEvent::DeviceRecordsAverageUpdate { device_id, range },
+                        new_subscribers: None,
+                    });
+                }
             },
             AmqpPayload::DispatchDevice { id } => {
                 context.address().do_send(DispatchMessage {
