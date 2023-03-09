@@ -127,6 +127,10 @@ export default defineNuxtPlugin(plugin => {
             dataStore.setDevice(data)
           } else if (event === constants.GLOBAL_WS_EVENTS.deviceRecordsUpdate) {
             dataStore.setDeviceRecordsQuantity(data)
+          } else if (
+            event === constants.GLOBAL_WS_EVENTS.deviceRecordsAverageUpdate
+          ) {
+            dataStore.setDeviceRecordsAverage(data)
           }
         }
 

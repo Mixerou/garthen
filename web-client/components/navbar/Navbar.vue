@@ -1,5 +1,6 @@
 <script setup>
 import IconGridView from '@/assets/icons/grid-view.svg?skipsvgo'
+import IconBarChart from '@/assets/icons/bar-chart.svg?skipsvgo'
 
 defineProps({
   fold: {
@@ -32,13 +33,26 @@ onBeforeUnmount(() => {
     <div ref="screenChecker" class="screen-checker" />
     <GarthenLogo :small="fold || isMobile" />
     <div class="buttons">
-      <NuxtLink :to="`/greenhouses/${$route.params.greenhouseId}`">
+      <NuxtLink
+        :class="{ selected: system.appPageName === 'dashboard' }"
+        :to="`/greenhouses/${$route.params.greenhouseId}`"
+      >
         <GarthenButton
-          :class="{ selected: false }"
           :transparent-background="system.appPageName !== 'dashboard'"
         >
           <IconGridView />
           <span>{{ t('buttons.dashboard') }}</span>
+        </GarthenButton>
+      </NuxtLink>
+      <NuxtLink
+        :class="{ selected: system.appPageName === 'analytics' }"
+        :to="`/greenhouses/${$route.params.greenhouseId}/analytics`"
+      >
+        <GarthenButton
+          :transparent-background="system.appPageName !== 'analytics'"
+        >
+          <IconBarChart />
+          <span>{{ t('buttons.analytics') }}</span>
         </GarthenButton>
       </NuxtLink>
     </div>
@@ -133,6 +147,16 @@ nav {
       justify-content: center;
       width: 100%;
       text-decoration: none;
+      transition: opacity var(--fast-transition-duration);
+
+      &:not(.selected) {
+        opacity: 0.75;
+
+        &:hover,
+        &:active {
+          opacity: 1;
+        }
+      }
 
       button {
         width: calc(100% - 3.5rem);
@@ -172,12 +196,14 @@ body[data-theme='dark'] nav {
 {
   "en-GB": {
     "buttons": {
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "analytics": "Analytics"
     }
   },
   "ru-RU": {
     "buttons": {
-      "dashboard": "Панель управления"
+      "dashboard": "Панель управления",
+      "analytics": "Аналитика"
     }
   }
 }
