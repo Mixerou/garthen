@@ -410,7 +410,11 @@ impl Handler<DispatchMessage> for Socket {
                     });
                 }
 
-                WebSocketMessageData::DispatchDeviceRecordsAverageUpdate { device_id, records }
+                WebSocketMessageData::DispatchDeviceRecordsAverageUpdate {
+                    device_id,
+                    range,
+                    records,
+                }
             }
         };
 

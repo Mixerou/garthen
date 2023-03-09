@@ -115,6 +115,7 @@ pub enum WebSocketMessageData {
     },
     DispatchDeviceRecordsAverageUpdate {
         device_id: i64,
+        range: DeviceRecordsTimestampRange,
         records: Vec<DeviceRecordsAverage>,
     },
 
