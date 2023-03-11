@@ -2,7 +2,7 @@
 import IconCalendarMonth from '@/assets/icons/calendar-month.svg?skipsvgo'
 
 const props = defineProps({
-  selectedRange: {
+  range: {
     type: Number,
     required: true,
   },
@@ -16,21 +16,14 @@ const emit = defineEmits(['select:range'])
 
 const { t } = useI18n()
 const constants = useConstantsStore()
-const user = useUserStore()
 
 const selector = ref(null)
 
-const selectedRange = ref(constants.DEVICE_RECORDS_TIMESTAMP_RANGES.today)
-
 const computedSelectedRange = computed({
   get() {
-    return selectedRange.value
+    return props.range
   },
   set(value) {
-    if (props.loading || value === selectedRange.value) return
-
-    selectedRange.value = value
-
     emit('select:range', value)
   },
 })
@@ -38,10 +31,6 @@ const computedSelectedRange = computed({
 const openSelector = () => {
   setTimeout(() => selector.value.firstChild.firstChild.click(), 10)
 }
-
-onMounted(() => {
-  emit('select:range', selectedRange.value)
-})
 </script>
 
 <template>
@@ -51,7 +40,7 @@ onMounted(() => {
     <div class="timestamp-range" :class="{ loading }">
       <div class="content" @click="openSelector">
         <IconCalendarMonth />
-        <p>{{ t(`ranges.${selectedRange}`) }}</p>
+        <p>{{ t(`ranges.${range}`) }}</p>
       </div>
       <div ref="selector">
         <GarthenSelect

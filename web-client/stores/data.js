@@ -17,7 +17,10 @@ export const useDataStore = definePiniaStore('data', () => {
   }
 
   function setDeviceRecordsAverage(data) {
-    deviceRecordsAverage.value[data['device_id']] = data
+    if (deviceRecordsAverage.value[data.range] === undefined)
+      deviceRecordsAverage.value[data.range] = {}
+
+    deviceRecordsAverage.value[data.range][data['device_id']] = data
   }
 
   function deleteData() {
