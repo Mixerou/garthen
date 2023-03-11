@@ -127,24 +127,24 @@ onMounted(() => {
   screenCheckerObserver.observe(screenChecker.value)
   window.addEventListener('resize', onResize)
 
-  dateFormatI18n.monthNames = [
-    i18n.t('monthShortNames.january'),
-    i18n.t('monthShortNames.february'),
-    i18n.t('monthShortNames.march'),
-    i18n.t('monthShortNames.april'),
-    i18n.t('monthShortNames.may'),
-    i18n.t('monthShortNames.june'),
-    i18n.t('monthShortNames.july'),
-    i18n.t('monthShortNames.august'),
-    i18n.t('monthShortNames.september'),
-    i18n.t('monthShortNames.october'),
-    i18n.t('monthShortNames.november'),
-    i18n.t('monthShortNames.december'),
-  ]
-
   watchEffect(() => {
     let localLabels = []
     let localDatasets = []
+
+    dateFormatI18n.monthNames = [
+      i18n.t('monthShortNames.january'),
+      i18n.t('monthShortNames.february'),
+      i18n.t('monthShortNames.march'),
+      i18n.t('monthShortNames.april'),
+      i18n.t('monthShortNames.may'),
+      i18n.t('monthShortNames.june'),
+      i18n.t('monthShortNames.july'),
+      i18n.t('monthShortNames.august'),
+      i18n.t('monthShortNames.september'),
+      i18n.t('monthShortNames.october'),
+      i18n.t('monthShortNames.november'),
+      i18n.t('monthShortNames.december'),
+    ]
 
     for (const device of [...props.devices].sort((a, b) =>
       a['external_id'] < b['external_id'] ? 1 : -1
