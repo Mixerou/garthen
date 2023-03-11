@@ -381,13 +381,13 @@ impl Handler<DispatchMessage> for Socket {
                 let mut records = vec![];
 
                 let (now, iterations, interval): (u64, u64, u64) = match range {
-                    DeviceRecordsTimestampRange::Today => (now, 24, MINUTE_AS_SECS),
+                    DeviceRecordsTimestampRange::Today => (now, 24, HOUR_AS_SECS),
                     DeviceRecordsTimestampRange::Week => (now, 7, DAY_AS_SECS),
                     DeviceRecordsTimestampRange::Month => (now, 5, WEEK_AS_SECS),
                     DeviceRecordsTimestampRange::LastMonth =>
-                        (now - MONTH_AS_SECS, 5, MINUTE_AS_SECS),
+                        (now - MONTH_AS_SECS, 5, WEEK_AS_SECS),
                     DeviceRecordsTimestampRange::MonthBeforeLast =>
-                        (now - MONTH_AS_SECS * 2, 5, MINUTE_AS_SECS),
+                        (now - MONTH_AS_SECS * 2, 5, WEEK_AS_SECS),
                     DeviceRecordsTimestampRange::LastThreeMoths => (now, 3, MONTH_AS_SECS),
                 };
 
