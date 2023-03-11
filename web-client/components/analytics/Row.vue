@@ -61,7 +61,9 @@ const averageValue = computed(() => {
   let value = 0
   let numberOfValues = 0
 
-  for (const device of props.devices) {
+  for (const device of [...props.devices].filter(
+    device => deviceStates.value[device.id]
+  )) {
     const deviceRecords =
       dataStore.deviceRecordsAverage[props.range] === undefined
         ? undefined
@@ -70,6 +72,8 @@ const averageValue = computed(() => {
     if (deviceRecords === undefined) return
 
     for (const record of deviceRecords.records) {
+      if (record.data === null) continue
+
       value += record.data
       numberOfValues += 1
     }
