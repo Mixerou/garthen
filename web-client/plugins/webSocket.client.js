@@ -73,7 +73,7 @@ export default defineNuxtPlugin(plugin => {
           clearInterval(heartbeating)
           system.setIsWebSocketConnected(false)
           system.setIsWebSocketAuthorized(false)
-          dataStore.deleteData()
+          dataStore.deleteAll()
 
           if (
             event.code === constants.GLOBAL_WS_CLOSE_ERRORS.authenticationFailed
