@@ -489,19 +489,20 @@ impl Handler<DispatchAmqpMessage> for Socket {
                     new_subscribers: None,
                 });
 
-                let device_records_average_ranges = vec![
-                    DeviceRecordsTimestampRange::Today,
-                    DeviceRecordsTimestampRange::Week,
-                    DeviceRecordsTimestampRange::Month,
-                    DeviceRecordsTimestampRange::LastThreeMoths,
-                ];
-
-                for range in device_records_average_ranges {
-                    context.address().do_send(DispatchMessage {
-                        event: DispatchEvent::DeviceRecordsAverageUpdate { device_id, range },
-                        new_subscribers: None,
-                    });
-                }
+                // TODO: Uncomment when correct time parsing in dispatcher is done
+                // let device_records_average_ranges = vec![
+                //     DeviceRecordsTimestampRange::Today,
+                //     DeviceRecordsTimestampRange::Week,
+                //     DeviceRecordsTimestampRange::Month,
+                //     DeviceRecordsTimestampRange::LastThreeMoths,
+                // ];
+                //
+                // for range in device_records_average_ranges {
+                //     context.address().do_send(DispatchMessage {
+                //         event: DispatchEvent::DeviceRecordsAverageUpdate { device_id, range },
+                //         new_subscribers: None,
+                //     });
+                // }
             },
             AmqpPayload::DispatchDevice { id } => {
                 context.address().do_send(DispatchMessage {
