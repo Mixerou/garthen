@@ -88,11 +88,11 @@ footer {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 0.25rem;
     bottom: 0.5rem;
     left: 0.5rem;
     width: calc(100vw - 5rem);
-    height: 7rem;
+    height: 6.5rem;
     padding: 0 2rem;
     border-radius: var(--large-radius);
     background: var(--primary);
@@ -101,6 +101,7 @@ footer {
     @include medium-screen {
       flex-direction: row;
       justify-content: space-between;
+      gap: 1rem;
       height: 4.5rem;
     }
 
