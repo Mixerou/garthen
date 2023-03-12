@@ -47,6 +47,20 @@
     "deviceIsNotSensor": "Устройство не является датчиком",
     "deviceIsNotController": "Устройство не является контроллером"
   },
+  "monthNames": {
+    "january": "Январь",
+    "february": "Февраль",
+    "march": "Март",
+    "april": "Апрель",
+    "may": "Май",
+    "june": "Июнь",
+    "july": "Июль",
+    "august": "Август",
+    "september": "Сентябрь",
+    "october": "Октябрь",
+    "november": "Ноябрь",
+    "december": "Декабрь"
+  },
   "monthShortNames": {
     "january": "Янв",
     "february": "Фев",

@@ -68,6 +68,7 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     greenhouseCreate: 'greenhouse_create',
     deviceUpdate: 'device_update',
     deviceRecordsUpdate: 'device_records_update',
+    deviceRecordsAverageUpdate: 'device_records_average_update',
   }
 
   const USER_THEMES = {
@@ -83,6 +84,15 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     humidificationController: 3,
     irrigationController: 4,
     windowsController: 5,
+  }
+
+  const DEVICE_RECORDS_TIMESTAMP_RANGES = {
+    today: 0,
+    week: 1,
+    month: 2,
+    lastMonth: 3,
+    monthBeforeLast: 4,
+    lastThreeMoths: 5,
   }
 
   function parseGlobalApiErrorCode(code) {
@@ -123,6 +133,12 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     return Object.keys(DEVICE_KINDS).find(key => DEVICE_KINDS[key] === id)
   }
 
+  function parseDeviceRecordsTimestampRanges(range) {
+    return Object.keys(DEVICE_RECORDS_TIMESTAMP_RANGES).find(
+      key => DEVICE_RECORDS_TIMESTAMP_RANGES[key] === range
+    )
+  }
+
   return {
     GLOBAL_API_ERRORS,
     GLOBAL_WS_ERRORS,
@@ -131,6 +147,7 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     GLOBAL_WS_EVENTS,
     USER_THEMES,
     DEVICE_KINDS,
+    DEVICE_RECORDS_TIMESTAMP_RANGES,
     parseGlobalApiErrorCode,
     parseGlobalWsErrorCode,
     parseGlobalWsCloseErrorCode,
@@ -138,5 +155,6 @@ export const useConstantsStore = definePiniaStore('constants', () => {
     parseGlobalWsEventName,
     parseUserTheme,
     parseDeviceKind,
+    parseDeviceRecordsTimestampRanges,
   }
 })
