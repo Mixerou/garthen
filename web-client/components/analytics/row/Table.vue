@@ -149,46 +149,10 @@ const parsedData = computed(() => {
         </td>
       </tr>
     </template>
-
-    <!--    <template #content>-->
-    <!--      <tr-->
-    <!--        v-for="(period, periodIndex) in periods"-->
-    <!--        :key="`table-row-${periodIndex}`"-->
-    <!--      >-->
-    <!--        <td>{{ period }}</td>-->
-    <!--        <td-->
-    <!--          v-for="(device, deviceIndex) in devices"-->
-    <!--          :key="`table-row-${periodIndex}-${deviceIndex}`"-->
-    <!--        >-->
-    <!--          {{ parsedRecords[deviceIndex][periodIndex] || '-&#45;&#45;' }}-->
-    <!--        </td>-->
-    <!--      </tr>-->
-    <!--    </template>-->
-
-    <!--    <template #content>-->
-    <!--      <tr-->
-    <!--        v-for="(data, dataIndex) in parsedRecords"-->
-    <!--        :key="`table-row-${dataIndex}`"-->
-    <!--      >-->
-    <!--        <td>{{ periods[dataIndex] }}</td>-->
-    <!--        <td-->
-    <!--          v-for="(device, deviceIndex) in devices"-->
-    <!--          :key="`table-row-${dataIndex}-${deviceIndex}`"-->
-    <!--        >-->
-    <!--          {{-->
-    <!--            `${deviceIndex} - ${dataIndex}` +-->
-    <!--            parsedRecords[deviceIndex][dataIndex]-->
-    <!--          }}-->
-    <!--        </td>-->
-    <!--      </tr>-->
-    <!--    </template>-->
   </GarthenTable>
 </template>
 
-<style lang="scss" scoped>
-table {
-}
-</style>
+<style lang="scss" scoped></style>
 
 <i18n lang="json">
 {

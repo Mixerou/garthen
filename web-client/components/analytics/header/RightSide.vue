@@ -73,10 +73,10 @@ const { t } = useI18n()
       align-items: center;
       padding: 0.25rem 0.5rem;
       border-radius: var(--medium-radius);
-      color: var(--primary-layer-1-color);
-      fill: var(--primary-layer-1-color);
       cursor: pointer;
       font-weight: 600;
+      color: var(--primary-layer-1-color);
+      fill: var(--primary-layer-1-color);
       transition: var(--fast-transition-duration);
 
       &:hover {

@@ -15,8 +15,8 @@ table {
   border: none;
   border-radius: var(--xl-radius);
   border-spacing: 0;
-  overflow: hidden;
   table-layout: fixed;
+  overflow: hidden;
   background: var(--white-original);
 
   :deep(tr) {
@@ -82,9 +82,6 @@ table {
         background: var(--white-original);
       }
     }
-  }
-
-  .content {
   }
 }
 

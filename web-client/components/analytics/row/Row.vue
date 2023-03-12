@@ -348,9 +348,9 @@ watchEffect(() => {
           }
 
           p {
-            text-align: start;
-            font-size: var(--medium-font-size);
             cursor: pointer;
+            font-size: var(--medium-font-size);
+            text-align: start;
             transition: var(--fast-transition-duration);
 
             &:hover {
@@ -385,10 +385,10 @@ watchEffect(() => {
     height: 16rem;
     max-height: 16rem;
     border-radius: var(--xl-radius);
-    overflow: auto;
-    scrollbar-width: none;
     opacity: 0;
     transform: translateX(100%);
+    overflow: auto;
+    scrollbar-width: none;
     transition: var(--default-transition);
 
     &::-webkit-scrollbar {
