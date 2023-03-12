@@ -128,6 +128,7 @@ onMounted(() => {
   window.addEventListener('resize', onResize)
 
   watchEffect(() => {
+    const ranges = constants.DEVICE_RECORDS_TIMESTAMP_RANGES
     let localLabels = []
     let localDatasets = []
 
@@ -155,9 +156,10 @@ onMounted(() => {
           : dataStore.deviceRecordsAverage[props.range][device.id]
       let records = []
 
-      if (deviceRecords === undefined) return
+      if (deviceRecords === undefined || deviceRecords.records === undefined)
+        return
 
-      const sortedDeviceRecords = deviceRecords.records.sort((a, b) =>
+      const sortedDeviceRecords = [...deviceRecords.records].sort((a, b) =>
         a.range[0] > b.range[0] ? 1 : -1
       )
 
@@ -172,12 +174,12 @@ onMounted(() => {
 
           if (
             isMobile.value &&
-            props.range === constants.DEVICE_RECORDS_TIMESTAMP_RANGES.today
+            props.range === ranges.today
           )
             localLabels.push(dateFormat(secondDate, 'H'))
           else if (
             props.range ===
-            constants.DEVICE_RECORDS_TIMESTAMP_RANGES.lastThreeMoths
+            ranges.lastThreeMoths
           )
             localLabels.push(dateFormat(secondDate, 'mmm'))
           else if (isMobile.value)
@@ -187,36 +189,25 @@ onMounted(() => {
                 'dd'
               )} `
             )
-          else if (
-            props.range === constants.DEVICE_RECORDS_TIMESTAMP_RANGES.today
-          )
+          else if (props.range === ranges.today)
             localLabels.push(dateFormat(secondDate, 'H:00'))
-          else if (
-            props.range === constants.DEVICE_RECORDS_TIMESTAMP_RANGES.week
-          )
+          else if (props.range === ranges.week)
             localLabels.push(dateFormat(secondDate, 'mmm dd'))
-          else if (
-            props.range === constants.DEVICE_RECORDS_TIMESTAMP_RANGES.month
-          )
+          else if (props.range === ranges.month)
             localLabels.push(
               `${dateFormat(firstDate, 'mmm dd')} - ${dateFormat(
                 secondDate,
                 'mmm dd'
               )}`
             )
-          else if (
-            props.range === constants.DEVICE_RECORDS_TIMESTAMP_RANGES.lastMonth
-          )
+          else if (props.range === ranges.lastMonth)
             localLabels.push(
               `${dateFormat(firstDate, 'mmm dd')} - ${dateFormat(
                 secondDate,
                 'mmm dd'
               )}`
             )
-          else if (
-            props.range ===
-            constants.DEVICE_RECORDS_TIMESTAMP_RANGES.monthBeforeLast
-          )
+          else if (props.range === ranges.monthBeforeLast)
             localLabels.push(
               `${dateFormat(firstDate, 'mmm dd')} - ${dateFormat(
                 secondDate,
