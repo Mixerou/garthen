@@ -9,6 +9,7 @@ const animateSelector = ref(false)
 const isGreenhouseCreationModalOpened = ref(false)
 
 const selectorPosition = ref('absolute')
+const selectorZIndex = ref('initial')
 const selectorTransition = ref('none')
 
 const invisibleSelector = ref(null)
@@ -30,6 +31,7 @@ const open = () => {
   isCloseBlocked.value = true
   isGreenhousesListOpened.value = true
   selectorPosition.value = 'fixed'
+  selectorZIndex.value = '999'
   invisibleSelectorTop.value = `${invisibleSelectorRect.top}px`
   invisibleSelectorLeft.value = `${invisibleSelectorRect.left}px`
   invisibleSelectorWidth.value = `${invisibleSelectorRect.width}px`
@@ -61,6 +63,7 @@ const close = () => {
 
     animationTimeout = setTimeout(() => {
       selectorPosition.value = 'absolute'
+      selectorZIndex.value = 'initial'
       selectorTransition.value = 'none'
       invisibleSelectorTop.value = `0`
       invisibleSelectorLeft.value = `0`
@@ -180,12 +183,12 @@ onBeforeUnmount(() => {
 
     &:not(.invisible) {
       position: v-bind(selectorPosition);
+      z-index: v-bind(selectorZIndex);
       top: v-bind(invisibleSelectorTop);
       left: v-bind(invisibleSelectorLeft);
       width: v-bind(invisibleSelectorWidth);
 
       &.opened {
-        z-index: 999;
         top: calc(1.5rem + 0.5rem + v-bind(greenhouseListHeight));
         left: calc(v-bind(invisibleSelectorLeft) + 2.75rem + 0.5rem);
         width: calc(16rem - 1.25rem - 0.5rem * 2);
