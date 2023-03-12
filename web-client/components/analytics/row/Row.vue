@@ -32,12 +32,12 @@ const dataStore = useDataStore()
 const deviceStates = ref({})
 
 const colors = {
-  1: '#FDB0B0',
-  2: '#FDE0B0',
-  3: '#E0B0FD',
-  4: '#B2B0FD',
-  5: '#B0FDBC',
-  6: '#B0EFFD',
+  1: '#fdb0b0',
+  2: '#fde0b0',
+  3: '#e0B0fd',
+  4: '#b2b0fd',
+  5: '#b0fdbc',
+  6: '#b0effd',
 }
 
 const sortedDevices = computed(() =>
@@ -104,6 +104,8 @@ const averageValue = computed(() => {
 watchEffect(() => {
   if (Object.keys(deviceStates.value).length === props.devices.length) return
 
+  deviceStates.value = {}
+
   for (const device of [...props.devices].sort((a, b) =>
     a['external_id'] > b['external_id'] ? 1 : -1
   )) {
@@ -133,9 +135,11 @@ watchEffect(() => {
         <span class="value">{{ averageValue }}</span>
       </div>
       <div class="devices">
-        <div class="group">
+        <div v-for="group in 2" :key="`group-${group}`" class="group">
           <div
-            v-for="device in sortedDevices.slice(0, devices.length / 2)"
+            v-for="device in group === 1
+              ? sortedDevices.slice(0, devices.length / 2)
+              : sortedDevices.slice(devices.length / 2)"
             :key="`device-${device.id}`"
             class="device"
             :class="{ disabled: !deviceStates[device.id] }"
@@ -144,31 +148,19 @@ watchEffect(() => {
               :checked="deviceStates[device.id]"
               @update:checked="state => (deviceStates[device.id] = state)"
             />
-            <div class="dot" />
-            <p @click="deviceStates[device.id] = !deviceStates[device.id]">
-              {{
-                device.name === null
-                  ? $t(`defaultDeviceNames.${device.kind}`, {
-                      externalId: device['external_id'],
-                    })
-                  : device.name
-              }}
-            </p>
-          </div>
-        </div>
-        <div class="group">
-          <div
-            v-for="device in sortedDevices.slice(devices.length / 2)"
-            :key="`device-${device.id}`"
-            class="device"
-            :class="{ disabled: !deviceStates[device.id] }"
-          >
-            <GarthenCheckbox
-              :checked="deviceStates[device.id]"
-              @update:checked="state => (deviceStates[device.id] = state)"
-            />
-            <div class="dot" />
-            <p @click="deviceStates[device.id] = !deviceStates[device.id]">
+            <Transition enter-from-class="hide" leave-to-class="hide">
+              <div
+                v-if="deviceStates[device.id] && !showTable"
+                class="dot"
+                :style="`background: ${device.color};`"
+              />
+            </Transition>
+            <p
+              :class="{
+                ['extra-margin']: !deviceStates[device.id] && !showTable,
+              }"
+              @click="deviceStates[device.id] = !deviceStates[device.id]"
+            >
               {{
                 device.name === null
                   ? $t(`defaultDeviceNames.${device.kind}`, {
@@ -335,7 +327,24 @@ watchEffect(() => {
           }
 
           .dot {
-            display: none;
+            width: 0.5rem;
+            height: 0.5rem;
+            margin-right: -0.375rem;
+            border-radius: 100%;
+            transition: var(--fast-transition-duration);
+
+            @include medium-screen {
+              margin-right: -0.5rem;
+            }
+
+            &.hide {
+              margin-right: calc(-0.5rem + -0.75rem);
+              opacity: 0;
+
+              @include medium-screen {
+                margin-right: calc(-0.5rem + -1rem);
+              }
+            }
           }
 
           p {
@@ -351,6 +360,15 @@ watchEffect(() => {
             &:active {
               opacity: 0.5;
             }
+
+            // TODO: Make it smoother
+            // &.extra-margin {
+            //   margin-right: calc(0.5rem + 0.75rem);
+            //
+            //   @include medium-screen {
+            //     margin-right: calc(0.5rem + 0.5rem);
+            //   }
+            //}
           }
         }
       }
