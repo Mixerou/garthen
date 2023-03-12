@@ -6,6 +6,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use crate::error::WebSocketError;
 pub(crate) use crate::messages::data::*;
 use crate::server::Socket;
+use crate::services::device_record::DeviceRecordsTimestampRange;
 
 mod data;
 
@@ -91,6 +92,12 @@ pub enum DispatchEvent {
     DeviceRecordsUpdate {
         #[serde(skip)]
         device_id: i64,
+    },
+    DeviceRecordsAverageUpdate {
+        #[serde(skip)]
+        device_id: i64,
+        #[serde(skip)]
+        range: DeviceRecordsTimestampRange,
     },
 }
 

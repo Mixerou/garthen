@@ -271,6 +271,32 @@ fn post_device_custom_data(
         context,
     )?;
 
+    // TODO: Uncomment when correct time parsing in dispatcher is done
+    // let device_records_average_ranges = vec![
+    //     DeviceRecordsTimestampRange::Today,
+    //     DeviceRecordsTimestampRange::Week,
+    //     DeviceRecordsTimestampRange::Month,
+    //     DeviceRecordsTimestampRange::LastThreeMoths,
+    // ];
+    //
+    // for range in device_records_average_ranges {
+    //     let response = DispatchMessage {
+    //         event: DispatchEvent::DeviceRecordsAverageUpdate {
+    //             device_id: device.id,
+    //             range,
+    //         },
+    //         new_subscribers: None,
+    //     };
+    //
+    //     Socket::send_message(
+    //         message.id,
+    //         response,
+    //         connection.socket.downgrade().recipient(),
+    //         connection,
+    //         context,
+    //     )?;
+    // }
+
     Ok(())
 }
 

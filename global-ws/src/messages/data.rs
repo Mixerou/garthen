@@ -2,9 +2,9 @@ use std::time::UNIX_EPOCH;
 
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
-use crate::services::device::{Device, DeviceKind, DeviceStatus};
-use crate::services::device_record::DeviceRecord;
 
+use crate::services::device::{Device, DeviceKind, DeviceStatus};
+use crate::services::device_record::{DeviceRecord, DeviceRecordsAverage, DeviceRecordsTimestampRange};
 use crate::services::greenhouse::Greenhouse;
 use crate::services::user::{UserMe, UserPublic, UserTheme};
 
@@ -70,6 +70,11 @@ pub enum WebSocketMessageData {
         device_id: i64,
         greenhouse_id: i64,
     },
+    SubscribeToDeviceRecordsAverageUpdate {
+        device_id: i64,
+        greenhouse_id: i64,
+        range: DeviceRecordsTimestampRange,
+    },
 
     // Dispatches
     DispatchUserUpdate {
@@ -107,6 +112,11 @@ pub enum WebSocketMessageData {
     DispatchDeviceRecordsUpdate {
         device_id: i64,
         quantity: i64,
+    },
+    DispatchDeviceRecordsAverageUpdate {
+        device_id: i64,
+        range: DeviceRecordsTimestampRange,
+        records: Vec<DeviceRecordsAverage>,
     },
 
     // Other
