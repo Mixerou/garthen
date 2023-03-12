@@ -24,7 +24,7 @@ const { t } = useI18n()
         </template>
       </HomePageMainFeaturesCard>
 
-      <HomePageMainFeaturesCard with-later-badge>
+      <HomePageMainFeaturesCard>
         <template #icon>
           <IconBarChart />
         </template>
