@@ -18,6 +18,11 @@ const props = defineProps({
     required: false,
     default: false,
   },
+  showTable: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 const { t } = useI18n()
@@ -53,6 +58,12 @@ const devicesForChart = computed(() => {
   }
 
   return devices
+})
+
+const devicesForTable = computed(() => {
+  return [...props.devices]
+    .filter(device => deviceStates.value[device.id])
+    .sort((a, b) => (a['external_id'] > b['external_id'] ? 1 : -1))
 })
 
 const averageValue = computed(() => {
@@ -93,14 +104,25 @@ const averageValue = computed(() => {
 watchEffect(() => {
   if (Object.keys(deviceStates.value).length === props.devices.length) return
 
-  for (const device of props.devices) {
+  for (const device of [...props.devices].sort((a, b) =>
+    a['external_id'] > b['external_id'] ? 1 : -1
+  )) {
     deviceStates.value[device.id] = device.status === 1
   }
+})
+
+watchEffect(() => {
+  const states = Object.values(deviceStates.value)
+
+  if (states.length === 0) return
+
+  if (states.filter(state => state).length === 0)
+    deviceStates.value[Object.keys(deviceStates.value)[0]] = true
 })
 </script>
 
 <template>
-  <div class="row" :class="{ reversed }">
+  <div class="row" :class="{ reversed, ['show-table']: showTable }">
     <div class="chart-container">
       <AnalyticsChart :devices="devicesForChart" :range="range" />
     </div>
@@ -159,15 +181,19 @@ watchEffect(() => {
         </div>
       </div>
     </div>
+    <div class="table-container">
+      <AnalyticsTable :devices="devicesForTable" :range="range" />
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .row {
+  position: relative;
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   width: 100%;
 
   @include medium-screen {
@@ -179,6 +205,47 @@ watchEffect(() => {
 
     &.reversed {
       flex-direction: row-reverse;
+
+      .table-container {
+        left: 0;
+      }
+    }
+
+    &.show-table {
+      &.reversed .meta {
+        transform: translateX(100%);
+      }
+
+      .meta {
+        transform: translateX(-100%);
+      }
+    }
+  }
+
+  &.reversed .table-container {
+    transform: translateX(-100%);
+  }
+
+  &.show-table {
+    &.reversed {
+      .chart-container {
+        transform: translateX(100%);
+      }
+
+      .table-container {
+        transform: translateX(0);
+      }
+    }
+
+    .chart-container {
+      height: 16rem;
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    .table-container {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 
@@ -187,6 +254,8 @@ watchEffect(() => {
     justify-content: center;
     align-items: center;
     width: 100%;
+    height: 16rem;
+    transition: var(--default-transition);
 
     @include xxl-screen {
       height: 25.25rem;
@@ -198,10 +267,11 @@ watchEffect(() => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     width: 100%;
     height: calc(100% - 1rem * 2);
     text-align: center;
+    transition: var(--default-transition);
 
     @include medium-screen {
       gap: 2rem;
@@ -284,6 +354,35 @@ watchEffect(() => {
           }
         }
       }
+    }
+  }
+
+  .table-container {
+    position: absolute;
+    display: flex;
+    align-items: self-start;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 16rem;
+    max-height: 16rem;
+    border-radius: var(--xl-radius);
+    overflow: auto;
+    scrollbar-width: none;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: var(--default-transition);
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    @include xxl-screen {
+      align-items: initial;
+      bottom: initial;
+      width: calc(50% - 1rem);
+      height: auto;
+      max-height: 100%;
     }
   }
 }

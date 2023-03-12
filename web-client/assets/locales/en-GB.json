@@ -47,6 +47,20 @@
     "deviceIsNotSensor": "The device is not a sensor",
     "deviceIsNotController": "The device is not a controller"
   },
+  "monthNames": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
   "monthShortNames": {
     "january": "Jan",
     "february": "Feb",

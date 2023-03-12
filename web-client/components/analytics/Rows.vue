@@ -4,6 +4,13 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  layout: {
+    type: String,
+    required: true,
+    validator(layout) {
+      return ['charts', 'tables'].includes(layout)
+    },
+  },
 })
 
 const { t } = useI18n()
@@ -41,16 +48,19 @@ const devices = computed(() => {
       :heading="t('headings.humidity')"
       :devices="devices.humidity"
       :range="range"
+      :show-table="layout === 'tables'"
     />
     <AnalyticsRow
       :heading="t('headings.temperature')"
       :devices="devices.temperature"
       :range="range"
+      :show-table="layout === 'tables'"
       reversed
     />
     <AnalyticsRow
       :heading="t('headings.soilMoisture')"
       :devices="devices.soilMoisture"
+      :show-table="layout === 'tables'"
       :range="range"
     />
   </section>

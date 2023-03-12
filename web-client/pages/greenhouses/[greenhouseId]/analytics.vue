@@ -10,6 +10,8 @@ const constants = useConstantsStore()
 const dataStore = useDataStore()
 const system = useSystemStore()
 
+const layout = ref('charts')
+
 const isLoading = ref(false)
 const selectedRange = ref(constants.DEVICE_RECORDS_TIMESTAMP_RANGES.today)
 
@@ -107,10 +109,12 @@ onBeforeUnmount(() => system.setAppPageName(''))
     <AnalyticsHeader
       :loading="isLoading"
       :range="selectedRange"
+      :layout="layout"
       @select:range="selectRange"
+      @update:layout="value => (layout = value)"
     />
 
-    <AnalyticsRows :range="selectedRange" />
+    <AnalyticsRows :range="selectedRange" :layout="layout" />
   </div>
 </template>
 

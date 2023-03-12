@@ -9,8 +9,15 @@ defineProps({
     type: Number,
     required: true,
   },
+  layout: {
+    type: String,
+    required: true,
+    validator(layout) {
+      return ['charts', 'tables'].includes(layout)
+    },
+  },
 })
-const emit = defineEmits(['select:range'])
+const emit = defineEmits(['select:range', 'update:layout'])
 </script>
 
 <template>
@@ -20,7 +27,10 @@ const emit = defineEmits(['select:range'])
       :range="range"
       @select:range="range => emit('select:range', range)"
     />
-    <AnalyticsHeaderRightSide />
+    <AnalyticsHeaderRightSide
+      :layout="layout"
+      @update:layout="layout => emit('update:layout', layout)"
+    />
   </header>
 </template>
 
