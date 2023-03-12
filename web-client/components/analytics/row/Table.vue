@@ -101,9 +101,21 @@ const parsedData = computed(() => {
   periods.forEach((period, index) => {
     let localRecords = []
 
-    records.forEach(iteratedRecords =>
-      localRecords.push(iteratedRecords[index])
-    )
+    records.forEach(iteratedRecords => {
+      const kind = props.devices[0]?.kind
+      const kinds = constants.DEVICE_KINDS
+      const value = iteratedRecords[index]
+
+      if (value === null) localRecords.push('---')
+      else if (
+        kind === kinds.humiditySensor ||
+        kind === kinds.soilMoistureSensor
+      )
+        localRecords.push(`${value}%`)
+      else if (kind === kinds.temperatureSensor)
+        localRecords.push(`${value} °C`)
+      else localRecords.push(value)
+    })
     result.push({ period, records: localRecords })
   })
 
@@ -133,7 +145,7 @@ const parsedData = computed(() => {
           v-for="(record, index) in data.records"
           :key="`table-row-${data.period}-${index}`"
         >
-          {{ record || '---' }}
+          {{ record }}
         </td>
       </tr>
     </template>

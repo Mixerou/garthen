@@ -80,6 +80,24 @@ const render = () => {
       plugins: {
         tooltip: {
           backgroundColor: '#1e3034',
+          callbacks: {
+            label: function (context) {
+              const kind = props.devices[0]?.kind
+              const kinds = constants.DEVICE_KINDS
+              const label = context.dataset.label || ''
+              const data = context.raw || '---'
+
+              if (
+                kind === kinds.humiditySensor ||
+                kind === kinds.soilMoistureSensor
+              )
+                return `${label}: ${data}%`
+              else if (kind === kinds.temperatureSensor)
+                return `${label}: ${data} °C`
+
+              return `${label}: ${data}`
+            },
+          },
           titleFont: {
             family: `'Nunito Sans', sans-serif`,
             size: 16,
@@ -148,7 +166,7 @@ onMounted(() => {
     ]
 
     for (const device of [...props.devices].sort((a, b) =>
-      a['external_id'] < b['external_id'] ? 1 : -1
+      a['external_id'] > b['external_id'] ? 1 : -1
     )) {
       const deviceRecords =
         dataStore.deviceRecordsAverage[props.range] === undefined
@@ -172,15 +190,9 @@ onMounted(() => {
           const firstDate = new Date(record.range[0] * 1e3)
           const secondDate = new Date(record.range[1] * 1e3)
 
-          if (
-            isMobile.value &&
-            props.range === ranges.today
-          )
+          if (isMobile.value && props.range === ranges.today)
             localLabels.push(dateFormat(secondDate, 'H'))
-          else if (
-            props.range ===
-            ranges.lastThreeMoths
-          )
+          else if (props.range === ranges.lastThreeMoths)
             localLabels.push(dateFormat(secondDate, 'mmm'))
           else if (isMobile.value)
             localLabels.push(
