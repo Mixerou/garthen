@@ -124,7 +124,7 @@ watchEffect(() => {
 <template>
   <div class="row" :class="{ reversed, ['show-table']: showTable }">
     <div class="chart-container">
-      <AnalyticsChart :devices="devicesForChart" :range="range" />
+      <AnalyticsRowChart :devices="devicesForChart" :range="range" />
     </div>
     <div class="meta">
       <h4>{{ heading }}</h4>
@@ -182,7 +182,7 @@ watchEffect(() => {
       </div>
     </div>
     <div class="table-container">
-      <AnalyticsTable :devices="devicesForTable" :range="range" />
+      <AnalyticsRowTable :devices="devicesForTable" :range="range" />
     </div>
   </div>
 </template>
