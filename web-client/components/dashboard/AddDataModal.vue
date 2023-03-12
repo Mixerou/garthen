@@ -203,7 +203,7 @@ const add = () => {
   "ru-RU": {
     "heading": "Добавление",
     "inputs": {
-      "data": "Data"
+      "data": "Данные"
     }
   }
 }

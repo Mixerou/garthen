@@ -96,20 +96,20 @@ section {
 {
   "en-GB": {
     "exampleGroupNames": {
-      "general": "General",
-      "humidity": "Humidity",
-      "temperature": "Temperature",
-      "moisture": "Moisture",
-      "irrigation": "Irrigation"
+      "general": "Controls",
+      "humidity": "Air humidity",
+      "temperature": "Air temperature",
+      "moisture": "Soil moisture",
+      "irrigation": "Irrigation systems"
     }
   },
   "ru-RU": {
     "exampleGroupNames": {
-      "general": "Общее",
-      "humidity": "Влажность в теплице",
-      "temperature": "Температура в теплице",
+      "general": "Средства управления",
+      "humidity": "Влажность воздуха",
+      "temperature": "Температура воздуха",
       "moisture": "Влажность почвы",
-      "irrigation": "Полив"
+      "irrigation": "Системы полива"
     }
   }
 }

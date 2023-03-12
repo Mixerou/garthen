@@ -16,12 +16,9 @@ const { t } = useI18n()
           <IconTune />
         </template>
         <template #heading>{{ t('cards.controlling.heading') }}</template>
-        <!--      TODO: Text-->
-        <template #description>
-          Mattis facilisis sagittis a lectus nulla. Augue tellus purus ut vitae
-          vitae tempus proin. Nunc ultrices turpis egestas egestas facilisis
-          massa turpis lectus.
-        </template>
+        <template #description>{{
+          t('cards.controlling.description')
+        }}</template>
       </HomePageMainFeaturesCard>
 
       <HomePageMainFeaturesCard>
@@ -29,12 +26,7 @@ const { t } = useI18n()
           <IconBarChart />
         </template>
         <template #heading>{{ t('cards.analysing.heading') }}</template>
-        <!--      TODO: Text-->
-        <template #description>
-          At auctor feugiat volutpat vulputate id donec. Vitae euismod risus
-          varius scelerisque volutpat ac eget aliquet molestie. Eget tortor amet
-          eros viverra consequat sit.
-        </template>
+        <template #description>{{ t('cards.analysing.description') }}</template>
       </HomePageMainFeaturesCard>
 
       <HomePageMainFeaturesCard with-later-badge>
@@ -42,11 +34,9 @@ const { t } = useI18n()
           <IconGroups />
         </template>
         <template #heading>{{ t('cards.growingTogether.heading') }}</template>
-        <!--      TODO: Text-->
-        <template #description>
-          Quis aliquam nisl at lacus non. Malesuada nunc leo tortor vel commodo
-          nisl et quam fames. Felis duis in convallis arcu enim.
-        </template>
+        <template #description>{{
+          t('cards.growingTogether.description')
+        }}</template>
       </HomePageMainFeaturesCard>
     </div>
   </section>
@@ -80,13 +70,16 @@ section {
     "heading": "What we offer?",
     "cards": {
       "controlling": {
-        "heading": "Control your garden"
+        "heading": "Control your garden",
+        "description": "The greenhouse operator can remotely monitor monitoring systems and control automated greenhouse processes."
       },
       "analysing": {
-        "heading": "Analyse your crops"
+        "heading": "Analyse effectiveness",
+        "description": "Visual display of readings from temperature, air humidity and soil moisture sensors. Ability to track trends in collected data over a period of time."
       },
       "growingTogether": {
-        "heading": "Grow together"
+        "heading": "Grow together",
+        "description": "Multiple operators can work together on the same greenhouse, and permissions can be configured for each invited user."
       }
     }
   },
@@ -94,13 +87,16 @@ section {
     "heading": "Что мы предлагаем?",
     "cards": {
       "controlling": {
-        "heading": "Контролируйте свой огород"
+        "heading": "Контролируйте свой огород",
+        "description": "Оператор тепличного хозяйства может удаленно следить за системами мониторинга и управлять  автоматизированными процессами теплиц."
       },
       "analysing": {
-        "heading": "Анализируйте свои посевы"
+        "heading": "Анализируйте эффективность",
+        "description": "Визуальное отображение показаний с датчиков температуры, влажности воздуха и почвы. Возможность отслеживания динамики собранных данных за период."
       },
       "growingTogether": {
-        "heading": "Выращивайте вместе"
+        "heading": "Выращивайте вместе",
+        "description": "Возможность совместной работы нескольких операторов с одной теплицей, а также настройка разрешений для каждого приглашенного пользователя."
       }
     }
   }

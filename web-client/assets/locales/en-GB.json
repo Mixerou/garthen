@@ -3,9 +3,9 @@
     "0": "Humidity {externalId}",
     "1": "Soil moisture {externalId}",
     "2": "Temperature {externalId}",
-    "3": "Humidification controller",
-    "4": "Irrigation controller {externalId}",
-    "5": "Windows controller"
+    "3": "Air humidification",
+    "4": "Watering the bed {externalId}",
+    "5": "Position of the vent"
   },
   "garthen": {
     "description": {

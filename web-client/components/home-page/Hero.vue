@@ -31,12 +31,7 @@ const isAuthModalOpened = ref(false)
         <br />
         <span class="second-part">{{ t('heading.secondPart') }}</span>
       </h1>
-      <!--      TODO: Text-->
-      <p>
-        Elementum orci amet vulputate risus nisl dictum donec nibh. Egestas leo
-        ante nunc eleifend tincidunt. Nisi at amet nam a interdum felis. Aliquet
-        praesent a enim eget erat iaculis urna lacinia.
-      </p>
+      <p>{{ t('description') }}</p>
       <NuxtLink v-if="user.isLoggedIn" class="action" to="/greenhouses">
         <GarthenButton>{{ $t('getStarted') }}</GarthenButton>
       </NuxtLink>
@@ -157,13 +152,15 @@ body[data-theme='dark'] {
     "heading": {
       "firstPart": "Welcome to Garthen",
       "secondPart": "Greenhouse Tools"
-    }
+    },
+    "description": "A set of tools for remote monitoring and control of greenhouse climate systems. Monitored by temperature and humidity sensors. Controlled by automated irrigation, humidification and ventilation tools."
   },
   "ru-RU": {
     "heading": {
       "firstPart": "Приветствуем в Garthen",
-      "secondPart": "Инструментах для теплиц"
-    }
+      "secondPart": "Автоматизация теплиц"
+    },
+    "description": "Набор инструментов для удаленного мониторинга и управления климатических систем тепличного хозяйства. Контроль осуществляется датчиками температуры и влажности. Управление - автоматизированными средствами полива, увлажнения воздуха и проветривания."
   }
 }
 </i18n>
