@@ -87,14 +87,14 @@ section {
   "en-GB": {
     "headings": {
       "humidity": "Humidity sensors",
-      "soilMoisture": "Soil moisture",
+      "soilMoisture": "Soil moisture sensors",
       "temperature": "Temperature sensors"
     }
   },
   "ru-RU": {
     "headings": {
       "humidity": "Датчики влажности",
-      "soilMoisture": "Влажность почвы",
+      "soilMoisture": "Датчики влажности почвы",
       "temperature": "Датчики температуры"
     }
   }
