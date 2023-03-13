@@ -192,6 +192,8 @@ onMounted(() => {
 
           if (isMobile.value && props.range === ranges.today)
             localLabels.push(dateFormat(secondDate, 'H'))
+          else if (props.range === ranges.week)
+            localLabels.push(dateFormat(secondDate, 'dd'))
           else if (props.range === ranges.lastThreeMoths)
             localLabels.push(dateFormat(secondDate, 'mmm'))
           else if (isMobile.value)
