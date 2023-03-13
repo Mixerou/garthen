@@ -86,7 +86,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .modal {
   position: fixed;
-  z-index: 100;
+  z-index: 1000;
   top: 1.5rem;
   right: 1rem;
   height: fit-content;
