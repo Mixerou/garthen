@@ -199,15 +199,17 @@ export default defineNuxtPlugin(plugin => {
           !system.isWebSocketConnected ||
           system.webSocket.readyState !== system.webSocket.OPEN
         ) {
-          system.webSocket.addEventListener(
-            'message',
-            () => {
-              system.webSocket.send(pack(stringifyToJson(data)).buffer, {
-                binary: true,
-              })
-            },
-            { once: true }
-          )
+          try {
+            system.webSocket.addEventListener(
+              'message',
+              () => {
+                system.webSocket.send(pack(stringifyToJson(data)).buffer, {
+                  binary: true,
+                })
+              },
+              { once: true }
+            )
+          } catch {}
 
           return
         }
@@ -233,28 +235,30 @@ export default defineNuxtPlugin(plugin => {
             !system.isWebSocketConnected ||
             system.webSocket.readyState !== system.webSocket.OPEN
           ) {
-            system.webSocket.addEventListener(
-              'message',
-              () => {
-                system.webSocket.send(pack(stringifyToJson(data)).buffer, {
-                  binary: true,
-                })
+            try {
+              system.webSocket.addEventListener(
+                'message',
+                () => {
+                  system.webSocket.send(pack(stringifyToJson(data)).buffer, {
+                    binary: true,
+                  })
 
-                system.webSocket.addEventListener(
-                  'message',
-                  function handler(message) {
-                    message = parseJson(unpack(new Uint8Array(message.data)))
+                  system.webSocket.addEventListener(
+                    'message',
+                    function handler(message) {
+                      message = parseJson(unpack(new Uint8Array(message.data)))
 
-                    if (data.i === message.i) {
-                      this.removeEventListener('message', handler)
+                      if (data.i === message.i) {
+                        this.removeEventListener('message', handler)
 
-                      resolve(message)
+                        resolve(message)
+                      }
                     }
-                  }
-                )
-              },
-              { once: true }
-            )
+                  )
+                },
+                { once: true }
+              )
+            } catch {}
 
             return
           }
