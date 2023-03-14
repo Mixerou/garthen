@@ -47,6 +47,17 @@ impl Greenhouse {
         Ok(greenhouse)
     }
 
+    pub fn find_by_id_and_owner_id(id: i64, owner_id: i64) -> Result<Self, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let greenhouse = greenhouses::table
+            .filter(greenhouses::id.eq(id))
+            .filter(greenhouses::owner_id.eq(owner_id))
+            .first(connection)?;
+
+        Ok(greenhouse)
+    }
+
     pub fn find_by_token(token: String) -> Result<Self, WebSocketError> {
         let connection = &mut db::get_connection()?;
 

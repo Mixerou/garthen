@@ -20,10 +20,8 @@ fn create_greenhouse(
     Greenhouse::check_token_length(&token)?;
 
     let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
 
     match Greenhouse::find_by_token(token.to_owned()) {
         Ok(_) => return Err(WebSocketErrorTemplate::GreenhouseTokenTaken(None).into()),
@@ -34,11 +32,7 @@ fn create_greenhouse(
         return Err(WebSocketErrorTemplate::GreenhousesTooMany(None).into());
     }
 
-    let greenhouse = NewGreenhouse {
-        name,
-        token,
-        owner_id: session_user_id,
-    };
+    let greenhouse = NewGreenhouse { name, token, owner_id: session_user_id };
     let greenhouse = Greenhouse::create(greenhouse)?;
 
     // Response to request
@@ -61,50 +55,36 @@ fn create_greenhouse(
         context,
     )?;
 
-    // Notify all owner sessions
-    let response = DispatchMessage {
-        event: DispatchEvent::GreenhouseCreate {
-            id: Some(greenhouse.id),
-            owner_id: session_user_id,
+    let responses = vec![
+        // Notify all owner sessions
+        DispatchMessage {
+            event: DispatchEvent::GreenhouseCreate {
+                id: Some(greenhouse.id),
+                owner_id: session_user_id,
+            },
+            new_subscribers: None,
         },
-        new_subscribers: None,
-    };
+        // Notify all those who are subscribed to this user
+        DispatchMessage {
+            event: DispatchEvent::UserUpdate { id: session_user_id },
+            new_subscribers: None,
+        },
+        // Notify all user sessions that are subscribed to themselves
+        DispatchMessage {
+            event: DispatchEvent::UserMeUpdate { id: session_user_id },
+            new_subscribers: None,
+        },
+    ];
 
-    Socket::send_message(
-        message.id,
-        response,
-        connection.socket.downgrade().recipient(),
-        connection,
-        context,
-    )?;
-
-    // Notify all those who are subscribed to this user
-    let response = DispatchMessage {
-        event: DispatchEvent::UserUpdate { id: session_user_id },
-        new_subscribers: None,
-    };
-
-    Socket::send_message(
-        message.id,
-        response,
-        connection.socket.downgrade().recipient(),
-        connection,
-        context,
-    )?;
-
-    // Notify all user sessions that are subscribed to themselves
-    let response = DispatchMessage {
-        event: DispatchEvent::UserMeUpdate { id: session_user_id },
-        new_subscribers: None,
-    };
-
-    Socket::send_message(
-        message.id,
-        response,
-        connection.socket.downgrade().recipient(),
-        connection,
-        context,
-    )?;
+    for response in responses {
+        Socket::send_message(
+            message.id,
+            response,
+            connection.socket.downgrade().recipient(),
+            connection,
+            context,
+        )?;
+    }
 
     Ok(())
 }

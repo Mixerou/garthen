@@ -111,135 +111,45 @@ impl Socket {
                 )?;
             }
             Opcode::Request => {
-                let request = match message.request.to_owned() {
-                    Some(request) => request,
-                    None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
-                };
-                let method = match message.method.to_owned() {
-                    Some(request) => request,
-                    None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+                let (Some(request), Some(method))
+                    = (message.request.to_owned(), message.method.to_owned()) else {
+                    return Err(WebSocketErrorTemplate::BadRequest(None).into())
                 };
 
-                match request.as_str() {
-                    "user/me" => user::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "greenhouse" => greenhouse::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "device" => device::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "device/state" => device::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "device/custom-data" => device::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "device/request-data" => device::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "device/disable" => device::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "device/enable" => device::handle(
-                        request,
-                        method,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    _ => {
-                        return Err(WebSocketErrorTemplate::BadRequest(None).into());
-                    },
-                }
+                let handle = match request.as_str() {
+                    "user/me" => user::handle,
+                    "greenhouse" => greenhouse::handle,
+                    "device"
+                    | "device/state"
+                    | "device/custom-data"
+                    | "device/request-data"
+                    | "device/disable"
+                    | "device/enable" => device::handle,
+                    _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+                };
+
+                handle(request, method, message, connection, context)?;
             },
             Opcode::Response => {}
-            Opcode::Authorize => {
-                Socket::close_connection(WebSocketCloseError::AlreadyAuthenticated, context);
-            },
+            Opcode::Authorize =>
+                Socket::close_connection(WebSocketCloseError::AlreadyAuthenticated, context),
             Opcode::Subscribe => {
-                let request = match message.request.to_owned() {
-                    Some(request) => request,
-                    None => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+                let Some(request) = message.request.to_owned() else {
+                    return Err(WebSocketErrorTemplate::BadRequest(None).into())
                 };
 
-                match request.as_str() {
-                    "user" => user::subscribe(request, message, connection, context)?,
-                    "user/me" => user::subscribe(request, message, connection, context)?,
-                    "greenhouse" => greenhouse::subscribe(
-                        request,
-                        message,
-                        connection,
-                        context)?,
-                    "greenhouses/mine" => greenhouse::subscribe(
-                        request,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "greenhouse-create" => greenhouse::subscribe(
-                        request,
-                        message,
-                        connection,
-                        context,
-                    )?,
-                    "device" => device::subscribe(
-                        request,
-                        message,
-                        connection,
-                        context)?,
-                    "devices" => device::subscribe(
-                        request,
-                        message,
-                        connection,
-                        context)?,
-                    "device_records" => device_record::subscribe(
-                        request,
-                        message,
-                        connection,
-                        context)?,
-                    "device_records/average" => device_record::subscribe(
-                        request,
-                        message,
-                        connection,
-                        context)?,
-                    _ => {
-                        return Err(WebSocketErrorTemplate::BadRequest(None).into());
-                    },
-                }
+                let subscribe = match request.as_str() {
+                    "user" | "user/me" => user::subscribe,
+                    "greenhouse" | "greenhouses/mine" | "greenhouse-create" => greenhouse::subscribe,
+                    "device" | "devices" => device::subscribe,
+                    "device_records" | "device_records/average" => device_record::subscribe,
+                    _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
+                };
+
+                subscribe(request, message, connection, context)?;
             },
-            Opcode::Dispatch | Opcode::Error => {
-                Socket::close_connection(WebSocketCloseError::Opcode, context);
-            }
+            Opcode::Dispatch | Opcode::Error =>
+                Socket::close_connection(WebSocketCloseError::Opcode, context),
         }
 
         Ok(())

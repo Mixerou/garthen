@@ -38,6 +38,17 @@ impl Device {
         Ok(device)
     }
 
+    pub fn find_by_id_and_greenhouse_id(id: i64, greenhouse_id: i64) -> Result<Self, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let device = devices::table
+            .filter(devices::id.eq(id))
+            .filter(devices::greenhouse_id.eq(greenhouse_id))
+            .first(connection)?;
+
+        Ok(device)
+    }
+
     pub fn find_all_by_greenhouse_id(greenhouse_id: i64) -> Result<Vec<Self>, WebSocketError> {
         let connection = &mut db::get_connection()?;
 

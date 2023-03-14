@@ -14,25 +14,14 @@ fn patch_user(
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
-    let (
-        new_email,
-        new_username,
-        new_locale,
-        new_theme,
+    let WebSocketMessageData::RequestPatchUser {
+        email: new_email,
+        username: new_username,
+        locale: new_locale,
+        theme: new_theme,
         new_password,
         current_password,
-    )
-        = match message.data {
-        WebSocketMessageData::RequestPatchUser {
-            email,
-            username,
-            locale,
-            theme,
-            new_password,
-            current_password,
-        } => (email, username, locale, theme, new_password, current_password),
-        _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
-    };
+    } = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
 
     let new_locale = match new_locale.parse::<UserLocale>() {
         Ok(locale) => locale,
@@ -40,11 +29,8 @@ fn patch_user(
     };
 
     let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
-
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
     let current_user = User::find(session_user_id.to_owned())?;
 
     let updated_user = match true {
@@ -62,9 +48,7 @@ fn patch_user(
             if passwd::verify(
                 current_password.to_owned(),
                 current_user.password_hash.to_owned(),
-            ).is_err() {
-                return Err(WebSocketErrorTemplate::IncorrectPassword(None).into());
-            }
+            ).is_err() { return Err(WebSocketErrorTemplate::IncorrectPassword(None).into()); }
 
             let new_email = match new_email {
                 email if email == current_user.email => current_user.email.to_owned(),

@@ -149,7 +149,11 @@ impl Actor for AmqpClient {
 impl Handler<InitAmqpConsumersMessage> for AmqpClient {
     type Result = ();
 
-    fn handle(&mut self, message: InitAmqpConsumersMessage, _: &mut Self::Context) -> Self::Result {
+    fn handle(
+        &mut self,
+        message: InitAmqpConsumersMessage,
+        _: &mut Self::Context,
+    ) -> Self::Result {
         AmqpClient::start_consumer(
             message.0.clone(),
             "data-dispatcher",
@@ -166,7 +170,11 @@ impl Handler<InitAmqpConsumersMessage> for AmqpClient {
 impl<'a> Handler<AmqpPublisherMessage<'a>> for AmqpClient {
     type Result = ();
 
-    fn handle(&mut self, message: AmqpPublisherMessage, context: &mut Self::Context) -> Self::Result {
+    fn handle(
+        &mut self,
+        message: AmqpPublisherMessage,
+        context: &mut Self::Context,
+    ) -> Self::Result {
         let channel = self.channel.clone();
         let exchange = message.exchange.unwrap_or("").to_string();
         let routing_key = message.routing_key.unwrap_or("").to_string();

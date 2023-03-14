@@ -221,7 +221,7 @@ impl UserMe {
 pub enum UserLocale {
     #[serde(alias = "en", rename = "en-GB")]
     EnGb,
-    #[serde(alias = "ru", rename="ru-RU")]
+    #[serde(alias = "ru", rename = "ru-RU")]
     Ru,
 }
 
@@ -275,7 +275,6 @@ impl AsExpression<SmallInt> for UserTheme {
     type Expression = AsExprOf<i16, SmallInt>;
 
     fn as_expression(self) -> Self::Expression {
-        // TODO: Delete `unwrap`
         <i16 as AsExpression<SmallInt>>::as_expression(self as i16)
     }
 }
@@ -284,7 +283,6 @@ impl<'a> AsExpression<SmallInt> for &'a UserTheme {
     type Expression = AsExprOf<i16, SmallInt>;
 
     fn as_expression(self) -> Self::Expression {
-        // TODO: Delete `unwrap`
         <i16 as AsExpression<SmallInt>>::as_expression(*self as i16)
     }
 }

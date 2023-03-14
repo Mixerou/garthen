@@ -16,40 +16,22 @@ fn patch_device(
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
-    let (device_id, greenhouse_id, new_name) = match message.data {
-        WebSocketMessageData::RequestPatchDevice {
-            id,
-            greenhouse_id,
-            name,
-        } => (id, greenhouse_id, name),
-        _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
-    };
+    let WebSocketMessageData::RequestPatchDevice {
+        id: device_id, greenhouse_id, name: new_name,
+    } = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
 
     let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
-
-    let greenhouse = Greenhouse::find(greenhouse_id)?;
-
-    if greenhouse.owner_id != session_user_id {
-        return Err(WebSocketErrorTemplate::Forbidden(None).into());
-    }
-
-    let current_device = Device::find(device_id)?;
-
-    if current_device.greenhouse_id != greenhouse.id {
-        return Err(WebSocketErrorTemplate::NotFound(None).into());
-    }
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+    let greenhouse
+        = Greenhouse::find_by_id_and_owner_id(greenhouse_id, session_user_id)?;
+    let current_device
+        = Device::find_by_id_and_greenhouse_id(device_id, greenhouse.id)?;
 
     if current_device.name != new_name {
-        if let Some(name) = &new_name {
-            Device::check_name_length(name)?;
-        }
+        if let Some(name) = &new_name { Device::check_name_length(name)?; }
 
         let updated_device = Device::update_name(current_device.id, new_name)?;
-
         let response = DispatchMessage {
             event: DispatchEvent::DeviceUpdate { id: updated_device.id },
             new_subscribers: None,
@@ -92,34 +74,19 @@ fn patch_device_state(
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
-    let (device_id, greenhouse_id, state) = match message.data {
-        WebSocketMessageData::RequestPatchDeviceState {
-            id,
-            greenhouse_id,
-            state,
-        } => (id, greenhouse_id, state),
-        _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
-    };
+    let WebSocketMessageData::RequestPatchDeviceState {
+        id: device_id, greenhouse_id, state,
+    } = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
 
     if state > 1 { return Err(WebSocketErrorTemplate::InvalidDeviceState(None).into()); }
 
     let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+    let greenhouse
+        = Greenhouse::find_by_id_and_owner_id(greenhouse_id, session_user_id)?;
+    let device = Device::find_by_id_and_greenhouse_id(device_id, greenhouse.id)?;
 
-    let greenhouse = Greenhouse::find(greenhouse_id)?;
-
-    if greenhouse.owner_id != session_user_id {
-        return Err(WebSocketErrorTemplate::Forbidden(None).into());
-    }
-
-    let device = Device::find(device_id)?;
-
-    if device.greenhouse_id != greenhouse.id {
-        return Err(WebSocketErrorTemplate::NotFound(None).into());
-    }
     if device.kind != DeviceKind::HumidificationController
         && device.kind != DeviceKind::IrrigationController
         && device.kind != DeviceKind::WindowsController {
@@ -163,15 +130,9 @@ fn post_device_custom_data(
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
-    let (device_id, greenhouse_id, data, time) = match message.data {
-        WebSocketMessageData::RequestPostDeviceCustomData {
-            id,
-            greenhouse_id,
-            data,
-            time,
-        } => (id, greenhouse_id, data, time),
-        _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
-    };
+    let WebSocketMessageData::RequestPostDeviceCustomData {
+        id: device_id, greenhouse_id, data, time,
+    } = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
 
     DeviceRecord::check_data_size(&data)?;
 
@@ -181,45 +142,29 @@ fn post_device_custom_data(
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
 
     match time {
-        time if time < three_month_ago => return Err(
-            WebSocketErrorTemplate::TooLongAgo(None).into()
-        ),
-        time if time > now => return Err(
-            WebSocketErrorTemplate::FutureTime(None).into()
-        ),
+        time if time < three_month_ago =>
+            return Err(WebSocketErrorTemplate::TooLongAgo(None).into()),
+        time if time > now =>
+            return Err(WebSocketErrorTemplate::FutureTime(None).into()),
         _ => {},
     }
 
     let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+    let greenhouse
+        = Greenhouse::find_by_id_and_owner_id(greenhouse_id, session_user_id)?;
+    let device = Device::find_by_id_and_greenhouse_id(device_id, greenhouse.id)?;
 
-    let greenhouse = Greenhouse::find(greenhouse_id)?;
-
-    if greenhouse.owner_id != session_user_id {
-        return Err(WebSocketErrorTemplate::Forbidden(None).into());
-    }
-
-    let device = Device::find(device_id)?;
-
-    if device.greenhouse_id != greenhouse.id {
-        return Err(WebSocketErrorTemplate::NotFound(None).into());
-    }
     if device.kind != DeviceKind::HumiditySensor
         && device.kind != DeviceKind::SoilMoistureSensor
         && device.kind != DeviceKind::TemperatureSensor {
         return Err(WebSocketErrorTemplate::DeviceIsNotSensor(None).into());
     }
 
-    let record = NewDeviceRecord {
-        device_id: device.id,
-        data,
-    };
-    let record = DeviceRecord::create_with_custom_time(
-        record,
-        UNIX_EPOCH + time)?;
+    let record = NewDeviceRecord { device_id: device.id, data };
+    let record
+        = DeviceRecord::create_with_custom_time(record, UNIX_EPOCH + time)?;
 
     // Response to request
     let response = WebSocketMessage {
@@ -305,24 +250,15 @@ fn post_device_request_data(
     connection: &mut WebSocketConnection,
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
-    let (device_id, greenhouse_id) = match message.data {
-        WebSocketMessageData::RequestPostDeviceRequestData {
-            id,
-            greenhouse_id,
-        } => (id, greenhouse_id),
-        _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
-    };
+    let WebSocketMessageData::RequestPostDeviceRequestData {
+        id: device_id, greenhouse_id,
+    } = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
+
     let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
-
-    let greenhouse = Greenhouse::find(greenhouse_id)?;
-
-    if greenhouse.owner_id != session_user_id {
-        return Err(WebSocketErrorTemplate::Forbidden(None).into());
-    }
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+    let greenhouse
+        = Greenhouse::find_by_id_and_owner_id(greenhouse_id, session_user_id)?;
 
     if let Some(device_id) = device_id {
         let device = Device::find(device_id)?;
@@ -335,10 +271,7 @@ fn post_device_request_data(
     Broker::<SystemBroker>::issue_async(AmqpPublisherMessage {
         exchange: Some("data"),
         routing_key: Some("data.request"),
-        payload: AmqpPayload::RequestData {
-            device_id,
-            greenhouse_id: Some(greenhouse_id),
-        },
+        payload: AmqpPayload::RequestData { device_id, greenhouse_id: Some(greenhouse_id) },
     });
 
     // Response to request
@@ -371,32 +304,19 @@ fn post_device_status(
     new_status: DeviceStatus,
 ) -> Result<(), WebSocketError> {
     let (device_id, greenhouse_id) = match message.data {
-        WebSocketMessageData::RequestPostDeviceDisable {
-            id,
-            greenhouse_id,
-        } => (id, greenhouse_id),
-        WebSocketMessageData::RequestPostDeviceEnable {
-            id,
-            greenhouse_id,
-        } => (id, greenhouse_id),
+        WebSocketMessageData::RequestPostDeviceDisable { id, greenhouse_id } =>
+            (id, greenhouse_id),
+        WebSocketMessageData::RequestPostDeviceEnable { id, greenhouse_id } =>
+            (id, greenhouse_id),
         _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
     };
+
     let session = Session::find(connection.session_id.unwrap())?;
-    let session_user_id = match session.user_id {
-        Some(user_id) => user_id,
-        None => return Err(WebSocketErrorTemplate::Unauthorized(None).into()),
-    };
-    let greenhouse = Greenhouse::find(greenhouse_id)?;
-
-    if greenhouse.owner_id != session_user_id {
-        return Err(WebSocketErrorTemplate::Forbidden(None).into());
-    }
-
-    let device = Device::find(device_id)?;
-
-    if device.greenhouse_id != greenhouse.id {
-        return Err(WebSocketErrorTemplate::NotFound(None).into());
-    }
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+    let greenhouse
+        = Greenhouse::find_by_id_and_owner_id(greenhouse_id, session_user_id)?;
+    let device = Device::find_by_id_and_greenhouse_id(device_id, greenhouse.id)?;
 
     if device.status != new_status {
         Device::update_status(device.id, new_status)?;
@@ -459,18 +379,10 @@ pub fn handle(
         Method::Post => match request.as_str() {
             "device/custom-data" => post_device_custom_data(message, connection, context)?,
             "device/request-data" => post_device_request_data(message, connection, context)?,
-            "device/disable" => post_device_status(
-                message,
-                connection,
-                context,
-                DeviceStatus::Disabled,
-            )?,
-            "device/enable" => post_device_status(
-                message,
-                connection,
-                context,
-                DeviceStatus::Online,
-            )?,
+            "device/disable" =>
+                post_device_status(message, connection, context, DeviceStatus::Disabled)?,
+            "device/enable" =>
+                post_device_status(message, connection, context, DeviceStatus::Online)?,
             _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),
         },
         _ => return Err(WebSocketErrorTemplate::MethodNotAllowed(None).into()),

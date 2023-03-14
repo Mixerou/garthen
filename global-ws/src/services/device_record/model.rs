@@ -102,19 +102,14 @@ pub struct DeviceRecordsAverage {
     pub(crate) range: (u64, u64),
 }
 
-#[derive(Copy, Clone, Debug, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Default, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash)]
 #[repr(u8)]
 pub enum DeviceRecordsTimestampRange {
+    #[default]
     Today = 0,
     Week = 1,
     Month = 2,
     LastMonth = 3,
     MonthBeforeLast = 4,
     LastThreeMoths = 5,
-}
-
-impl Default for DeviceRecordsTimestampRange {
-    fn default() -> Self {
-        DeviceRecordsTimestampRange::Today
-    }
 }

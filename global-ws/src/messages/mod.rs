@@ -10,22 +10,17 @@ use crate::services::device_record::DeviceRecordsTimestampRange;
 
 mod data;
 
-#[derive(Debug, Deserialize_repr, Serialize_repr, Eq, PartialEq)]
+#[derive(Debug, Default, Deserialize_repr, Serialize_repr, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Opcode {
     Dispatch = 0,
     HeartBeat = 1,
     Request = 2,
+    #[default]
     Response = 3,
     Error = 4,
     Authorize = 5,
     Subscribe = 6,
-}
-
-impl Default for Opcode {
-    fn default() -> Self {
-        Opcode::Response
-    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -129,7 +124,7 @@ pub struct DisconnectionMessage {
     pub connection_id: i64,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AmqpPayload {
     DispatchData {
@@ -146,18 +141,13 @@ pub enum AmqpPayload {
     DispatchDevice {
         id: i64,
     },
+    #[default]
     Ping,
 }
 
 #[derive(Clone, Debug, Message)]
 #[rtype(result = "()")]
 pub struct InitAmqpConsumersMessage(pub WeakAddr<Socket>);
-
-impl Default for AmqpPayload {
-    fn default() -> Self {
-        AmqpPayload::Ping
-    }
-}
 
 #[derive(Clone, Debug, Default, Message)]
 #[rtype(result = "()")]

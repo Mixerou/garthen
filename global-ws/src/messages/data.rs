@@ -9,7 +9,7 @@ use crate::services::greenhouse::Greenhouse;
 use crate::services::user::{UserMe, UserPublic, UserTheme};
 
 // Tag `a` from the word `action`
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case", tag = "a")]
 pub enum WebSocketMessageData {
     // Requests (Opcode: Request)
@@ -124,18 +124,13 @@ pub enum WebSocketMessageData {
         code: u32,
         message: String,
     },
+    #[default]
     None,
 }
 
 impl WebSocketMessageData {
     pub fn is_none(&self) -> bool {
         matches!(self, WebSocketMessageData::None)
-    }
-}
-
-impl Default for WebSocketMessageData {
-    fn default() -> Self {
-        WebSocketMessageData::None
     }
 }
 
