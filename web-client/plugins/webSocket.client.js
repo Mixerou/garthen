@@ -3,6 +3,8 @@ import serdeEetfWasmUrl from '@/node_modules/serde-eetf/serde_eetf_bg.wasm?url'
 
 export default defineNuxtPlugin(plugin => {
   const config = useRuntimeConfig()
+  const route = useRoute()
+  const router = useRouter()
   const constants = useConstantsStore()
   const dataStore = useDataStore()
   const system = useSystemStore()
@@ -123,6 +125,14 @@ export default defineNuxtPlugin(plugin => {
               true,
               false
             )
+          } else if (event === constants.GLOBAL_WS_EVENTS.greenhouseDelete) {
+            try {
+              if (BigInt(route.params.greenhouseId) === data.id) {
+                router.push('/greenhouses')
+              }
+            } catch {}
+
+            dataStore.deleteGreenhouse(data.id)
           } else if (event === constants.GLOBAL_WS_EVENTS.deviceUpdate) {
             dataStore.setDevice(data)
           } else if (event === constants.GLOBAL_WS_EVENTS.deviceRecordsUpdate) {

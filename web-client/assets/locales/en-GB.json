@@ -80,8 +80,10 @@
     "light": "Light",
     "dark": "Dark"
   },
+  "currentPassword": "Current password",
   "getStarted": "Get started",
   "go": "Go",
+  "save": "Save",
   "signIn": "Sign in",
   "email": "Email",
   "username": "Username"

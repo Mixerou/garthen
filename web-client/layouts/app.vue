@@ -25,6 +25,7 @@ onMounted(() => {
     // TODO: Check is already subscribed
     $wsSubscribe('greenhouses/mine', {}, true)
     $wsSubscribe('greenhouse-create', {}, true)
+    $wsSubscribe('greenhouse-delete', {}, true)
   })
 })
 

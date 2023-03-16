@@ -1,6 +1,7 @@
 <script setup>
 import IconGridView from '@/assets/icons/grid-view.svg?skipsvgo'
 import IconBarChart from '@/assets/icons/bar-chart.svg?skipsvgo'
+import IconSettings from '@/assets/icons/settings.svg?skipsvgo'
 
 defineProps({
   fold: {
@@ -53,6 +54,17 @@ onBeforeUnmount(() => {
         >
           <IconBarChart />
           <span>{{ t('buttons.analytics') }}</span>
+        </GarthenButton>
+      </NuxtLink>
+      <NuxtLink
+        :class="{ selected: system.appPageName === 'settings' }"
+        :to="`/greenhouses/${$route.params.greenhouseId}/settings`"
+      >
+        <GarthenButton
+          :transparent-background="system.appPageName !== 'settings'"
+        >
+          <IconSettings />
+          <span>{{ t('buttons.settings') }}</span>
         </GarthenButton>
       </NuxtLink>
     </div>
@@ -197,13 +209,15 @@ body[data-theme='dark'] nav {
   "en-GB": {
     "buttons": {
       "dashboard": "Dashboard",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "settings": "Settings"
     }
   },
   "ru-RU": {
     "buttons": {
       "dashboard": "Панель управления",
-      "analytics": "Аналитика"
+      "analytics": "Аналитика",
+      "settings": "Настройки"
     }
   }
 }

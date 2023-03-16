@@ -227,7 +227,7 @@ const createdAt = computed(() => {
             key="current-password-group"
             class="group"
           >
-            <div class="key">{{ t('editContainer.currentPasswordKey') }}</div>
+            <div class="key">{{ $t('currentPassword') }}</div>
             <GarthenInput
               v-model:text="computedCurrentPassword"
               :disabled="disabled"
@@ -457,7 +457,6 @@ const createdAt = computed(() => {
     "editContainer": {
       "newPasswordKey": "New password",
       "newPasswordConfirmationKey": "Confirm new password",
-      "currentPasswordKey": "Current password",
       "themeKey": "Theme",
       "localeKey": "Language"
     },
@@ -472,7 +471,6 @@ const createdAt = computed(() => {
     "editContainer": {
       "newPasswordKey": "Новый пароль",
       "newPasswordConfirmationKey": "Подтвердите новый пароль",
-      "currentPasswordKey": "Текущий пароль",
       "themeKey": "Тема",
       "localeKey": "Язык"
     },
