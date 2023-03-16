@@ -25,6 +25,7 @@ pub struct Device {
     pub kind: DeviceKind,
     pub greenhouse_id: i64,
     pub created_at: SystemTime,
+    pub maximum_data_value: Option<f64>,
 }
 
 impl Device {

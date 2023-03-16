@@ -15,6 +15,8 @@ pub struct Greenhouse {
     pub token: String,
     pub owner_id: i64,
     pub created_at: SystemTime,
+    pub maximum_average_humidity: Option<f64>,
+    pub minimum_average_temperature: Option<f64>,
 }
 
 impl Greenhouse {
@@ -28,6 +30,8 @@ impl Greenhouse {
             token: greenhouse.token,
             owner_id: greenhouse.owner_id,
             created_at: SystemTime::now(),
+            maximum_average_humidity: Some(80.0),
+            minimum_average_temperature: Some(21.0),
         };
 
         let session = diesel::insert_into(greenhouses::table)

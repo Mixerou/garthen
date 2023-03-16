@@ -15,6 +15,8 @@ pub struct Greenhouse {
     pub token: String,
     pub owner_id: i64,
     pub created_at: SystemTime,
+    pub maximum_average_humidity: Option<f64>,
+    pub minimum_average_temperature: Option<f64>,
 }
 
 impl Greenhouse {

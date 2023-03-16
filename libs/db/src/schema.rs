@@ -16,6 +16,7 @@ diesel::table! {
         kind -> Int2,
         greenhouse_id -> Int8,
         created_at -> Timestamp,
+        maximum_data_value -> Nullable<Float8>,
     }
 }
 
@@ -26,6 +27,8 @@ diesel::table! {
         token -> Varchar,
         owner_id -> Int8,
         created_at -> Timestamp,
+        maximum_average_humidity -> Nullable<Float8>,
+        minimum_average_temperature -> Nullable<Float8>,
     }
 }
 
