@@ -90,6 +90,31 @@ fn greenhouse_create(
     Ok(())
 }
 
+fn greenhouse_delete(
+    message: WebSocketMessage,
+    connection: &mut WebSocketConnection,
+    context: &mut WebsocketContext<WebSocketConnection>,
+) -> Result<(), WebSocketError> {
+    let session = Session::find(connection.session_id.unwrap())?;
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+
+    let response = DispatchMessage {
+        event: DispatchEvent::GreenhouseDelete { id: None, owner_id: session_user_id },
+        new_subscribers: Some(vec![connection.id]),
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.socket.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
+    Ok(())
+}
+
 pub fn subscribe(
     to: String,
     message: WebSocketMessage,
@@ -100,6 +125,7 @@ pub fn subscribe(
         "greenhouse" => greenhouse_update(message, connection, context)?,
         "greenhouses/mine" => greenhouses_mine_update(message, connection, context)?,
         "greenhouse-create" => greenhouse_create(message, connection, context)?,
+        "greenhouse-delete" => greenhouse_delete(message, connection, context)?,
         _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),
     }
 

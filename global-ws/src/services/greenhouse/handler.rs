@@ -5,6 +5,7 @@ use crate::messages::{DispatchEvent, DispatchMessage, Method, Opcode, WebSocketM
 use crate::server::{Socket, WebSocketConnection};
 use crate::services::greenhouse::{Greenhouse, NewGreenhouse};
 use crate::services::session::Session;
+use crate::services::user::User;
 
 fn create_greenhouse(
     message: WebSocketMessage,
@@ -89,6 +90,85 @@ fn create_greenhouse(
     Ok(())
 }
 
+fn delete_greenhouse(
+    message: WebSocketMessage,
+    connection: &mut WebSocketConnection,
+    context: &mut WebsocketContext<WebSocketConnection>,
+) -> Result<(), WebSocketError> {
+    let WebSocketMessageData::RequestDeleteGreenhouse {
+        id: greenhouse_id, current_password
+    } = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
+
+    User::check_password_length(&current_password)?;
+
+    let session = Session::find(connection.session_id.unwrap())?;
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+    let user = User::find(session_user_id)?;
+
+    if passwd::verify(current_password, user.password_hash).is_err() {
+        return Err(WebSocketErrorTemplate::IncorrectPassword(None).into());
+    }
+
+    let greenhouse
+        = Greenhouse::find_by_id_and_owner_id(greenhouse_id, session_user_id)?;
+
+    Greenhouse::delete(greenhouse.id)?;
+
+    // Response to request
+    let response = WebSocketMessage {
+        id: message.id,
+        connection_id: connection.id,
+        opcode: Opcode::Response,
+        data: WebSocketMessageData::Response {
+            code: 200,
+            message: "Successfully deleted".to_string(),
+        },
+        ..Default::default()
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.socket.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
+    let responses = vec![
+        // Notify all owner sessions
+        DispatchMessage {
+            event: DispatchEvent::GreenhouseDelete {
+                id: Some(greenhouse.id),
+                owner_id: session_user_id,
+            },
+            new_subscribers: None,
+        },
+        // Notify all those who are subscribed to this user
+        DispatchMessage {
+            event: DispatchEvent::UserUpdate { id: session_user_id },
+            new_subscribers: None,
+        },
+        // Notify all user sessions that are subscribed to themselves
+        DispatchMessage {
+            event: DispatchEvent::UserMeUpdate { id: session_user_id },
+            new_subscribers: None,
+        },
+    ];
+
+    for response in responses {
+        Socket::send_message(
+            message.id,
+            response,
+            connection.socket.downgrade().recipient(),
+            connection,
+            context,
+        )?;
+    }
+
+    Ok(())
+}
+
 pub fn handle(
     request: String,
     method: Method,
@@ -99,6 +179,10 @@ pub fn handle(
     match method {
         Method::Post => match request.as_str() {
             "greenhouse" => create_greenhouse(message, connection, context)?,
+            _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),
+        },
+        Method::Delete => match request.as_str() {
+            "greenhouse" => delete_greenhouse(message, connection, context)?,
             _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),
         },
         _ => return Err(WebSocketErrorTemplate::MethodNotAllowed(None).into()),

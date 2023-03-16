@@ -93,6 +93,16 @@ impl Greenhouse {
         Ok(greenhouses)
     }
 
+    pub fn delete(id: i64) -> Result<usize, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let result = diesel::delete(
+            greenhouses::table.filter(greenhouses::id.eq(id))
+        ).execute(connection)?;
+
+        Ok(result)
+    }
+
     // Default implementations
     pub fn check_name_length(name: &str) -> Result<(), WebSocketError> {
         let name_length = name.chars().count();

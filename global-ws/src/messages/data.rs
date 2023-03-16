@@ -25,6 +25,10 @@ pub enum WebSocketMessageData {
         name: String,
         token: String,
     },
+    RequestDeleteGreenhouse {
+        id: i64,
+        current_password: String,
+    },
     RequestPatchDevice {
         id: i64,
         greenhouse_id: i64,
@@ -99,6 +103,7 @@ pub enum WebSocketMessageData {
         owner_id: i64,
         created_at: u64,
     },
+    DispatchGreenhouseMineDelete { id: i64 },
     DispatchDeviceUpdate {
         id: i64,
         external_id: Option<i16>,
