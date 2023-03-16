@@ -3,7 +3,7 @@ definePageMeta({
   layout: 'app',
 })
 
-const { $wsSubscribe } = useNuxtApp()
+const { $wsSendAndWait } = useNuxtApp()
 const { t } = useI18n()
 const route = useRoute()
 const dataStore = useDataStore()
@@ -17,6 +17,22 @@ const save = () => {
   isSaving.value = true
 
   setTimeout(() => (isSaving.value = false), 1500)
+}
+
+const reset_device_names = async () => {
+  isSaving.value = true
+
+  await $wsSendAndWait({
+    o: 2,
+    r: 'devices/reset-names',
+    m: { patch: null },
+    d: {
+      a: 'request_patch_devices_reset_names',
+      ['greenhouse_id']: BigInt(route.params.greenhouseId || 0),
+    },
+  })
+
+  isSaving.value = false
 }
 
 watchEffect(() => {
@@ -52,6 +68,7 @@ onBeforeUnmount(() => system.setAppPageName(''))
       <div class="side">
         <SettingsDangerZone
           :disabled="isSaving"
+          @reset-device-names="reset_device_names"
           @delete="isDeletionModalOpened = true"
         />
       </div>
