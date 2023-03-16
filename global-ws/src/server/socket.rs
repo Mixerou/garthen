@@ -124,7 +124,8 @@ impl Socket {
                     | "device/custom-data"
                     | "device/request-data"
                     | "device/disable"
-                    | "device/enable" => device::handle,
+                    | "device/enable"
+                    | "devices/reset-names" => device::handle,
                     _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
                 };
 

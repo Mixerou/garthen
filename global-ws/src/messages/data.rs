@@ -34,6 +34,7 @@ pub enum WebSocketMessageData {
         greenhouse_id: i64,
         name: Option<String>,
     },
+    RequestPatchDevicesResetNames { greenhouse_id: i64 },
     RequestPatchDeviceState {
         id: i64,
         greenhouse_id: i64,

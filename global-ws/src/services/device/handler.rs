@@ -125,6 +125,65 @@ fn patch_device_state(
     Ok(())
 }
 
+fn reset_device_names(
+    message: WebSocketMessage,
+    connection: &mut WebSocketConnection,
+    context: &mut WebsocketContext<WebSocketConnection>,
+) -> Result<(), WebSocketError> {
+    let WebSocketMessageData::RequestPatchDevicesResetNames { greenhouse_id }
+        = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
+
+    let session = Session::find(connection.session_id.unwrap())?;
+    let Some(session_user_id)
+        = session.user_id else { return Err(WebSocketErrorTemplate::Unauthorized(None).into()) };
+    let greenhouse
+        = Greenhouse::find_by_id_and_owner_id(greenhouse_id, session_user_id)?;
+    let devices = Device::find_all_by_greenhouse_id(greenhouse.id)?;
+    let filtered_devices
+        = devices.iter().filter(|device| device.name.is_some()).collect::<Vec<&Device>>();
+
+    if !filtered_devices.is_empty() {
+        Device::update_name_by_greenhouse_id(greenhouse.id, None)?;
+
+        for device in filtered_devices {
+            let response = DispatchMessage {
+                event: DispatchEvent::DeviceUpdate { id: device.id },
+                new_subscribers: None,
+            };
+
+            Socket::send_message(
+                message.id,
+                response,
+                connection.socket.downgrade().recipient(),
+                connection,
+                context,
+            )?;
+        }
+    }
+
+    // Response to request
+    let response = WebSocketMessage {
+        id: message.id,
+        connection_id: connection.id,
+        opcode: Opcode::Response,
+        data: WebSocketMessageData::Response {
+            code: 200,
+            message: "Successful reset".to_string(),
+        },
+        ..Default::default()
+    };
+
+    Socket::send_message(
+        message.id,
+        response,
+        connection.socket.downgrade().recipient(),
+        connection,
+        context,
+    )?;
+
+    Ok(())
+}
+
 fn post_device_custom_data(
     message: WebSocketMessage,
     connection: &mut WebSocketConnection,
@@ -374,6 +433,7 @@ pub fn handle(
         Method::Patch => match request.as_str() {
             "device" => patch_device(message, connection, context)?,
             "device/state" => patch_device_state(message, connection, context)?,
+            "devices/reset-names" => reset_device_names(message, connection, context)?,
             _ => return Err(WebSocketErrorTemplate::InvalidRequestField(None).into()),
         },
         Method::Post => match request.as_str() {
