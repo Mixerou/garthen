@@ -25,11 +25,24 @@ pub enum WebSocketMessageData {
         name: String,
         token: String,
     },
+    RequestPatchGreenhouse {
+        id: i64,
+        name: String,
+        token: String,
+        maximum_average_humidity: Option<f64>,
+        minimum_average_temperature: Option<f64>,
+    },
+    RequestDeleteGreenhouse {
+        id: i64,
+        current_password: String,
+    },
     RequestPatchDevice {
         id: i64,
         greenhouse_id: i64,
         name: Option<String>,
+        maximum_data_value: Option<f64>,
     },
+    RequestPatchDevicesResetNames { greenhouse_id: i64 },
     RequestPatchDeviceState {
         id: i64,
         greenhouse_id: i64,
@@ -98,7 +111,10 @@ pub enum WebSocketMessageData {
         token: String,
         owner_id: i64,
         created_at: u64,
+        maximum_average_humidity: Option<f64>,
+        minimum_average_temperature: Option<f64>,
     },
+    DispatchGreenhouseMineDelete { id: i64 },
     DispatchDeviceUpdate {
         id: i64,
         external_id: Option<i16>,
@@ -107,6 +123,7 @@ pub enum WebSocketMessageData {
         kind: DeviceKind,
         greenhouse_id: i64,
         created_at: u64,
+        maximum_data_value: Option<f64>,
         latest_data: Option<f64>,
     },
     DispatchDeviceRecordsUpdate {
@@ -167,6 +184,8 @@ impl From<Greenhouse> for WebSocketMessageData {
             token: greenhouse.token,
             owner_id: greenhouse.owner_id,
             created_at: greenhouse.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            maximum_average_humidity: greenhouse.maximum_average_humidity,
+            minimum_average_temperature: greenhouse.minimum_average_temperature,
         }
     }
 }
@@ -186,6 +205,7 @@ impl From<Device> for WebSocketMessageData {
             kind: device.kind,
             greenhouse_id: device.greenhouse_id,
             created_at: device.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            maximum_data_value: device.maximum_data_value,
             latest_data,
         }
     }

@@ -80,6 +80,14 @@ pub enum DispatchEvent {
         #[serde(skip)]
         owner_id: i64,
     },
+    GreenhouseDelete {
+        #[derivative(PartialEq = "ignore")]
+        #[derivative(Hash = "ignore")]
+        #[serde(skip)]
+        id: Option<i64>,
+        #[serde(skip)]
+        owner_id: i64,
+    },
     DeviceUpdate {
         #[serde(skip)]
         id: i64,

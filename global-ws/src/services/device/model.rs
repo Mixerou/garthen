@@ -60,15 +60,36 @@ impl Device {
         Ok(devices)
     }
 
-    pub fn update_name(id: i64, new_name: Option<String>) -> Result<Self, WebSocketError> {
+    pub fn update_name(
+        id: i64,
+        new_name: Option<String>,
+        new_maximum_data_value: Option<f64>,
+    ) -> Result<Self, WebSocketError> {
         let connection = &mut db::get_connection()?;
 
         let device = diesel::update(devices::table)
             .filter(devices::id.eq(id))
-            .set(devices::name.eq(new_name))
+            .set((
+                devices::name.eq(new_name),
+                devices::maximum_data_value.eq(new_maximum_data_value)
+            ))
             .get_result(connection)?;
 
         Ok(device)
+    }
+
+    pub fn update_name_by_greenhouse_id(
+        greenhouse_id: i64,
+        new_name: Option<String>,
+    ) -> Result<usize, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let result = diesel::update(devices::table)
+            .filter(devices::greenhouse_id.eq(greenhouse_id))
+            .set(devices::name.eq(new_name))
+            .execute(connection)?;
+
+        Ok(result)
     }
 
     pub fn update_status(id: i64, new_status: DeviceStatus) -> Result<Self, WebSocketError> {

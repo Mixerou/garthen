@@ -124,7 +124,8 @@ impl Socket {
                     | "device/custom-data"
                     | "device/request-data"
                     | "device/disable"
-                    | "device/enable" => device::handle,
+                    | "device/enable"
+                    | "devices/reset-names" => device::handle,
                     _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
                 };
 
@@ -140,7 +141,10 @@ impl Socket {
 
                 let subscribe = match request.as_str() {
                     "user" | "user/me" => user::subscribe,
-                    "greenhouse" | "greenhouses/mine" | "greenhouse-create" => greenhouse::subscribe,
+                    "greenhouse"
+                    | "greenhouses/mine"
+                    | "greenhouse-create"
+                    | "greenhouse-delete" => greenhouse::subscribe,
                     "device" | "devices" => device::subscribe,
                     "device_records" | "device_records/average" => device_record::subscribe,
                     _ => return Err(WebSocketErrorTemplate::BadRequest(None).into()),
@@ -268,6 +272,16 @@ impl Handler<DispatchMessage> for Socket {
                         event = DispatchEvent::GreenhouseCreate { id: None, owner_id };
 
                         WebSocketMessageData::from(Greenhouse::find(id)?)
+                    },
+                    None => WebSocketMessageData::None,
+                }
+            },
+            DispatchEvent::GreenhouseDelete { id, owner_id } => {
+                match id {
+                    Some(id) => {
+                        event = DispatchEvent::GreenhouseDelete { id: None, owner_id };
+
+                        WebSocketMessageData::DispatchGreenhouseMineDelete { id }
                     },
                     None => WebSocketMessageData::None,
                 }
