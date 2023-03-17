@@ -79,11 +79,16 @@ input {
   height: 2.5rem;
   padding: 0 1rem;
   border: var(--default-border);
+  border-color: var(--white-500);
   border-radius: var(--large-radius);
   font-size: var(--default-font-size);
   font-weight: 600;
   color: var(--layer-0-color);
   transition-duration: var(--fast-transition-duration);
+
+  &:focus {
+    border-color: var(--white-900);
+  }
 
   &:disabled {
     opacity: 0.5;

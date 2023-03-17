@@ -202,7 +202,7 @@ onMounted(() => {
           :loading="isEditsSaving"
           @click="save"
         >
-          <span>{{ t('saveButton') }}</span>
+          <span>{{ $t('save') }}</span>
         </GarthenButton>
         <GarthenButton v-else :loading="isLogoutLoading" @click="logout">
           <IconLogout class="icon" />
@@ -306,12 +306,10 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en-GB": {
-    "saveButton": "Save",
     "signOutButton": "Sign out",
     "openAppButton": "Open app"
   },
   "ru-RU": {
-    "saveButton": "Сохранить",
     "signOutButton": "Выйти",
     "openAppButton": "Открыть приложение"
   }

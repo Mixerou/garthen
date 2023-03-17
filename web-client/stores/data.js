@@ -8,6 +8,23 @@ export const useDataStore = definePiniaStore('data', () => {
     greenhouses.value[greenhouse.id] = greenhouse
   }
 
+  function deleteGreenhouse(id) {
+    delete greenhouses.value[id]
+
+    Object.values(devices.value)
+      .filter(device => device['greenhouse_id'] === id)
+      .map(device => {
+        delete devices[device.id]
+        delete deviceRecordsQuantities.value[device.id]
+
+        // TODO: Deletion in `deviceRecordsAverage`
+        // Object.values(deviceRecordsAverage.value)
+        //   .map(range => Object.values(range)
+        //     .filter(record => record['device_id'] === device.id)
+        //     .map(record => delete deviceRecordsAverage[range][device.id]))
+      })
+  }
+
   function setDevice(device) {
     devices.value[device.id] = device
   }
@@ -36,6 +53,7 @@ export const useDataStore = definePiniaStore('data', () => {
     deviceRecordsQuantities,
     deviceRecordsAverage,
     setGreenhouse,
+    deleteGreenhouse,
     setDevice,
     setDeviceRecordsQuantity,
     setDeviceRecordsAverage,
