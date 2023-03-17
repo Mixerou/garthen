@@ -55,15 +55,15 @@ const computedMinimumAverageTemperature = computed({
           :placeholder="t('warning')"
           max-length="32"
         />
-        <div class="group">
-          <p class="key">{{ t('keys.maximumAverageHumidity') }}</p>
-          <GarthenInput
-            v-model:text="computedMaximumAverageHumidity"
-            :disabled="disabled"
-            :placeholder="t('warning')"
-            max-length="32"
-          />
-        </div>
+      </div>
+      <div class="group">
+        <p class="key">{{ t('keys.maximumAverageHumidity') }}</p>
+        <GarthenInput
+          v-model:text="computedMaximumAverageHumidity"
+          :disabled="disabled"
+          :placeholder="t('warning')"
+          max-length="32"
+        />
       </div>
     </div>
   </section>
