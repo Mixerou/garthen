@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+
+FROM rust:1.67.1-slim-bullseye AS build
+
+RUN apt update
+RUN apt install -y libpq-dev
+
+COPY global-api /garthen/global-api
+COPY libs /garthen/libs
+WORKDIR /garthen/global-api
+
+RUN cargo build --release
+RUN mkdir /bin/garthen
+RUN mv ./target/release/garthen-global-api /bin/garthen
+
+FROM debian:bullseye-slim
+
+RUN apt update
+RUN apt install -y libpq-dev
+
+COPY --from=build /bin/garthen /bin/garthen
+
+ENTRYPOINT ["/bin/garthen/garthen-global-api"]

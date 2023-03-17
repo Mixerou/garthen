@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  web-client:
+    build:
+      dockerfile: Dockerfile.web-client
+    restart: always
+    env_file:
+      - ./web-client/.env
+
+  global-api:
+    build:
+      dockerfile: Dockerfile.global-api
+    restart: always
+    env_file:
+      - ./global-api/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  global-ws:
+    build:
+      dockerfile: Dockerfile.global-ws
+    restart: always
+    env_file:
+      - ./global-ws/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+      
+  data-worker:
+    build:
+      dockerfile: Dockerfile.data-worker
+    restart: always
+    env_file:
+      - ./data-worker/.env
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  nginx:
+    image: nginx:1.23.3-alpine-slim
+    restart: always
+    volumes:
+      - ~/garthen/nginx:/etc/nginx:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - web-client
+      - global-api
+      - global-ws
+      - data-worker
+
+  postgres:
+    image: postgres:15.1
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: garthen
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ~/garthen/postgresql/data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3.11.9-alpine
+    restart: always

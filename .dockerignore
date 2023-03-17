@@ -1,0 +1,25 @@
+# Project
+**/node_modules
+**/*.log*
+**/.nuxt
+**/.nitro
+**/.cache
+**/.output
+**/.env
+**/dist
+**/debug/
+**/target/
+**/Cargo.lock
+**/*.rs.bk
+**/.env
+
+# JetBrains
+**/.idea
+
+# VS Code
+**/.vscode
+
+# MacOS
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
