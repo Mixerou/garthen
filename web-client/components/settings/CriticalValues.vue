@@ -21,6 +21,7 @@ const emit = defineEmits([
 ])
 
 const { t } = useI18n()
+const route = useRoute()
 const constants = useConstantsStore()
 const dataStore = useDataStore()
 
@@ -46,7 +47,11 @@ const computedMinimumAverageTemperature = computed({
 
 const devices = computed(() => {
   return Object.values(dataStore.devices)
-    .filter(device => device.kind === constants.DEVICE_KINDS.soilMoistureSensor)
+    .filter(
+      device =>
+        device['greenhouse_id'] === BigInt(route.params.greenhouseId) &&
+        device.kind === constants.DEVICE_KINDS.soilMoistureSensor
+    )
     .sort((a, b) => (a['external_id'] > b['external_id'] ? 1 : -1))
 })
 </script>
