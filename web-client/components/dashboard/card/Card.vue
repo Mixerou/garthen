@@ -13,8 +13,7 @@ const props = defineProps({
   },
   externalId: {
     type: Number,
-    required: false,
-    default: 0,
+    required: true,
   },
   name: {
     type: String,
@@ -41,10 +40,65 @@ const i18n = useI18n()
 const { $wsSend, $wsSendAndWait, $wsSubscribe } = useNuxtApp()
 const route = useRoute()
 const constants = useConstantsStore()
+const dataStore = useDataStore()
 
 const isActionButtonLoading = ref(false)
 const isMainMenuOpened = ref(false)
 const isEditMenuOpened = ref(false)
+
+const isForceDisabled = computed(() => {
+  if (props.kind === constants.DEVICE_KINDS.humidificationController) {
+    const devices = Object.values(dataStore.devices).filter(
+      device =>
+        device['greenhouse_id'] === BigInt(route.params.greenhouseId) &&
+        device.kind === constants.DEVICE_KINDS.humiditySensor &&
+        device['latest_data'] !== null
+    )
+    let data = 0
+
+    devices.map(device => (data += device['latest_data']))
+
+    return data === 0
+      ? false
+      : data / devices.length >=
+          dataStore.greenhouses[BigInt(route.params.greenhouseId)][
+            'maximum_average_humidity'
+          ]
+  } else if (props.kind === constants.DEVICE_KINDS.windowsController) {
+    const devices = Object.values(dataStore.devices).filter(
+      device =>
+        device['greenhouse_id'] === BigInt(route.params.greenhouseId) &&
+        device.kind === constants.DEVICE_KINDS.temperatureSensor &&
+        device['latest_data'] !== null
+    )
+    let data = 0
+
+    devices.map(device => (data += device['latest_data']))
+
+    return data === 0
+      ? false
+      : data / devices.length <=
+          dataStore.greenhouses[BigInt(route.params.greenhouseId)][
+            'minimum_average_temperature'
+          ]
+  } else if (props.kind === constants.DEVICE_KINDS.irrigationController) {
+    const device = Object.values(dataStore.devices).find(
+      device =>
+        device['greenhouse_id'] === BigInt(route.params.greenhouseId) &&
+        device.kind === constants.DEVICE_KINDS.soilMoistureSensor &&
+        device['external_id'] === props.externalId
+    )
+    if (device === undefined) return
+    const latestData = device['latest_data']
+    const maximumDataValue = device['maximum_data_value']
+
+    return latestData === null || maximumDataValue === null
+      ? false
+      : latestData >= maximumDataValue
+  }
+
+  return false
+})
 
 const isController = computed(() => {
   return (
@@ -255,6 +309,7 @@ const enable = () => {
         isController && kind === constants.DEVICE_KINDS.windowsController
       "
       class="button"
+      :disabled="isForceDisabled && computedValue === 0"
       :loading="isActionButtonLoading"
       @click="changeState"
     >
@@ -263,6 +318,7 @@ const enable = () => {
     <GarthenButton
       v-else-if="isController"
       class="button"
+      :disabled="isForceDisabled && computedValue === 0"
       :loading="isActionButtonLoading"
       @click="changeState"
     >
