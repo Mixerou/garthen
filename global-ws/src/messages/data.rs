@@ -25,6 +25,13 @@ pub enum WebSocketMessageData {
         name: String,
         token: String,
     },
+    RequestPatchGreenhouse {
+        id: i64,
+        name: String,
+        token: String,
+        maximum_average_humidity: Option<f64>,
+        minimum_average_temperature: Option<f64>,
+    },
     RequestDeleteGreenhouse {
         id: i64,
         current_password: String,
@@ -103,6 +110,8 @@ pub enum WebSocketMessageData {
         token: String,
         owner_id: i64,
         created_at: u64,
+        maximum_average_humidity: Option<f64>,
+        minimum_average_temperature: Option<f64>,
     },
     DispatchGreenhouseMineDelete { id: i64 },
     DispatchDeviceUpdate {
@@ -173,6 +182,8 @@ impl From<Greenhouse> for WebSocketMessageData {
             token: greenhouse.token,
             owner_id: greenhouse.owner_id,
             created_at: greenhouse.created_at.duration_since(UNIX_EPOCH).unwrap().as_secs(),
+            maximum_average_humidity: greenhouse.maximum_average_humidity,
+            minimum_average_temperature: greenhouse.minimum_average_temperature,
         }
     }
 }

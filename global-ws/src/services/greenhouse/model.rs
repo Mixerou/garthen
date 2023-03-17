@@ -93,6 +93,28 @@ impl Greenhouse {
         Ok(greenhouses)
     }
 
+    pub fn update(
+        id: i64,
+        new_name: String,
+        new_token: String,
+        new_maximum_average_humidity: Option<f64>,
+        new_minimum_average_temperature: Option<f64>,
+    ) -> Result<Self, WebSocketError> {
+        let connection = &mut db::get_connection()?;
+
+        let greenhouse = diesel::update(greenhouses::table)
+            .filter(greenhouses::id.eq(id))
+            .set((
+                greenhouses::name.eq(new_name),
+                greenhouses::token.eq(new_token),
+                greenhouses::maximum_average_humidity.eq(new_maximum_average_humidity),
+                greenhouses::minimum_average_temperature.eq(new_minimum_average_temperature),
+            ))
+            .get_result(connection)?;
+
+        Ok(greenhouse)
+    }
+
     pub fn delete(id: i64) -> Result<usize, WebSocketError> {
         let connection = &mut db::get_connection()?;
 
