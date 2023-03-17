@@ -94,7 +94,7 @@ const create = () => {
           type="email"
           :disabled="isLoading"
           :error="isGreenhouseNameIncorrect"
-          :placeholder="t('inputs.greenhouseName')"
+          :placeholder="$t('greenhouseName')"
         />
         <GarthenInput
           key="token-field"
@@ -102,7 +102,7 @@ const create = () => {
           type="password"
           :disabled="isLoading"
           :error="isTokenIncorrect"
-          :placeholder="t('inputs.token')"
+          :placeholder="$t('token')"
         />
       </div>
 
@@ -164,17 +164,11 @@ const create = () => {
 <i18n lang="json">
 {
   "en-GB": {
-    "inputs": {
-      "greenhouseName": "Greenhouse name",
-      "token": "Token"
-    },
+    "inputs": {},
     "connection": "Connection"
   },
   "ru-RU": {
-    "inputs": {
-      "greenhouseName": "Название теплицы",
-      "token": "Токен"
-    },
+    "inputs": {},
     "connection": "Подключение"
   }
 }

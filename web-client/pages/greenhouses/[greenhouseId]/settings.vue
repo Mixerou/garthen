@@ -1,4 +1,6 @@
 <script setup>
+import IconClose from '@/assets/icons/close.svg?skipsvgo'
+
 definePageMeta({
   layout: 'app',
 })
@@ -6,17 +8,63 @@ definePageMeta({
 const { $wsSendAndWait } = useNuxtApp()
 const { t } = useI18n()
 const route = useRoute()
+const constants = useConstantsStore()
 const dataStore = useDataStore()
 const system = useSystemStore()
 const user = useUserStore()
 
+const greenhouseName = ref('')
+const greenhouseToken = ref('')
+const maximumAverageHumidity = ref('')
+const minimumAverageTemperature = ref('')
+
+const error = ref('')
+
+const isError = ref(false)
 const isSaving = ref(false)
 const isDeletionModalOpened = ref(false)
 
-const save = () => {
+const save = async () => {
   isSaving.value = true
 
-  setTimeout(() => (isSaving.value = false), 1500)
+  const data = {
+    a: 'request_patch_greenhouse',
+    id: BigInt(route.params.greenhouseId || 0),
+    name: greenhouseName.value,
+    token: greenhouseToken.value,
+  }
+
+  if (maximumAverageHumidity.value !== '') {
+    let parsedData = parseFloat(
+      maximumAverageHumidity.value.replaceAll(',', '.')
+    )
+    if (isNaN(parsedData)) data['maximum_average_humidity'] = 80.0
+    data['maximum_average_humidity'] = parsedData
+  }
+
+  if (minimumAverageTemperature.value !== '') {
+    let parsedData = parseFloat(
+      minimumAverageTemperature.value.replaceAll(',', '.')
+    )
+    if (isNaN(parsedData)) data['minimum_average_temperature'] = 21.0
+    data['minimum_average_temperature'] = parsedData
+  }
+
+  let response = await $wsSendAndWait({
+    o: 2,
+    r: 'greenhouse',
+    m: { patch: null },
+    d: data,
+  })
+
+  if (response.d.code !== 200) {
+    isError.value = true
+    error.value = constants.parseGlobalWsErrorCode(response.d.code)
+  } else {
+    isError.value = false
+  }
+
+  isSaving.value = false
 }
 
 const reset_device_names = async () => {
@@ -48,6 +96,19 @@ watchEffect(() => {
   }
 })
 
+watchEffect(() => {
+  try {
+    const greenhouse = dataStore.greenhouses[BigInt(route.params.greenhouseId)]
+
+    greenhouseName.value = greenhouse.name
+    greenhouseToken.value = greenhouse.token
+    maximumAverageHumidity.value =
+      greenhouse['maximum_average_humidity'].toString()
+    minimumAverageTemperature.value =
+      greenhouse['minimum_average_temperature'].toString()
+  } catch {}
+})
+
 onMounted(() => {
   system.setAppPageName('settings')
 })
@@ -65,15 +126,42 @@ onBeforeUnmount(() => system.setAppPageName(''))
     <SettingsHeader :saving="isSaving" @save="save" />
 
     <div class="sections">
-      <div class="side">
+      <div class="row">
+        <SettingsGeneral
+          :disabled="isSaving"
+          :greenhouse-name="greenhouseName"
+          :greenhouse-token="greenhouseToken"
+          @update:greenhouse-name="name => (greenhouseName = name)"
+          @update:greenhouse-token="token => (greenhouseToken = token)"
+        />
+        <SettingsCriticalValues
+          :maximum-average-humidity="maximumAverageHumidity"
+          :minimum-average-temperature="minimumAverageTemperature"
+          @update:maximum-average-humidity="
+            value => (maximumAverageHumidity = value)
+          "
+          @update:minimum-average-temperature="
+            value => (minimumAverageTemperature = value)
+          "
+        />
+      </div>
+      <div class="row">
         <SettingsDangerZone
           :disabled="isSaving"
           @reset-device-names="reset_device_names"
           @delete="isDeletionModalOpened = true"
         />
       </div>
-      <div class="side"></div>
     </div>
+
+    <Transition enter-from-class="hide" leave-to-class="hide">
+      <div v-if="isError && error !== ''" class="error">
+        <Transition enter-from-class="hide" leave-to-class="hide" mode="out-in">
+          <p :key="`error-${error}`">{{ $t(`globalWsErrors.${error}`) }}</p>
+        </Transition>
+        <IconClose @click="isError = false" />
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -91,29 +179,95 @@ onBeforeUnmount(() => system.setAppPageName(''))
 
   .sections {
     display: flex;
+    flex-direction: column;
     gap: 2rem;
 
-    @include medium-screen {
-      gap: 1.5rem;
-    }
-
-    @include large-screen {
-      flex-direction: column;
-    }
-
-    .side {
+    .row {
       display: flex;
       flex-direction: column;
       gap: 2rem;
+      width: 100%;
 
       @include medium-screen {
+        flex-direction: row;
         gap: 1.5rem;
       }
 
-      section {
+      :deep(section) {
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        width: 100%;
+
+        .groups {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+
+          .group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            .key {
+              font-size: var(--default-font-size);
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .error {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    bottom: 1rem;
+    right: 1rem;
+    width: calc(40rem - 2rem * 2);
+    max-width: calc(100vw - 2rem * 2 - 6.5rem);
+    height: 3.5rem;
+    padding: 0 1.5rem;
+    border-radius: var(--large-radius);
+    box-shadow: var(--large-shadow);
+    background: var(--primary-layer-0-background);
+    color: var(--primary-layer-0-color);
+    fill: var(--primary-layer-0-color);
+    transition: var(--default-transition);
+
+    @include medium-screen {
+      bottom: 1.5rem;
+      height: 4rem;
+    }
+
+    &.hide {
+      box-shadow: none;
+      transform: translateY(calc(100% + 1rem + 4rem));
+    }
+
+    p {
+      font-size: var(--default-font-size);
+      transition: var(--fast-transition-duration);
+
+      &.hide {
+        opacity: 0;
+      }
+    }
+
+    svg {
+      width: 1.5rem;
+      opacity: 0.75;
+      cursor: pointer;
+      transition: var(--fast-transition-duration);
+
+      &:hover {
+        opacity: 0.9;
+      }
+
+      &:active {
+        opacity: 0.5;
       }
     }
   }

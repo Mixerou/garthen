@@ -83,8 +83,10 @@
   "currentPassword": "Current password",
   "getStarted": "Get started",
   "go": "Go",
+  "greenhouseName": "Greenhouse name",
   "save": "Save",
   "signIn": "Sign in",
+  "token": "Token",
   "email": "Email",
   "username": "Username"
 }
