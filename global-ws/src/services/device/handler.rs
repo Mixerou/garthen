@@ -37,7 +37,8 @@ fn patch_device(
         if let Some(maximum_data_value)
             = &new_maximum_data_value { DeviceRecord::check_data_size(maximum_data_value)?; }
 
-        let updated_device = Device::update_name(current_device.id, new_name)?;
+        let updated_device
+            = Device::update_name(current_device.id, new_name, new_maximum_data_value)?;
         let response = DispatchMessage {
             event: DispatchEvent::DeviceUpdate { id: updated_device.id },
             new_subscribers: None,
