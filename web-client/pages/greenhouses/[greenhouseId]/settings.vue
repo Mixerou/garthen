@@ -38,16 +38,14 @@ const save = async () => {
     let parsedData = parseFloat(
       maximumAverageHumidity.value.replaceAll(',', '.')
     )
-    if (isNaN(parsedData)) data['maximum_average_humidity'] = 80.0
-    data['maximum_average_humidity'] = parsedData
+    data['maximum_average_humidity'] = isNaN(parsedData) ? 80.0 : parsedData
   }
 
   if (minimumAverageTemperature.value !== '') {
     let parsedData = parseFloat(
       minimumAverageTemperature.value.replaceAll(',', '.')
     )
-    if (isNaN(parsedData)) data['minimum_average_temperature'] = 21.0
-    data['minimum_average_temperature'] = parsedData
+    data['minimum_average_temperature'] = isNaN(parsedData) ? 21.0 : parsedData
   }
 
   let response = await $wsSendAndWait({
@@ -102,10 +100,12 @@ watchEffect(() => {
 
     greenhouseName.value = greenhouse.name
     greenhouseToken.value = greenhouse.token
-    maximumAverageHumidity.value =
-      greenhouse['maximum_average_humidity'].toString()
-    minimumAverageTemperature.value =
-      greenhouse['minimum_average_temperature'].toString()
+    maximumAverageHumidity.value = String(
+      greenhouse['maximum_average_humidity'] || ''
+    )
+    minimumAverageTemperature.value = String(
+      greenhouse['minimum_average_temperature'] || ''
+    )
   } catch {}
 })
 
