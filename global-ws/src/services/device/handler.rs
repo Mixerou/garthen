@@ -17,7 +17,10 @@ fn patch_device(
     context: &mut WebsocketContext<WebSocketConnection>,
 ) -> Result<(), WebSocketError> {
     let WebSocketMessageData::RequestPatchDevice {
-        id: device_id, greenhouse_id, name: new_name,
+        id: device_id,
+        greenhouse_id,
+        name: new_name,
+        maximum_data_value: new_maximum_data_value,
     } = message.data else { return Err(WebSocketErrorTemplate::BadRequest(None).into()) };
 
     let session = Session::find(connection.session_id.unwrap())?;
@@ -28,8 +31,11 @@ fn patch_device(
     let current_device
         = Device::find_by_id_and_greenhouse_id(device_id, greenhouse.id)?;
 
-    if current_device.name != new_name {
+    if current_device.name != new_name
+        || current_device.maximum_data_value != new_maximum_data_value {
         if let Some(name) = &new_name { Device::check_name_length(name)?; }
+        if let Some(maximum_data_value)
+            = &new_maximum_data_value { DeviceRecord::check_data_size(maximum_data_value)?; }
 
         let updated_device = Device::update_name(current_device.id, new_name)?;
         let response = DispatchMessage {

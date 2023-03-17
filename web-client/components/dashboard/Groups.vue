@@ -62,6 +62,7 @@ const devices = computed(() => {
           :name="device.name"
           :kind="device.kind"
           :value="device['latest_data']"
+          :maximum-data-value="device['maximum_data_value']"
         />
       </TransitionGroup>
     </DashboardGroup>

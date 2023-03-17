@@ -24,6 +24,10 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  maximumDataValue: {
+    type: Float32Array,
+    required: true,
+  },
   value: {
     type: Number,
     required: false,
@@ -99,6 +103,7 @@ const computedName = computed({
     }
 
     if (value === null || value === '') delete data.name
+    if (props.maximumDataValue) data['maximum_data_value'] = props.maximumDataValue
 
     $wsSend({
       o: 2,
