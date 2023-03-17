@@ -17,9 +17,12 @@ const props = defineProps({
 const emit = defineEmits([
   'update:maximumAverageHumidity',
   'update:minimumAverageTemperature',
+  'update:maximumSoilMoistureData',
 ])
 
 const { t } = useI18n()
+const constants = useConstantsStore()
+const dataStore = useDataStore()
 
 const computedMaximumAverageHumidity = computed({
   get: () => {
@@ -40,6 +43,12 @@ const computedMinimumAverageTemperature = computed({
     emit('update:minimumAverageTemperature', value)
   },
 })
+
+const devices = computed(() => {
+  return Object.values(dataStore.devices)
+    .filter(device => device.kind === constants.DEVICE_KINDS.soilMoistureSensor)
+    .sort((a, b) => (a['external_id'] > b['external_id'] ? 1 : -1))
+})
 </script>
 
 <template>
@@ -53,7 +62,7 @@ const computedMinimumAverageTemperature = computed({
           v-model:text="computedMinimumAverageTemperature"
           :disabled="disabled"
           :placeholder="t('warning')"
-          max-length="32"
+          max-length="4"
         />
       </div>
       <div class="group">
@@ -62,7 +71,34 @@ const computedMinimumAverageTemperature = computed({
           v-model:text="computedMaximumAverageHumidity"
           :disabled="disabled"
           :placeholder="t('warning')"
-          max-length="32"
+          max-length="4"
+        />
+      </div>
+      <div class="group">
+        <p class="key">{{ t('keys.maximumSoilMoisture') }}</p>
+      </div>
+      <div v-for="device in devices" :key="`device-${device.id}`" class="group">
+        <p class="key">
+          {{
+            device.name === null
+              ? $t(`defaultDeviceNames.${device.kind}`, {
+                  externalId: device['external_id'],
+                })
+              : device.name
+          }}
+        </p>
+        <GarthenInput
+          :text="device['maximum_data_value']"
+          :disabled="disabled"
+          :placeholder="t('warning')"
+          max-length="4"
+          @update:text="
+            value =>
+              emit('update:maximumSoilMoistureData', {
+                id: device.id,
+                data: value,
+              })
+          "
         />
       </div>
     </div>
@@ -78,7 +114,8 @@ const computedMinimumAverageTemperature = computed({
     "warning": "It is not advisable to leave it empty",
     "keys": {
       "minimumAverageTemperature": "Minimum average air temperature",
-      "maximumAverageHumidity": "Maximum average air humidity"
+      "maximumAverageHumidity": "Maximum average air humidity",
+      "maximumSoilMoisture": "Maximum soil moisture"
     }
   },
   "ru-RU": {
@@ -86,7 +123,8 @@ const computedMinimumAverageTemperature = computed({
     "warning": "Не рекомендуется оставлять пустым",
     "keys": {
       "minimumAverageTemperature": "Минимальная средняя температура воздуха",
-      "maximumAverageHumidity": "Максимальная средняя влажность воздуха"
+      "maximumAverageHumidity": "Максимальная средняя влажность воздуха",
+      "maximumSoilMoisture": "Максимальная влажность почвы"
     }
   }
 }

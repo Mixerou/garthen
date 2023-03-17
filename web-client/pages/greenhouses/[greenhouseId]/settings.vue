@@ -1,3 +1,4 @@
+<!-- TODO: Rewrite this page (including its components) -->
 <script setup>
 import IconClose from '@/assets/icons/close.svg?skipsvgo'
 
@@ -5,7 +6,7 @@ definePageMeta({
   layout: 'app',
 })
 
-const { $wsSendAndWait } = useNuxtApp()
+const { $wsSendAndWait, $wsSubscribe } = useNuxtApp()
 const { t } = useI18n()
 const route = useRoute()
 const constants = useConstantsStore()
@@ -17,6 +18,7 @@ const greenhouseName = ref('')
 const greenhouseToken = ref('')
 const maximumAverageHumidity = ref('')
 const minimumAverageTemperature = ref('')
+const soilMoistureData = ref({})
 
 const error = ref('')
 
@@ -27,7 +29,7 @@ const isDeletionModalOpened = ref(false)
 const save = async () => {
   isSaving.value = true
 
-  const data = {
+  const greenhouseData = {
     a: 'request_patch_greenhouse',
     id: BigInt(route.params.greenhouseId || 0),
     name: greenhouseName.value,
@@ -38,30 +40,65 @@ const save = async () => {
     let parsedData = parseFloat(
       maximumAverageHumidity.value.replaceAll(',', '.')
     )
-    data['maximum_average_humidity'] = isNaN(parsedData) ? 80.0 : parsedData
+    greenhouseData['maximum_average_humidity'] = isNaN(parsedData)
+      ? 80.0
+      : parsedData
   }
 
   if (minimumAverageTemperature.value !== '') {
     let parsedData = parseFloat(
       minimumAverageTemperature.value.replaceAll(',', '.')
     )
-    data['minimum_average_temperature'] = isNaN(parsedData) ? 21.0 : parsedData
+    greenhouseData['minimum_average_temperature'] = isNaN(parsedData)
+      ? 21.0
+      : parsedData
   }
 
-  let response = await $wsSendAndWait({
+  let greenhouseResponse = await $wsSendAndWait({
     o: 2,
     r: 'greenhouse',
     m: { patch: null },
-    d: data,
+    d: greenhouseData,
   })
 
-  if (response.d.code !== 200) {
+  if (greenhouseResponse.d.code !== 200) {
     isError.value = true
-    error.value = constants.parseGlobalWsErrorCode(response.d.code)
+    error.value = constants.parseGlobalWsErrorCode(greenhouseResponse.d.code)
   } else {
     isError.value = false
   }
 
+  if (!isError.value) {
+    for (const deviceId of Object.keys(soilMoistureData.value)) {
+      const deviceData = {
+        a: 'request_patch_device',
+        id: BigInt(deviceId),
+        greenhouse_id: BigInt(route.params.greenhouseId),
+        name: dataStore.devices[deviceId].name,
+      }
+
+      if (soilMoistureData.value[deviceId] !== '') {
+        let parsedData = parseFloat(
+          soilMoistureData.value[deviceId].replaceAll(',', '.')
+        )
+        deviceData['maximum_data_value'] = isNaN(parsedData) ? 80.0 : parsedData
+      }
+
+      let deviceResponse = await $wsSendAndWait({
+        o: 2,
+        r: 'device',
+        m: { patch: null },
+        d: deviceData,
+      })
+
+      if (deviceResponse.d.code !== 200) {
+        isError.value = true
+        error.value = constants.parseGlobalWsErrorCode(deviceResponse.d.code)
+      }
+    }
+  }
+
+  soilMoistureData.value = {}
   isSaving.value = false
 }
 
@@ -111,6 +148,15 @@ watchEffect(() => {
 
 onMounted(() => {
   system.setAppPageName('settings')
+
+  $wsSubscribe(
+    'devices',
+    {
+      a: 'subscribe_to_devices_update',
+      greenhouse_id: BigInt(route.params.greenhouseId || 0),
+    },
+    true
+  )
 })
 
 onBeforeUnmount(() => system.setAppPageName(''))
@@ -143,9 +189,13 @@ onBeforeUnmount(() => system.setAppPageName(''))
           @update:minimum-average-temperature="
             value => (minimumAverageTemperature = value)
           "
+          @update:maximum-soil-moisture-data="
+            value => (soilMoistureData[value.id] = value.data)
+          "
         />
       </div>
       <div class="row">
+        <section class="empty" />
         <SettingsDangerZone
           :disabled="isSaving"
           @reset-device-names="reset_device_names"
@@ -185,12 +235,12 @@ onBeforeUnmount(() => system.setAppPageName(''))
     .row {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      gap: 1.5rem;
       width: 100%;
 
       @include medium-screen {
         flex-direction: row;
-        gap: 1.5rem;
+        gap: 2rem;
       }
 
       :deep(section) {
@@ -198,6 +248,15 @@ onBeforeUnmount(() => system.setAppPageName(''))
         flex-direction: column;
         gap: 1rem;
         width: 100%;
+
+        &.empty {
+          margin-bottom: -1.5rem;
+          pointer-events: none;
+
+          @include medium-screen {
+            margin-bottom: -2rem;
+          }
+        }
 
         .groups {
           display: flex;
