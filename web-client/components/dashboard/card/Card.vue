@@ -37,6 +37,10 @@ const props = defineProps({
     required: false,
     default: false,
   },
+  emergencyControl: {
+    type: Boolean,
+    required: true,
+  },
 })
 
 const { t } = useI18n()
@@ -51,6 +55,8 @@ const isMainMenuOpened = ref(false)
 const isEditMenuOpened = ref(false)
 
 const isForceDisabled = computed(() => {
+  if (props.emergencyControl) return false
+
   if (props.kind === constants.DEVICE_KINDS.humidificationController) {
     const devices = Object.values(dataStore.devices).filter(
       device =>
@@ -157,7 +163,8 @@ const computedName = computed({
     }
 
     if (value === null || value === '') delete data.name
-    if (props.maximumDataValue) data['maximum_data_value'] = props.maximumDataValue
+    if (props.maximumDataValue)
+      data['maximum_data_value'] = props.maximumDataValue
 
     $wsSend({
       o: 2,

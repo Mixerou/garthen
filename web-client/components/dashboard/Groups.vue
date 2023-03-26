@@ -1,4 +1,10 @@
 <script setup>
+defineProps({
+  emergencyControl: {
+    type: Boolean,
+    required: true,
+  },
+})
 const { t } = useI18n()
 const route = useRoute()
 const dataStore = useDataStore()
@@ -63,6 +69,7 @@ const devices = computed(() => {
           :kind="device.kind"
           :value="device['latest_data']"
           :maximum-data-value="device['maximum_data_value']"
+          :emergency-control="emergencyControl"
         />
       </TransitionGroup>
     </DashboardGroup>

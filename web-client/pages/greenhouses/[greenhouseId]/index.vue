@@ -12,6 +12,7 @@ const user = useUserStore()
 
 const isDisabledDevicesModalOpened = ref(false)
 const isAddDataModalOpened = ref(false)
+const isEmergencyControlOn = ref(false)
 
 watchEffect(() => {
   try {
@@ -56,13 +57,22 @@ onBeforeUnmount(() => system.setAppPageName(''))
     />
 
     <DashboardHeader />
-    <DashboardGroups />
+    <DashboardGroups :emergency-control="isEmergencyControlOn" />
 
     <div class="buttons">
       <GarthenButton @click="isDisabledDevicesModalOpened = true">
         {{ t('buttons.showDisabled') }} </GarthenButton
       ><GarthenButton @click="isAddDataModalOpened = true">
         {{ t('buttons.addData') }}
+      </GarthenButton>
+    </div>
+
+    <div class="buttons">
+      <GarthenButton
+        :variant="isEmergencyControlOn ? 'danger' : 'default'"
+        @click="isEmergencyControlOn = !isEmergencyControlOn"
+      >
+        {{ t('buttons.emergencyControl') }}
       </GarthenButton>
     </div>
   </div>
@@ -101,7 +111,8 @@ onBeforeUnmount(() => system.setAppPageName(''))
     "fullTitle": "Dashboard - {greenhouseName}",
     "buttons": {
       "showDisabled": "Show disabled",
-      "addData": "Add data"
+      "addData": "Add data",
+      "emergencyControl": "Emergency control"
     }
   },
   "ru-RU": {
@@ -109,7 +120,8 @@ onBeforeUnmount(() => system.setAppPageName(''))
     "fullTitle": "Панель управления - {greenhouseName}",
     "buttons": {
       "showDisabled": "Показать отключенные",
-      "addData": "Добавить данные"
+      "addData": "Добавить данные",
+      "emergencyControl": "Экстренное управление"
     }
   }
 }
