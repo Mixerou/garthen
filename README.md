@@ -2,9 +2,9 @@
     <span>GARTHEN</span>
     <br>
     <span>🌱 Greenhouse tools 🌱</span>
-    <br>
-    <span>Docker Compose (Hardcoded)</span>
 </h1>
+
+<h3 align="center">Docker Compose (Hardcoded)</span>
 
 ### Usage
 
